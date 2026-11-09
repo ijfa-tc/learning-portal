@@ -6,7 +6,9 @@
 - 画面：このリポジトリ（GitHub ijfa-tc/learning-portal、Public）→ GitHub Pages で自動公開
 - 公開URL：https://ijfa-tc.github.io/learning-portal/
 - データ：Googleスプレッドシート（名簿・教材リスト・指定テスト）
-- 窓口：GAS「ポータルAPI」（未作成。config.js の API_URL に設定）
+- 窓口：GAS「ポータルAPI」（接続済み。スプレッドシート「IJFA ポータル設定」のApps Script。URLは config.js の API_URL。コードの控えは portal-api.gs）
+- 設定シート：「IJFA ポータル設定」（名簿＝原本から4列だけ自動表示 / カテゴリー / 教材リスト / 指定テスト）。先生が触るのは指定テストだけ
+- テストフォーム：毎朝6時に「IJFA テストフォーム」フォルダから教材リストへ自動追加（生徒ID欄の事前入力URL、公開OFF）
 - 成績：既存のいろどり自動取り込み（フォーム → IJFA テスト結果DB → クラス管理シート）
 - Netlifyは無料枠の公開回数に上限があるため使わない（2026-11-09 移行）
 
@@ -15,7 +17,8 @@
 - index.html：画面（ID入力 / 本人確認 / ホーム / カテゴリー）
 - app.js：画面の動き　data.js：データ読み込み　config.js：API_URL
 - style.css：見た目（色・フォントは先頭の :root だけで変える）
-- sample.json：API完成までのサンプル（名前は架空）
+- sample.json：API_URLが空のときに使うサンプル（名前は架空）
+- portal-api.gs：GASのコードの控え。直したらApps Script側と内容をそろえ、新バージョンでデプロイし直す
 
 ## 決定済み
 - 生徒ID（例 JKT16001、正規表現 ^[A-Z]{3}[0-9]{5}$）を入力 →「〇〇さんですか？」→ ホーム
