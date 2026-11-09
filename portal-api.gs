@@ -74,7 +74,8 @@ function getPortal_(cohortKey) {
     .filter(r => str_(r[0]) && str_(r[5]))
     .map(r => ({
       id: str_(r[0]), categoryId: str_(r[1]), nameJa: str_(r[2]), nameId: str_(r[3]),
-      type: str_(r[4]), url: str_(r[5]), public: r[6] === true, order: num_(r[7])
+      type: str_(r[4]), url: str_(r[5]), public: r[6] === true, order: num_(r[7]),
+      group: str_(r[9])   // J列「グループ」：カテゴリーの中のまとまり（例 いろどり入門）
     }));
   const materials = all.filter(m => m.public).sort(byOrder_);
 
@@ -96,7 +97,7 @@ function getPortal_(cohortKey) {
 // =====================================================================
 // フォーム一覧の自動取り込み（毎日1回＋手動でも実行可）
 // 「IJFA テストフォーム」フォルダの新しいフォームを教材リストに足す。
-// 生徒ID欄が埋まった「事前入力URL」を作る。公開はOFFで追加（指定すれば表示される）
+// 生徒ID欄が埋まった「事前入力URL」を作る。公開ONで追加し、グループ・表示順・インドネシア語名も自動で入れる
 // =====================================================================
 function syncForms() {
   const sh = sheet_(SHEET.mat);
@@ -110,11 +111,30 @@ function syncForms() {
     let url;
     try { url = prefillUrl_(FormApp.openById(fid)); }
     catch (e) { url = 'https://docs.google.com/forms/d/' + fid + '/viewform'; }
-    add.push([fid, 'nihongo', f.getName(), '', 'form', url, false, 999, '自動追加']);
+    const meta = formMeta_(f.getName());
+    add.push([fid, 'nihongo', f.getName(), meta.nameId, 'form', url, true, meta.order, '自動追加', meta.group]);
   }
   if (add.length === 0) return;
   add.sort((a, b) => a[2].localeCompare(b[2], 'ja'));
   sh.getRange(lastRow_(sh) + 1, 1, add.length, add[0].length).setValues(add);
+}
+
+// フォーム名からグループ・表示順・インドネシア語名を決める
+//   入門5課 テスト → 表示頠50 / 入門1-6課 テスト → 65（6課のあと）/ 入門1-6課 言葉テスト → 66
+function formMeta_(title) {
+  const g = title.match(/^(入門|初級1)/);
+  const groups = { '入門': 'いろどり入門 / Irodori Pemula', '初級1': 'いろどり初級1 / Irodori Dasar 1' };
+  const group = g ? groups[g[1]] : '';
+  let m = title.match(/(\d+)-(\d+)課/);
+  if (m) {
+    const word = /言葉|ことば/.test(title);
+    return { group, order: Number(m[2]) * 10 + (word ? 6 : 5),
+             nameId: (word ? 'Tes Kosakata Bab ' : 'Tes Rangkuman Bab ') + m[1] + '-' + m[2] };
+  }
+  m = title.match(/(\d+)課/);
+  if (m) return { group, order: Number(m[1]) * 10, nameId: 'Tes Bab ' + m[1] };
+  if (title.indexOf('教室のことば') >= 0) return { group, order: 1, nameId: 'Tes Bahasa Kelas' };
+  return { group, order: 999, nameId: '' };
 }
 
 // 生徒ID欄を {ID} にした事前入力URL。ポータルが生徒IDに置きかえる
@@ -155,7 +175,7 @@ function setup() {
 
   // 教材リスト
   const mat = ensure_(ss, SHEET.mat,
-    ['教材ID', 'カテゴリーID', '名前（日本語）', '名前（インドネシア語）', '種類', 'URL', '公開', '表示順', 'メモ']);
+    ['教材ID', 'カテゴリーID', '名前（日本語）', '名前（インドネシア語）', '種類', 'URL', '公開', '表示順', 'メモ', 'グループ']);
   if (lastRow_(mat) < 2) {
     mat.getRange(2, 1, 4, 9).setValues([
       ['moji', 'nihongo', 'もじ練習（ひらがな・カタカナ）', 'Latihan menulis huruf', 'site', 'https://ijfa-tc.github.io/hiragana/', true, 1, ''],
