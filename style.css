@@ -29,6 +29,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }  /* hidden を付けた部分は必ず隠す */
 html, body { margin: 0; }
 body {
   background: var(--bg);
@@ -100,3 +101,7 @@ main { max-width: 520px; margin: 0 auto; padding: 24px 18px 48px; }
 .group-title .id-text { display: block; }
 .group[open] .group-title { border-bottom: 1px solid var(--line); }
 .group .list { padding: 10px; }
+
+/* ゲスト入口 */
+.guest { margin-top: 28px; }
+.note { color: var(--muted); font-size: 14px; text-align: center; margin: 8px 0 0; }
