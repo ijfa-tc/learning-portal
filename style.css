@@ -105,3 +105,6 @@ main { max-width: 520px; margin: 0 auto; padding: 24px 18px 48px; }
 /* ゲスト入口 */
 .guest { margin-top: 28px; }
 .note { color: var(--muted); font-size: 14px; text-align: center; margin: 8px 0 0; }
+
+/* 裏で更新中・更新失敗のお知らせ */
+.status { color: var(--muted); font-size: 13px; margin: 4px 0 0; }
