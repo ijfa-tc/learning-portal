@@ -93,3 +93,10 @@ main { max-width: 520px; margin: 0 auto; padding: 24px 18px 48px; }
 .cat:focus-visible, .item:focus-visible { outline: 3px solid var(--main); outline-offset: 2px; }
 
 .loading { color: var(--muted); text-align: center; margin-top: 40px; }
+
+/* カテゴリーの中のまとまり（押すと開く） */
+.group { background: var(--surface); border: 2px solid var(--line); border-radius: var(--radius); }
+.group-title { padding: 14px 16px; font-weight: bold; cursor: pointer; min-height: 56px; }
+.group-title .id-text { display: block; }
+.group[open] .group-title { border-bottom: 1px solid var(--line); }
+.group .list { padding: 10px; }
