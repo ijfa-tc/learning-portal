@@ -36,6 +36,11 @@
     if (idn) parent.append(el("span", "id-text", idn));
   }
 
+  // 表示順 → 名前（数字は数として比べる：2課 < 10課）
+  function byOrderThenName(a, b) {
+    return (a.order - b.order) || String(a.nameJa).localeCompare(String(b.nameJa), "ja", { numeric: true });
+  }
+
   function materialItem(m, student, assigned) {
     const a = el("a", "item" + (assigned ? " item-assigned" : ""));
     a.href = linkFor(m, student);
@@ -130,9 +135,28 @@
     twoLang($("category-title"), cat.nameJa, " " + cat.nameId);
     const list = $("material-list");
     list.replaceChildren();
-    const items = portal.materials.filter(m => m.categoryId === cat.id);
+    const items = portal.materials.filter(m => m.categoryId === cat.id).sort(byOrderThenName);
     if (items.length === 0) list.append(el("p", "empty", "じゅんびちゅう / Segera hadir"));
-    items.forEach(m => list.append(materialItem(m, student, false)));
+
+    // グループのない教材は上に並べ、グループ（例 いろどり入門）は押すと開く箱にまとめる
+    items.filter(m => !m.group).forEach(m => list.append(materialItem(m, student, false)));
+    const groups = [];
+    items.filter(m => m.group).forEach(m => {
+      let g = groups.find(x => x.name === m.group);
+      if (!g) { g = { name: m.group, items: [] }; groups.push(g); }
+      g.items.push(m);
+    });
+    groups.forEach(g => {
+      const box = el("details", "group");
+      const [ja, idn] = g.name.split(" / ");
+      const sum = el("summary", "group-title");
+      twoLang(sum, ja + "（" + g.items.length + "）", idn);
+      box.append(sum);
+      const inner = el("div", "list");
+      g.items.forEach(m => inner.append(materialItem(m, student, false)));
+      box.append(inner);
+      list.append(box);
+    });
     show("view-category");
   }
   $("back-home").addEventListener("click", () => show("view-home"));
