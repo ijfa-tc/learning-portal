@@ -14,7 +14,7 @@
  */
 
 // ---- 設定（ふつうは変えない） ----
-const FORM_FOLDER_ID = '1Hv6XlESEV3Ns5Q6wVDaR_3ZGm9_tNf8B';           // 「IJFA テストフォーム」フォルダ
+const FORM_FOLDER_ID = '13ubBplPb4-pdNW_DnucMHVG_Xp8YJTWl';           // 「IJFA テストフォーム」フォルダ（中のフォルダも全部見る）
 const DB_ID = '12DTewBMLeAMChvtLLqSyjZVD7sm5-diTrq_3EAWWjVI';          // DATA BASE SISWA IJFA - UPDATE（原本）
 const DB_RANGE = "'DATABASE SISWA・生徒データベース'!A5:G";            // 原本の範囲（B名前・D生徒ID・F出身TC・G期生）
 const ID_RE = /^[A-Z]{3}[0-9]{5}$/;                                    // 生徒IDの形（例 JKT16001）
@@ -102,10 +102,9 @@ function getPortal_(cohortKey) {
 function syncForms() {
   const sh = sheet_(SHEET.mat);
   const known = new Set(values_(SHEET.mat).map(r => str_(r[0])));
-  const files = DriveApp.getFolderById(FORM_FOLDER_ID).getFilesByType(MimeType.GOOGLE_FORMS);
+  const files = listForms_(DriveApp.getFolderById(FORM_FOLDER_ID), []);
   const add = [];
-  while (files.hasNext()) {
-    const f = files.next();
+  for (const f of files) {
     const fid = f.getId();
     if (known.has(fid)) continue;
     let url;
@@ -117,6 +116,15 @@ function syncForms() {
   if (add.length === 0) return;
   add.sort((a, b) => a[2].localeCompare(b[2], 'ja'));
   sh.getRange(lastRow_(sh) + 1, 1, add.length, add[0].length).setValues(add);
+}
+
+// フォルダの中（入門・初級1などのサブフォルダも含む）のフォームを全部集める
+function listForms_(folder, out) {
+  const it = folder.getFilesByType(MimeType.GOOGLE_FORMS);
+  while (it.hasNext()) out.push(it.next());
+  const subs = folder.getFolders();
+  while (subs.hasNext()) listForms_(subs.next(), out);
+  return out;
 }
 
 // フォーム名からグループ・表示順・インドネシア語名を決める
