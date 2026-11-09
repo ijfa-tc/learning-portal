@@ -1,0 +1,95 @@
+/* 色・文字はここ（:root）だけで管理。デザイン変更はこの部分を書き換える */
+:root {
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --text: #1d2733;
+  --muted: #5b6774;
+  --main: #1f5fa8;
+  --main-text: #ffffff;
+  --line: #d8dde3;
+  --error: #b3261e;
+  --notice: #fff4d6;
+  --radius: 12px;
+  --font: system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", "Segoe UI", sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12171d;
+    --surface: #1b222b;
+    --text: #e8edf2;
+    --muted: #9aa6b2;
+    --main: #5b9be0;
+    --main-text: #0d1620;
+    --line: #2e3844;
+    --error: #ff8a80;
+    --notice: #3a3320;
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.6;
+  padding: env(safe-area-inset-top, 0) 0 env(safe-area-inset-bottom, 0);
+}
+main { max-width: 520px; margin: 0 auto; padding: 24px 18px 48px; }
+
+.banner { background: var(--notice); color: var(--text); font-size: 13px; padding: 6px 12px; text-align: center; }
+.id-text { color: var(--muted); font-size: 0.85em; font-weight: normal; }
+
+.title { font-size: 26px; margin: 32px 0 8px; }
+.sub { color: var(--text); margin: 0 0 20px; }
+.h2 { font-size: 18px; margin: 28px 0 10px; }
+
+.input {
+  width: 100%; font-size: 24px; letter-spacing: 0.08em; padding: 14px 16px;
+  border: 2px solid var(--line); border-radius: var(--radius);
+  background: var(--surface); color: var(--text); text-transform: uppercase;
+}
+.input:focus { outline: none; border-color: var(--main); }
+.error { color: var(--error); min-height: 1.6em; margin: 8px 0; font-size: 15px; }
+
+.btn {
+  display: block; width: 100%; min-height: 56px; padding: 12px 16px;
+  font-size: 18px; font-family: inherit; text-align: center;
+  border: 2px solid var(--line); border-radius: var(--radius);
+  background: var(--surface); color: var(--text); cursor: pointer;
+}
+.btn-main { background: var(--main); border-color: var(--main); color: var(--main-text); }
+.btn-main .id-text { color: inherit; opacity: 0.85; }
+.btn-quiet { border: none; background: none; color: var(--muted); min-height: 48px; margin-top: 32px; }
+.btn:focus-visible { outline: 3px solid var(--main); outline-offset: 2px; }
+.back { width: auto; margin: 0 0 4px; padding-left: 0; text-align: left; }
+.row { display: grid; gap: 12px; }
+
+.big-name { font-size: 28px; font-weight: bold; margin: 0 0 8px; word-break: break-word; }
+
+.home-head { border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+.hello { font-size: 22px; font-weight: bold; margin: 8px 0 0; }
+.cohort { color: var(--muted); margin: 0; }
+
+.list { display: grid; gap: 10px; }
+.item {
+  display: block; padding: 14px 16px; text-decoration: none; color: var(--text);
+  background: var(--surface); border: 2px solid var(--line); border-radius: var(--radius);
+}
+.item-assigned { border-color: var(--main); }
+.item .id-text { display: block; }
+.empty { color: var(--muted); margin: 0; }
+
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.cat {
+  min-height: 96px; padding: 12px; font-size: 17px; font-weight: bold; font-family: inherit;
+  text-align: left; border: 2px solid var(--line); border-radius: var(--radius);
+  background: var(--surface); color: var(--text); cursor: pointer;
+}
+.cat .id-text { display: block; margin-top: 4px; }
+.cat:focus-visible, .item:focus-visible { outline: 3px solid var(--main); outline-offset: 2px; }
+
+.loading { color: var(--muted); text-align: center; margin-top: 40px; }

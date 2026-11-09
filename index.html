@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>IJFA Learning Portal</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- サンプルデータで動いているときだけ表示 -->
+  <div id="sample-banner" class="banner" hidden>サンプルデータで表示しています（本番の名簿とはつながっていません）</div>
+
+  <main id="app">
+    <!-- 1. ID入力 -->
+    <section id="view-login" class="view" hidden>
+      <h1 class="title">IJFA Learning Portal</h1>
+      <p class="sub">生徒IDを入れてください<br><span class="id-text">Masukkan ID siswa Anda</span></p>
+      <form id="login-form" novalidate>
+        <input id="login-id" class="input" type="text" inputmode="text" autocomplete="off"
+               autocapitalize="characters" placeholder="JKT16001" aria-label="生徒ID">
+        <p id="login-error" class="error" role="alert"></p>
+        <button class="btn btn-main" type="submit">つぎへ <span class="id-text">Lanjut</span></button>
+      </form>
+    </section>
+
+    <!-- 2. 本人確認 -->
+    <section id="view-confirm" class="view" hidden>
+      <p class="sub">あなたは</p>
+      <p id="confirm-name" class="big-name"></p>
+      <p class="sub">さんですか？<br><span class="id-text">Apakah ini Anda?</span></p>
+      <div class="row">
+        <button id="confirm-yes" class="btn btn-main" type="button">はい <span class="id-text">Ya</span></button>
+        <button id="confirm-no" class="btn" type="button">いいえ <span class="id-text">Bukan</span></button>
+      </div>
+    </section>
+
+    <!-- 3. ホーム -->
+    <section id="view-home" class="view" hidden>
+      <header class="home-head">
+        <p id="home-hello" class="hello"></p>
+        <p id="home-cohort" class="cohort"></p>
+      </header>
+
+      <h2 class="h2">先生からの指定 <span class="id-text">Dari Guru</span></h2>
+      <div id="assigned-list" class="list"></div>
+
+      <h2 class="h2">べんきょうする <span class="id-text">Belajar</span></h2>
+      <div id="category-list" class="grid"></div>
+
+      <button id="switch-user" class="btn btn-quiet" type="button">別の人です <span class="id-text">Bukan saya</span></button>
+    </section>
+
+    <!-- 4. カテゴリーの中の教材一覧 -->
+    <section id="view-category" class="view" hidden>
+      <button id="back-home" class="btn btn-quiet back" type="button">← もどる <span class="id-text">Kembali</span></button>
+      <h2 id="category-title" class="h2"></h2>
+      <div id="material-list" class="list"></div>
+    </section>
+
+    <p id="loading" class="loading" hidden>よみこみ中… <span class="id-text">Memuat…</span></p>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

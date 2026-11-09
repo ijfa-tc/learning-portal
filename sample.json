@@ -1,0 +1,26 @@
+{
+  "_note": "サンプルデータ。名前は架空。本番ではGASの「ポータルAPI」が同じ形のデータを返す。",
+  "students": [
+    { "id": "JKT14001", "name": "SAMPLE SATU", "cohort": "14", "cohortKey": "JKT14" },
+    { "id": "JKT14002", "name": "SAMPLE DUA", "cohort": "14", "cohortKey": "JKT14" },
+    { "id": "JKT16001", "name": "SAMPLE TIGA", "cohort": "16", "cohortKey": "JKT16" }
+  ],
+  "categories": [
+    { "id": "nihongo", "nameJa": "日本語を学ぶ", "nameId": "Belajar Bahasa Jepang", "order": 1 },
+    { "id": "shigoto", "nameJa": "仕事と生活", "nameId": "Kerja & Kehidupan", "order": 2 },
+    { "id": "kaiwa", "nameJa": "会話・面接", "nameId": "Percakapan & Wawancara", "order": 3 },
+    { "id": "math", "nameJa": "数学・IQ", "nameId": "Matematika & Tes IQ", "order": 4 },
+    { "id": "challenge", "nameJa": "記録に挑戦！", "nameId": "Tantangan Rekor", "order": 5 }
+  ],
+  "materials": [
+    { "id": "moji", "categoryId": "nihongo", "nameJa": "もじ練習（ひらがな・カタカナ）", "nameId": "Latihan menulis huruf", "type": "site", "url": "https://ijfa-tc.github.io/hiragana/", "public": true, "order": 1 },
+    { "id": "irodori-n05", "categoryId": "nihongo", "nameJa": "いろどり入門 5課テスト（サンプル）", "nameId": "Tes Irodori Pemula Bab 5", "type": "form", "url": "https://example.com/form?id={ID}", "public": true, "order": 2 },
+    { "id": "jft", "categoryId": "nihongo", "nameJa": "JFT-Basic 練習", "nameId": "Latihan JFT-Basic", "type": "site", "url": "https://jft-ijfa-cbt.netlify.app/", "public": true, "order": 3 },
+    { "id": "ssw-kensetsu", "categoryId": "shigoto", "nameJa": "特定技能 建設 練習", "nameId": "Latihan SSW Konstruksi", "type": "site", "url": "https://ijfa-ssw-kensetsu.netlify.app/", "public": true, "order": 4 }
+  ],
+  "assignments": [
+    { "cohort": "JKT14", "materialId": "irodori-n05", "on": true, "order": 1 },
+    { "cohort": "JKT14", "materialId": "jft", "on": true, "order": 2 },
+    { "cohort": "JKT16", "materialId": "moji", "on": true, "order": 1 }
+  ]
+}
