@@ -34,7 +34,10 @@ window.PortalData = (function () {
   async function getPortal(cohortKey) {
     if (useSample) {
       const data = await loadSample();
-      const materials = data.materials.filter(m => m.public).sort((a, b) => a.order - b.order);
+      const guest = cohortKey === "GUEST";
+      const materials = data.materials
+        .filter(m => m.public && !(guest && m.type === "form"))   // ゲストにはフォームのテストを出さない
+        .sort((a, b) => a.order - b.order);
       const assigned = data.assignments
         .filter(a => a.cohort === cohortKey && a.on)
         .sort((a, b) => a.order - b.order)
