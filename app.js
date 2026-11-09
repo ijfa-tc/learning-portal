@@ -21,7 +21,7 @@
 
   // 教材のリンク。URL内の {ID} は生徒IDに置きかえる（Googleフォームの事前入力用）
   function linkFor(material, student) {
-    return material.url.split("{ID}").join(encodeURIComponent(student.id));
+    return material.url.split("{ID}").join(encodeURIComponent(student.id || ""));
   }
 
   function el(tag, cls, text) {
@@ -77,6 +77,10 @@
     }
   });
 
+  // ---- 1b. ゲスト（IDがまだない人）：フォームのテストは出さず、練習サイトだけ使える ----
+  const GUEST = { id: "", name: "ゲスト", guest: true, cohort: "", cohortKey: "GUEST" };
+  $("guest-btn").addEventListener("click", () => { save(GUEST); openHome(GUEST); });
+
   // ---- 2. 本人確認 ----
   $("confirm-yes").addEventListener("click", () => { save(pending); openHome(pending); });
   $("confirm-no").addEventListener("click", () => {
@@ -89,8 +93,15 @@
   // ---- 3. ホーム ----
   async function openHome(student) {
     show("view-home");
-    $("home-hello").textContent = student.name + " さん";
-    $("home-cohort").textContent = student.cohort + "期 / Angkatan " + student.cohort;
+    const guest = !!student.guest;
+    $("home-hello").textContent = guest ? "ゲストさん / Tamu" : student.name + " さん";
+    $("home-cohort").textContent = guest ? "IDがあれば、テストも受けられます / Dengan ID, Anda bisa ikut tes"
+                                         : student.cohort + "期 / Angkatan " + student.cohort;
+    $("assigned-title").hidden = guest;
+    $("assigned-list").hidden = guest;
+    $("switch-user").replaceChildren();
+    if (guest) twoLang($("switch-user"), "IDを入れる ", "Masukkan ID");
+    else twoLang($("switch-user"), "別の人です ", "Bukan saya");
     loading(true);
     try {
       portal = await PortalData.getPortal(student.cohortKey);
@@ -164,6 +175,6 @@
   // ---- 起動 ----
   if (PortalData.useSample) $("sample-banner").hidden = false;
   const saved = load();
-  if (saved && saved.id && saved.cohortKey) openHome(saved);
+  if (saved && (saved.id || saved.guest) && saved.cohortKey) openHome(saved);
   else show("view-login");
 })();
