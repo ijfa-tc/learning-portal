@@ -1,5 +1,5 @@
 // データの読み込み担当。画面（app.js）はここの関数だけを使う。
-// サンプル（data/sample.json）と本番（GAS）の切り替えはここで吸収する。
+// サンプル（sample.json）と本番（GAS）の切り替えはここで吸収する。
 window.PortalData = (function () {
   const API_URL = (window.PORTAL_CONFIG || {}).API_URL || "";
   const useSample = API_URL === "";
@@ -7,7 +7,7 @@ window.PortalData = (function () {
 
   async function loadSample() {
     if (!sampleCache) {
-      const res = await fetch("data/sample.json", { cache: "no-store" });
+      const res = await fetch("sample.json", { cache: "no-store" });
       sampleCache = await res.json();
     }
     return sampleCache;
