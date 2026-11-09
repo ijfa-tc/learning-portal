@@ -3,26 +3,34 @@
 生徒が1つのURLから教材・テストに行ける入口。先生の負担を増やさず、成績は既存の仕組みで自動集計する。
 
 ## 構成
-- 画面：このリポジトリ（GitHub ijfa-tc/learning-portal → Netlify で自動公開）
+- 画面：このリポジトリ（GitHub ijfa-tc/learning-portal、Public）→ GitHub Pages で自動公開
+- 公開URL：https://ijfa-tc.github.io/learning-portal/
 - データ：Googleスプレッドシート（名簿・教材リスト・指定テスト）
-- 窓口：GAS「ポータルAPI」（未作成。js/config.js の API_URL に設定）
+- 窓口：GAS「ポータルAPI」（未作成。config.js の API_URL に設定）
 - 成績：既存のいろどり自動取り込み（フォーム → IJFA テスト結果DB → クラス管理シート）
+- Netlifyは無料枠の公開回数に上限があるため使わない（2026-11-09 移行）
 
 ## ファイル
+フォルダは使わず、すべて一番上に置く（GitHubのウェブ画面からアップロードしやすくするため）。
 - index.html：画面（ID入力 / 本人確認 / ホーム / カテゴリー）
-- js/app.js：画面の動き　js/data.js：データ読み込み　js/config.js：API_URL
-- data/sample.json：API完成までのサンプル
+- app.js：画面の動き　data.js：データ読み込み　config.js：API_URL
+- style.css：見た目（色・フォントは先頭の :root だけで変える）
+- sample.json：API完成までのサンプル（名前は架空）
 
 ## 決定済み
 - 生徒ID（例 JKT16001、正規表現 ^[A-Z]{3}[0-9]{5}$）を入力 →「〇〇さんですか？」→ ホーム
 - 確認済みの生徒はそのスマホに記憶（「別の人です」で解除）
 - カテゴリー：日本語を学ぶ / 仕事と生活 / 会話・面接 / 数学・IQ / 記録に挑戦！
-- 教材URLの {ID} は生徒IDに置きかえる（フォームの事前入力用）
+- 教材URLの {ID} は生徒IDに置きかえる（フォームの事前入力・外部サイトへのID受け渡し用）
 - 画面に出すのは名前と期生のみ。成績は出さない
+- 秘密の情報（PIN・成績など）はGoogle側にだけ置く。コードは公開されている前提で書く
+- 検索エンジンに載せない（noindex）
 - 14期を練習用データとして試行
+- 数学・IQは別リポジトリ・別サイトで作り、?id= でIDを渡してつなぐ
 
 ## 検討中
 - 配色・フォント（今は仮）
 - ゲスト入口
-- 個人成績の表示とPIN
+- 個人成績の表示とPIN（判定はGAS側）
 - CBTサイト（JFT・SSW）の結果を結果DBへ送る仕組み
+- JFT・SSWのコードをGitHubに入れる（現在はNetlify Dropで公開）
