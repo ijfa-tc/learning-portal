@@ -1,11 +1,14 @@
 // 画面の切り替えと表示。データの取得は data.js に任せる。
 (function () {
   const STORE_KEY = "ijfa_portal_student"; // このスマホで確認済みの生徒
+  const CACHE_PREFIX = "ijfa_portal_cache_"; // 前回のホーム表示（期生ごと。教材一覧だけで個人情報は入れない）
   const ID_PATTERN = /^[A-Z]{3}[0-9]{5}$/;   // 例 JKT16001
   const $ = id => document.getElementById(id);
 
   let pending = null;  // 確認待ちの生徒
   let portal = null;   // ホームの表示データ
+  let prefetch = null; // 本人確認の画面で先に取りに行ったホームのデータ { cohortKey, promise }
+  let openCat = null;  // 開いているカテゴリー（裏で更新されたら表示し直す）
 
   // ---- 共通 ----
   function show(viewId) {
@@ -15,7 +18,15 @@
   function loading(on) { $("loading").hidden = !on; }
   function save(student) { try { localStorage.setItem(STORE_KEY, JSON.stringify(student)); } catch (e) {} }
   function load() { try { return JSON.parse(localStorage.getItem(STORE_KEY)); } catch (e) { return null; } }
-  function forget() { try { localStorage.removeItem(STORE_KEY); } catch (e) {} }
+  function forget() {
+    try {
+      localStorage.removeItem(STORE_KEY);
+      Object.keys(localStorage).filter(k => k.startsWith(CACHE_PREFIX)).forEach(k => localStorage.removeItem(k));
+    } catch (e) {}
+  }
+  function loadCache(key) { try { return JSON.parse(localStorage.getItem(CACHE_PREFIX + key)); } catch (e) { return null; } }
+  function saveCache(key, data) { try { localStorage.setItem(CACHE_PREFIX + key, JSON.stringify(data)); } catch (e) {} }
+  function status(text) { $("home-status").textContent = text || ""; $("home-status").hidden = !text; }
   // 小文字・空白・ハイフンをなおす（例 "jkt 16-001" → "JKT16001"）
   function normalizeId(text) { return (text || "").toUpperCase().replace(/[\s\-ー－]/g, ""); }
 
@@ -68,6 +79,9 @@
         return;
       }
       pending = s;
+      // 先読み：「はい」を押す前に、裏でホームのデータを取りに行く
+      prefetch = { cohortKey: s.cohortKey, promise: PortalData.getPortal(s.cohortKey) };
+      prefetch.promise.catch(() => {});
       $("confirm-name").textContent = s.name;
       show("view-confirm");
     } catch (err) {
@@ -80,11 +94,15 @@
   // ---- 1b. ゲスト（IDがまだない人）：フォームのテストは出さず、練習サイトだけ使える ----
   const GUEST = { id: "", name: "ゲスト", guest: true, cohort: "", cohortKey: "GUEST" };
   $("guest-btn").addEventListener("click", () => { save(GUEST); openHome(GUEST); });
+  $("guest-btn").addEventListener("pointerdown", () => {   // 押した瞬間から先読み
+    if (!prefetch) { prefetch = { cohortKey: "GUEST", promise: PortalData.getPortal("GUEST") }; prefetch.promise.catch(() => {}); }
+  });
 
   // ---- 2. 本人確認 ----
   $("confirm-yes").addEventListener("click", () => { save(pending); openHome(pending); });
   $("confirm-no").addEventListener("click", () => {
     pending = null;
+    prefetch = null;
     $("login-id").value = "";
     $("login-error").textContent = "IDを確認して、もう一度入れてください。わからないときは先生に聞いてください / Cek ID Anda atau tanya guru.";
     show("view-login");
@@ -93,6 +111,7 @@
   // ---- 3. ホーム ----
   async function openHome(student) {
     show("view-home");
+    openCat = null;
     const guest = !!student.guest;
     $("home-hello").textContent = guest ? "ゲストさん / Tamu" : student.name + " さん";
     $("home-cohort").textContent = guest ? "IDがあれば、テストも受けられます / Dengan ID, Anda bisa ikut tes"
@@ -102,12 +121,29 @@
     $("switch-user").replaceChildren();
     if (guest) twoLang($("switch-user"), "IDを入れる ", "Masukkan ID");
     else twoLang($("switch-user"), "別の人です ", "Bukan saya");
-    loading(true);
+
+    // 1) 前回の表示があれば、まずそれを出す
+    const key = student.cohortKey;
+    const cached = loadCache(key);
+    if (cached) { portal = cached; renderHome(student); status("更新中… / Memperbarui…"); }
+    else { loading(true); status(""); }
+
+    // 2) 裏で最新を取りに行き、届いたら差しかえる（先読みがあればそれを使う）
+    const p = (prefetch && prefetch.cohortKey === key) ? prefetch.promise : PortalData.getPortal(key);
+    prefetch = null;
     try {
-      portal = await PortalData.getPortal(student.cohortKey);
-      renderHome(student);
+      const fresh = await p;
+      if (!fresh || fresh.error || !fresh.categories) throw new Error("bad data");
+      saveCache(key, fresh);
+      if (!cached || JSON.stringify(cached) !== JSON.stringify(fresh)) {
+        portal = fresh;
+        renderHome(student);
+        if (openCat) openCategory(openCat, student, true);
+      }
+      status("");
     } catch (err) {
-      $("assigned-list").replaceChildren(el("p", "error", "よみこめませんでした / Gagal memuat"));
+      if (cached) status("最新ではありません。電波を確認してください / Belum terbaru. Cek sinyal.");
+      else $("assigned-list").replaceChildren(el("p", "error", "よみこめませんでした / Gagal memuat"));
     } finally {
       loading(false);
     }
@@ -141,7 +177,8 @@
   });
 
   // ---- 4. カテゴリー ----
-  function openCategory(cat, student) {
+  function openCategory(cat, student, refresh) {
+    openCat = cat;
     $("category-title").replaceChildren();
     twoLang($("category-title"), cat.nameJa, " " + cat.nameId);
     const list = $("material-list");
@@ -168,9 +205,9 @@
       box.append(inner);
       list.append(box);
     });
-    show("view-category");
+    if (!refresh) show("view-category");
   }
-  $("back-home").addEventListener("click", () => show("view-home"));
+  $("back-home").addEventListener("click", () => { openCat = null; show("view-home"); });
 
   // ---- 起動 ----
   if (PortalData.useSample) $("sample-banner").hidden = false;
