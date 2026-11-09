@@ -14,7 +14,7 @@
   ],
   "materials": [
     { "id": "moji", "categoryId": "nihongo", "nameJa": "もじ練習（ひらがな・カタカナ）", "nameId": "Latihan menulis huruf", "type": "site", "url": "https://ijfa-tc.github.io/hiragana/", "public": true, "order": 1 },
-    { "id": "irodori-n05", "categoryId": "nihongo", "nameJa": "いろどり入門 5課テスト（サンプル）", "nameId": "Tes Irodori Pemula Bab 5", "type": "form", "url": "https://example.com/form?id={ID}", "public": true, "order": 2 },
+    { "id": "irodori-n05", "categoryId": "nihongo", "nameJa": "いろどり入門 5課テスト", "nameId": "Tes Irodori Pemula Bab 5", "type": "form", "url": "https://docs.google.com/forms/d/1-opn4dX_tkp9xXuUrTNBNbaGrLAffj-tSIfiXRDpk-g/viewform", "public": true, "order": 2 },
     { "id": "jft", "categoryId": "nihongo", "nameJa": "JFT-Basic 練習", "nameId": "Latihan JFT-Basic", "type": "site", "url": "https://jft-ijfa-cbt.netlify.app/", "public": true, "order": 3 },
     { "id": "ssw-kensetsu", "categoryId": "shigoto", "nameJa": "特定技能 建設 練習", "nameId": "Latihan SSW Konstruksi", "type": "site", "url": "https://ijfa-ssw-kensetsu.netlify.app/", "public": true, "order": 4 },
     { "id": "math-iq", "categoryId": "math", "nameJa": "数学・IQ練習", "nameId": "Latihan Matematika & Tes IQ", "type": "site", "url": "https://ijfa-tc.github.io/math-iq/?id={ID}", "public": true, "order": 5 }
