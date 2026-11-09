@@ -60,7 +60,8 @@ function getStudent_(id) {
 
 // 期生ごとのホーム表示データ
 function getPortal_(cohortKey) {
-  if (!/^[A-Z]{3}[0-9]{2}$/.test(cohortKey)) return { error: 'bad cohort' };
+  const guest = cohortKey === 'GUEST';   // ゲスト（IDがまだない人）：フォームのテストは出さず、指定もなし
+  if (!guest && !/^[A-Z]{3}[0-9]{2}$/.test(cohortKey)) return { error: 'bad cohort' };
   const cache = CacheService.getScriptCache();
   const hit = cache.get('portal_' + cohortKey);
   if (hit) return JSON.parse(hit);
@@ -77,12 +78,12 @@ function getPortal_(cohortKey) {
       type: str_(r[4]), url: str_(r[5]), public: r[6] === true, order: num_(r[7]),
       group: str_(r[9])   // J列「グループ」：カテゴリーの中のまとまり（例 いろどり入門）
     }));
-  const materials = all.filter(m => m.public).sort(byOrder_);
+  const materials = all.filter(m => m.public && !(guest && m.type === 'form')).sort(byOrder_);
 
   // 指定テストは「教材の名前」で選ぶ（先生がプルダウンで選びやすいように）。公開OFFでも指定はできる
   const byName = {};
   all.forEach(m => { byName[m.nameJa] = m; });
-  const assigned = values_(SHEET.asg)
+  const assigned = guest ? [] : values_(SHEET.asg)
     .filter(r => str_(r[0]).toUpperCase() === cohortKey && r[2] === true)
     .map(r => ({ m: byName[str_(r[1])], order: num_(r[3]) }))
     .filter(x => x.m)
