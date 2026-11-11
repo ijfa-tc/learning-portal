@@ -8,7 +8,7 @@
   let pending = null;  // 確認待ちの生徒
   let portal = null;   // ホームの表示データ
   let prefetch = null; // 本人確認の画面で先に取りに行ったホームのデータ { cohortKey, promise }
-  let openCat = null;  // 開いているカテゴリー（裏で更新されたら表示し直す）
+  let openCat = null;  // 開いているカテゴリー { cat, group }（裏で更新されたら表示し直す）
 
   // ---- 共通 ----
   function show(viewId) {
@@ -53,6 +53,11 @@
   }
 
   function materialItem(m, student, assigned) {
+    if (m.type === "soon") {   // じゅんびちゅう：押せない
+      const d = el("div", "item item-soon");
+      twoLang(d, m.nameJa + "（じゅんびちゅう）", m.nameId ? m.nameId + " (Segera hadir)" : "Segera hadir");
+      return d;
+    }
     const a = el("a", "item" + (assigned ? " item-assigned" : ""));
     a.href = linkFor(m, student);
     a.target = "_blank";
@@ -138,7 +143,7 @@
       if (!cached || JSON.stringify(cached) !== JSON.stringify(fresh)) {
         portal = fresh;
         renderHome(student);
-        if (openCat) openCategory(openCat, student, true);
+        if (openCat) openCategory(openCat.cat, student, openCat.group, true);
       }
       status("");
     } catch (err) {
@@ -158,15 +163,35 @@
       portal.assigned.forEach(m => assigned.append(materialItem(m, student, true)));
     }
 
+    // ホームのボタン：中身が1つならそのまま開く／0なら押せない／2つ以上なら選ぶ画面へ
     const grid = $("category-list");
     grid.replaceChildren();
     portal.categories.forEach(c => {
-      const b = el("button", "cat");
-      b.type = "button";
-      twoLang(b, c.nameJa, c.nameId);
-      b.addEventListener("click", () => openCategory(c, student));
-      grid.append(b);
+      const items = itemsOf(c);
+      let tile;
+      if (items.length === 1 && !items[0].group && items[0].type !== "soon") {
+        tile = el("a", "cat");
+        tile.href = linkFor(items[0], student);
+        tile.target = "_blank";
+        tile.rel = "noopener";
+        twoLang(tile, c.nameJa, c.nameId);
+      } else if (items.length === 0) {
+        tile = el("div", "cat cat-soon");
+        const note = (student.guest && c.id === "nihongo") ? "（IDが必要 / Perlu ID）" : "（じゅんびちゅう / Segera hadir）";
+        twoLang(tile, c.nameJa, c.nameId + " " + note);
+      } else {
+        tile = el("button", "cat cat-more");
+        tile.type = "button";
+        twoLang(tile, c.nameJa, c.nameId);
+        tile.addEventListener("click", () => openCategory(c, student));
+      }
+      grid.append(tile);
     });
+  }
+
+  // カテゴリーの中で公開中の教材（表示順 → 名前の順）
+  function itemsOf(cat) {
+    return portal.materials.filter(m => m.categoryId === cat.id).sort(byOrderThenName);
   }
 
   $("switch-user").addEventListener("click", () => {
@@ -176,38 +201,46 @@
     show("view-login");
   });
 
-  // ---- 4. カテゴリー ----
-  function openCategory(cat, student, refresh) {
-    openCat = cat;
-    $("category-title").replaceChildren();
-    twoLang($("category-title"), cat.nameJa, " " + cat.nameId);
+  // ---- 4. カテゴリー（例 いろどり → 入門／初級1 を選ぶ → テスト一覧） ----
+  function openCategory(cat, student, group, refresh) {
+    openCat = { cat, group: group || null };
+    const title = $("category-title");
+    title.replaceChildren();
     const list = $("material-list");
     list.replaceChildren();
-    const items = portal.materials.filter(m => m.categoryId === cat.id).sort(byOrderThenName);
-    if (items.length === 0) list.append(el("p", "empty", "じゅんびちゅう / Segera hadir"));
+    const items = itemsOf(cat);
 
-    // グループのない教材は上に並べ、グループ（例 いろどり入門）は押すと開く箱にまとめる
-    items.filter(m => !m.group).forEach(m => list.append(materialItem(m, student, false)));
-    const groups = [];
-    items.filter(m => m.group).forEach(m => {
-      let g = groups.find(x => x.name === m.group);
-      if (!g) { g = { name: m.group, items: [] }; groups.push(g); }
-      g.items.push(m);
-    });
-    groups.forEach(g => {
-      const box = el("details", "group");
-      const [ja, idn] = g.name.split(" / ");
-      const sum = el("summary", "group-title");
-      twoLang(sum, ja + "（" + g.items.length + "）", idn);
-      box.append(sum);
-      const inner = el("div", "list");
-      g.items.forEach(m => inner.append(materialItem(m, student, false)));
-      box.append(inner);
-      list.append(box);
-    });
+    if (group) {   // グループの中の一覧
+      const [ja, idn] = group.split(" / ");
+      twoLang(title, ja, " " + (idn || ""));
+      items.filter(m => m.group === group).forEach(m => list.append(materialItem(m, student, false)));
+    } else {
+      twoLang(title, cat.nameJa, " " + cat.nameId);
+      if (items.length === 0) list.append(el("p", "empty", "じゅんびちゅう / Segera hadir"));
+      // グループのない教材はそのまま、グループ（例 いろどり入門）は選ぶボタンにする
+      items.filter(m => !m.group).forEach(m => list.append(materialItem(m, student, false)));
+      const groups = [];
+      // グループの順番は教材リストの順（入門が先に登録されていれば入門が上）
+      portal.materials.filter(m => m.categoryId === cat.id && m.group)
+        .forEach(m => { if (!groups.includes(m.group)) groups.push(m.group); });
+      groups.forEach(g => {
+        const b = el("button", "item item-group");
+        b.type = "button";
+        const [ja, idn] = g.split(" / ");
+        twoLang(b, ja + "（" + items.filter(m => m.group === g).length + "）", idn);
+        b.addEventListener("click", () => openCategory(cat, student, g));
+        list.append(b);
+      });
+    }
     if (!refresh) show("view-category");
   }
-  $("back-home").addEventListener("click", () => { openCat = null; show("view-home"); });
+  // もどる：グループの中 → カテゴリー → ホーム
+  $("back-home").addEventListener("click", () => {
+    const s = load();
+    if (openCat && openCat.group && s) { openCategory(openCat.cat, s); return; }
+    openCat = null;
+    show("view-home");
+  });
 
   // ---- 起動 ----
   if (PortalData.useSample) $("sample-banner").hidden = false;
