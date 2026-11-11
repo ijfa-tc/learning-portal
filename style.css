@@ -84,9 +84,10 @@ main { max-width: 520px; margin: 0 auto; padding: 24px 18px 48px; }
 .item .id-text { display: block; }
 .empty { color: var(--muted); margin: 0; }
 
-.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
 .cat {
-  min-height: 96px; padding: 12px; font-size: 17px; font-weight: bold; font-family: inherit;
+  display: block; min-height: 64px; padding: 12px 16px; font-size: 18px; font-weight: bold; font-family: inherit;
+  text-decoration: none; width: 100%;
   text-align: left; border: 2px solid var(--line); border-radius: var(--radius);
   background: var(--surface); color: var(--text); cursor: pointer;
 }
@@ -108,3 +109,10 @@ main { max-width: 520px; margin: 0 auto; padding: 24px 18px 48px; }
 
 /* 裏で更新中・更新失敗のお知らせ */
 .status { color: var(--muted); font-size: 13px; margin: 4px 0 0; }
+
+/* ホームのボタンの種類：› は選ぶ画面へ、じゅんびちゅうは押せない */
+.cat-more { position: relative; padding-right: 40px; }
+.cat-more::after { content: "›"; position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 28px; color: var(--muted); }
+.cat-soon, .item-soon { opacity: 0.5; cursor: default; }
+.item-group { width: 100%; text-align: left; font-family: inherit; font-size: 17px; font-weight: bold; cursor: pointer; position: relative; padding-right: 40px; }
+.item-group::after { content: "›"; position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 28px; color: var(--muted); }
