@@ -49,19 +49,12 @@ window.PortalData = (function () {
     return callApi({ action: "portal", cohort: cohortKey });
   }
 
-  // 先生用ログイン：Googleでログインした証明（credential）をGASに送り、許可リストにあるか確かめてもらう。
+  // 先生用ログイン：Googleから戻ってきたときの合言葉（t）をGASに見せて、先生の情報を受け取る（1回だけ使える）
   // 返り値 { ok, teacher: { name, email }, cohorts: ["JKT16", ...] } / { ok: false, reason }
-  // ※ text/plain で送るのは、GASがブラウザからのPOSTを受け取れるようにするため
-  async function teacherLogin(credential) {
+  async function teacherSession(t) {
     if (useSample) return { ok: false, reason: "sample" };
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({ action: "teacher", credential: credential })
-    });
-    if (!res.ok) throw new Error("API error " + res.status);
-    return res.json();
+    return callApi({ action: "tsession", t: t });
   }
 
-  return { getStudent, getPortal, teacherLogin, useSample };
+  return { getStudent, getPortal, teacherSession, useSample };
 })();

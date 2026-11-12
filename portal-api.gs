@@ -8,7 +8,8 @@
  * できること
  *   ?action=student&id=JKT14001  → 名前と期生だけを返す（成績や生年月日は返さない）
  *   ?action=portal&cohort=JKT14  → カテゴリー・公開中の教材・その期生への指定テストを返す
- *   POST {action:"teacher", credential} → Googleでログインした先生が「先生」シートにいれば名前と期生の一覧を返す
+ *   POST（Googleから）credential  → 先生か確かめ、ポータルへもどるボタンの画面を出す（合言葉 t つき）
+ *   ?action=tsession&t=合言葉     → 先生の名前と期生の一覧を返す（合言葉は5分・1回だけ有効）
  *
  * 最初に1回だけ：setup を実行（シートの準備・フォーム一覧の取り込み・毎日の自動更新を設定）
  * 先生用ログインの準備：setupTeachers を1回実行（「先生」シートを作る＋外部への問い合わせを許可）
@@ -24,6 +25,7 @@ const SHEET = { roster: '名簿', cat: 'カテゴリー', mat: '教材リスト'
 const CACHE_SEC = 60;                                                  // 設定の変更がポータルに出るまで最大60秒
 // 先生用ログイン：Google Cloud で作った「OAuth クライアントID」（公開してよい値）。ポータルの config.js と同じものを入れる
 const TEACHER_CLIENT_ID = '104523748851-6vkdfmldttl2h96i03utphdr83eil1qt.apps.googleusercontent.com';
+const PORTAL_URL = 'https://ijfa-tc.github.io/learning-portal/';     // 先生用ログインのあと、もどる先
 const TEACHER_SHEET = '先生';                                          // 許可リスト（A メールアドレス / B 名前 / C 有効 / D メモ）
                                                                        // A列に「@lpkjapan.com」のように @から書くと、その会社アカウント全員を許可
 
@@ -36,6 +38,7 @@ function doGet(e) {
   try {
     if (p.action === 'student') out = getStudent_(String(p.id || '').trim().toUpperCase());
     else if (p.action === 'portal') out = getPortal_(String(p.cohort || '').trim().toUpperCase());
+    else if (p.action === 'tsession') out = teacherSession_(String(p.t || ''));
     else out = { error: 'unknown action' };
   } catch (err) {
     console.error(err);
@@ -44,18 +47,48 @@ function doGet(e) {
   return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON);
 }
 
-// POSTの問い合わせ（いまは先生用ログインだけ）。証明（credential）をURLに出さないためにPOSTを使う
+// Googleのログイン画面から、ここへ直接もどってくる（credential つき）。
+// 先生か確かめたら、合言葉を作って「ポータルにもどる」ボタンの画面を出す
 function doPost(e) {
-  let out;
+  const p = (e && e.parameter) || {};
+  let back;
   try {
-    const body = JSON.parse((e && e.postData && e.postData.contents) || '{}');
-    if (body.action === 'teacher') out = teacherLogin_(String(body.credential || ''));
-    else out = { ok: false, reason: 'unknown action' };
+    const r = teacherLogin_(String(p.credential || ''));
+    if (r.ok) {
+      const t = Utilities.getUuid();
+      CacheService.getScriptCache().put('tsession_' + t, JSON.stringify(r), 300);   // 5分だけ有効
+      back = PORTAL_URL + '?t=' + t;
+    } else {
+      back = PORTAL_URL + '?tlerr=' + encodeURIComponent(r.reason);
+    }
   } catch (err) {
     console.error(err);
-    out = { ok: false, reason: 'server error' };
+    back = PORTAL_URL + '?tlerr=server';
   }
-  return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON);
+  return backPage_(back);
+}
+
+// 合言葉と引きかえに先生の情報を返す（1回使ったら消す）
+function teacherSession_(t) {
+  if (!/^[0-9a-f-]{36}$/i.test(t)) return { ok: false };
+  const cache = CacheService.getScriptCache();
+  const hit = cache.get('tsession_' + t);
+  if (!hit) return { ok: false };
+  cache.remove('tsession_' + t);
+  return JSON.parse(hit);
+}
+
+// 「ポータルにもどる」画面。自動でもどれないブラウザのためにボタンも出す
+function backPage_(url) {
+  const u = JSON.stringify(url);
+  const html = '<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1">' +
+    '<body style="font-family:sans-serif;text-align:center;padding:48px 16px">' +
+    '<p style="font-size:18px">ポータルにもどります / Kembali ke portal</p>' +
+    '<a id="go" href="' + url.replace(/"/g, '&quot;') + '" target="_top" ' +
+    'style="display:inline-block;margin-top:16px;padding:16px 28px;background:#1f5fa8;color:#fff;border-radius:12px;font-size:18px;text-decoration:none">' +
+    'ポータルへ / Ke portal</a>' +
+    '<script>try{window.top.location.href=' + u + ';}catch(e){}</script></body>';
+  return HtmlService.createHtmlOutput(html).setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
 // 先生用ログイン：Googleの証明を確かめ、「先生」シートで有効になっているメールなら名前と期生の一覧を返す

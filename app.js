@@ -328,8 +328,10 @@
     return gsiLoading;
   }
 
-  async function openTeacherLogin() {
-    $("tl-error").textContent = "";
+  // Googleのログインは「ページごとGoogleへ移動 → GASが確かめる → ポータルにもどる」方式。
+  // （ポップアップ方式はiPhoneのSafariで途中で止まることがあるため使わない）
+  async function openTeacherLogin(errText) {
+    $("tl-error").textContent = errText || "";
     $("g-button").replaceChildren();
     show("view-teacher-login");
     if (!CLIENT_ID || PortalData.useSample) {
@@ -338,29 +340,32 @@
     }
     try {
       await loadGsi();
-      google.accounts.id.initialize({ client_id: CLIENT_ID, callback: onGoogleLogin, ux_mode: "popup" });
+      google.accounts.id.initialize({ client_id: CLIENT_ID, ux_mode: "redirect",
+                                      login_uri: (window.PORTAL_CONFIG || {}).API_URL });
       google.accounts.id.renderButton($("g-button"), { theme: "outline", size: "large", text: "signin_with", width: 280, locale: "ja" });
     } catch (e) {
       $("tl-error").textContent = "Googleにつながりません。電波を確認してください / Gagal terhubung ke Google";
     }
   }
 
-  async function onGoogleLogin(resp) {
-    $("tl-error").textContent = "";
+  // Googleからもどってきたとき（URLに ?t=合言葉 または ?tlerr=理由 がある）
+  async function finishTeacherLogin(t, err) {
+    history.replaceState(null, "", location.pathname);   // URLから合言葉を消す
+    if (err) {
+      openTeacherLogin(err === "not_allowed"
+        ? "このアカウントは先生として登録されていません。坂井に連絡してください / Akun ini belum terdaftar sebagai guru"
+        : "ログインできませんでした。もう一度ためしてください / Gagal masuk. Coba lagi");
+      return;
+    }
     loading(true);
     try {
-      const r = await PortalData.teacherLogin(resp.credential);
-      if (!r.ok) {
-        $("tl-error").textContent = r.reason === "not_allowed"
-          ? "このアカウントは先生として登録されていません。坂井に連絡してください / Akun ini belum terdaftar sebagai guru"
-          : "ログインできませんでした。もう一度ためしてください / Gagal masuk. Coba lagi";
-        return;
-      }
+      const r = await PortalData.teacherSession(t);
+      if (!r.ok) { openTeacherLogin("時間切れです。もう一度ログインしてください / Waktu habis. Silakan masuk lagi"); return; }
       saveTeacher({ name: r.teacher.name, email: r.teacher.email, cohorts: r.cohorts || [],
                     until: Date.now() + TEACHER_DAYS * 86400000 });
       openTeacherHome();
     } catch (e) {
-      $("tl-error").textContent = "つながりません。あとでもう一度 / Gagal terhubung. Coba lagi nanti.";
+      openTeacherLogin("つながりません。あとでもう一度 / Gagal terhubung. Coba lagi nanti.");
     } finally {
       loading(false);
     }
@@ -393,13 +398,15 @@
       : { id: "", name: "", cohort: String(parseInt(k.slice(3), 10)), cohortKey: k, preview: true };
     openHome(s);
   });
-  $("teacher-link").addEventListener("click", openTeacherLogin);
+  $("teacher-link").addEventListener("click", () => openTeacherLogin());
   $("tl-back").addEventListener("click", () => showLogin(false));
 
   // ---- 起動 ----
   if (PortalData.useSample) $("sample-banner").hidden = false;
   const saved = load();
-  if (loadTeacher()) openTeacherHome();
+  const q = new URLSearchParams(location.search);
+  if (q.get("t") || q.get("tlerr")) finishTeacherLogin(q.get("t"), q.get("tlerr"));
+  else if (loadTeacher()) openTeacherHome();
   else if (saved && (saved.id || saved.guest) && saved.cohortKey) openHome(saved);
   else showLogin(false);
 })();
