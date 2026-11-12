@@ -11,9 +11,22 @@
   <!-- サンプルデータで動いているときだけ表示 -->
   <div id="sample-banner" class="banner" hidden>サンプルデータで表示しています（本番の名簿とはつながっていません）</div>
 
+  <!-- 先生が生徒の画面を確認しているときだけ表示 -->
+  <div id="preview-banner" class="banner" hidden>先生の確認用の画面です。テストは送信しないでください</div>
+
   <main id="app">
+    <!-- ログイン中だけ上に出るバー（名前・期生・ログアウト） -->
+    <header id="topbar" class="topbar" hidden>
+      <div class="who">
+        <span id="top-name" class="top-name"></span>
+        <span id="top-cohort" class="top-cohort"></span>
+      </div>
+      <button id="logout-btn" class="btn-logout" type="button">ログアウト<span class="id-text">Keluar</span></button>
+    </header>
+
     <!-- 1. ID入力 -->
     <section id="view-login" class="view">
+      <p id="logout-done" class="done" hidden>ログアウトしました / Anda sudah keluar</p>
       <h1 class="title">IJFA Learning Portal</h1>
       <p class="sub">生徒IDを入れてください<br><span class="id-text">Masukkan ID siswa Anda</span></p>
       <form id="login-form" novalidate>
@@ -22,8 +35,34 @@
         <p id="login-error" class="error" role="alert"></p>
         <button class="btn btn-main" type="submit">つぎへ <span class="id-text">Lanjut</span></button>
       </form>
+      <button id="again-btn" class="btn again" type="button" hidden></button>
       <button id="guest-btn" class="btn guest" type="button">ゲストとして入る <span class="id-text">Masuk sebagai tamu</span></button>
       <p class="note">IDがまだない人はこちら / Belum punya ID</p>
+      <button id="teacher-link" class="btn btn-quiet teacher-link" type="button">先生はこちら <span class="id-text">Untuk Guru</span></button>
+    </section>
+
+    <!-- 1c. 先生用ログイン（Googleアカウント。許可リストはGoogle側のシート「先生」） -->
+    <section id="view-teacher-login" class="view" hidden>
+      <button id="tl-back" class="btn btn-quiet back" type="button">← もどる <span class="id-text">Kembali</span></button>
+      <h1 class="title">先生用ログイン</h1>
+      <p class="sub">Googleアカウントで入ります<br><span class="id-text">Masuk dengan akun Google</span></p>
+      <div id="g-button" class="g-button"></div>
+      <p id="tl-error" class="error" role="alert"></p>
+      <p class="note">入れないときは坂井まで / Jika tidak bisa masuk, hubungi Sakai</p>
+    </section>
+
+    <!-- 5. 先生のホーム -->
+    <section id="view-teacher" class="view" hidden>
+      <h2 class="h2">生徒の画面を見る <span class="id-text">Lihat tampilan siswa</span></h2>
+      <div class="pick">
+        <select id="t-cohort" class="input select" aria-label="期生"></select>
+        <button id="t-view" class="btn btn-main" type="button">見る <span class="id-text">Lihat</span></button>
+      </div>
+      <h2 class="h2">先生の機能 <span class="id-text">Menu Guru</span></h2>
+      <div class="list">
+        <div class="item item-soon">指定テストを選ぶ（じゅんびちゅう）<span class="id-text">Pilih tes untuk siswa (Segera hadir)</span></div>
+        <div class="item item-soon">だれが受けたか見る（じゅんびちゅう）<span class="id-text">Lihat siapa yang sudah ikut tes (Segera hadir)</span></div>
+      </div>
     </section>
 
     <!-- 2. 本人確認 -->
@@ -39,19 +78,14 @@
 
     <!-- 3. ホーム -->
     <section id="view-home" class="view" hidden>
-      <header class="home-head">
-        <p id="home-hello" class="hello"></p>
-        <p id="home-cohort" class="cohort"></p>
-        <p id="home-status" class="status" hidden></p>
-      </header>
+      <p id="guest-note" class="guest-note" hidden>IDがあれば、テストも受けられます / Dengan ID, Anda bisa ikut tes</p>
+      <p id="home-status" class="status" hidden></p>
 
       <h2 id="assigned-title" class="h2">先生からの指定 <span class="id-text">Dari Guru</span></h2>
       <div id="assigned-list" class="list"></div>
 
       <h2 class="h2">べんきょうする <span class="id-text">Belajar</span></h2>
       <div id="category-list" class="grid"></div>
-
-      <button id="switch-user" class="btn btn-quiet" type="button">別の人です <span class="id-text">Bukan saya</span></button>
     </section>
 
     <!-- 4. カテゴリーの中の教材一覧 -->
@@ -60,6 +94,18 @@
       <h2 id="category-title" class="h2"></h2>
       <div id="material-list" class="list"></div>
     </section>
+
+    <!-- ログアウトの確認（まちがって押しても大丈夫なように） -->
+    <div id="logout-sheet" class="sheet-bg" hidden>
+      <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+        <p id="sheet-title" class="sheet-title">ログアウトしますか？<span class="id-text">Keluar dari portal?</span></p>
+        <p id="sheet-note" class="sheet-note"></p>
+        <div class="row">
+          <button id="logout-yes" class="btn btn-main" type="button">ログアウトする <span class="id-text">Ya, keluar</span></button>
+          <button id="logout-no" class="btn" type="button">やめる <span class="id-text">Batal</span></button>
+        </div>
+      </div>
+    </div>
 
     <p id="loading" class="loading" hidden>よみこみ中… <span class="id-text">Memuat…</span></p>
   </main>

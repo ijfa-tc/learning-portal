@@ -8,8 +8,10 @@
  * できること
  *   ?action=student&id=JKT14001  → 名前と期生だけを返す（成績や生年月日は返さない）
  *   ?action=portal&cohort=JKT14  → カテゴリー・公開中の教材・その期生への指定テストを返す
+ *   POST {action:"teacher", credential} → Googleでログインした先生が「先生」シートにいれば名前と期生の一覧を返す
  *
  * 最初に1回だけ：setup を実行（シートの準備・フォーム一覧の取り込み・毎日の自動更新を設定）
+ * 先生用ログインの準備：setupTeachers を1回実行（「先生」シートを作る＋外部への問い合わせを許可）
  * コードを直したら：「デプロイ」→「デプロイを管理」→ 鉛筆 →「新バージョン」で公開し直す
  */
 
@@ -20,6 +22,10 @@ const DB_RANGE = "'DATABASE SISWA・生徒データベース'!A5:G";            
 const ID_RE = /^[A-Z]{3}[0-9]{5}$/;                                    // 生徒IDの形（例 JKT16001）
 const SHEET = { roster: '名簿', cat: 'カテゴリー', mat: '教材リスト', asg: '指定テスト' };
 const CACHE_SEC = 60;                                                  // 設定の変更がポータルに出るまで最大60秒
+// 先生用ログイン：Google Cloud で作った「OAuth クライアントID」（公開してよい値）。ポータルの config.js と同じものを入れる
+const TEACHER_CLIENT_ID = '104523748851-6vkdfmldttl2h96i03utphdr83eil1qt.apps.googleusercontent.com';
+const TEACHER_SHEET = '先生';                                          // 許可リスト（A メールアドレス / B 名前 / C 有効 / D メモ）
+                                                                       // A列に「@lpkjapan.com」のように @から書くと、その会社アカウント全員を許可
 
 // =====================================================================
 // ポータルからの問い合わせ
@@ -36,6 +42,61 @@ function doGet(e) {
     out = { error: 'server error' };
   }
   return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON);
+}
+
+// POSTの問い合わせ（いまは先生用ログインだけ）。証明（credential）をURLに出さないためにPOSTを使う
+function doPost(e) {
+  let out;
+  try {
+    const body = JSON.parse((e && e.postData && e.postData.contents) || '{}');
+    if (body.action === 'teacher') out = teacherLogin_(String(body.credential || ''));
+    else out = { ok: false, reason: 'unknown action' };
+  } catch (err) {
+    console.error(err);
+    out = { ok: false, reason: 'server error' };
+  }
+  return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON);
+}
+
+// 先生用ログイン：Googleの証明を確かめ、「先生」シートで有効になっているメールなら名前と期生の一覧を返す
+// 1) メールアドレスが1人ずつ登録されていればその名前で入る
+// 2) なければ「@lpkjapan.com」のような会社全体の行を見る。会社のGoogle Workspaceのアカウント（hd）だけ許可し、名前はGoogleの名前
+function teacherLogin_(credential) {
+  const g = verifyGoogle_(credential);
+  if (!g) return { ok: false, reason: 'bad_token' };
+  const rows = values_(TEACHER_SHEET).filter(r => r[2] === true);
+  const person = rows.find(r => str_(r[0]).toLowerCase() === g.email);
+  const domain = person ? null : rows.find(r => {
+    const a = str_(r[0]).toLowerCase();
+    return a.charAt(0) === '@' && g.hd && a === '@' + g.hd;
+  });
+  if (!person && !domain) {
+    console.log('先生として未登録: ' + g.email);   // 実行ログで確認できる（シートに足すときの参考）
+    return { ok: false, reason: 'not_allowed' };
+  }
+  const name = person ? (str_(person[1]) || g.name || g.email) : (g.name || g.email);
+  return { ok: true, teacher: { name: name, email: g.email }, cohorts: cohorts_() };
+}
+
+// Googleの証明（IDトークン）が本物か、Googleに問い合わせて確かめる。
+// 正しければ { email（小文字）, name, hd（会社のWorkspaceのドメイン。個人Gmailは空） } を返す。だめなら null
+function verifyGoogle_(token) {
+  if (!TEACHER_CLIENT_ID || !token) return null;
+  const res = UrlFetchApp.fetch('https://oauth2.googleapis.com/tokeninfo?id_token=' + encodeURIComponent(token),
+                                { muteHttpExceptions: true });
+  if (res.getResponseCode() !== 200) return null;
+  const t = JSON.parse(res.getContentText());
+  const okIssuer = t.iss === 'accounts.google.com' || t.iss === 'https://accounts.google.com';
+  const okTime = Number(t.exp) * 1000 > Date.now();
+  if (t.aud !== TEACHER_CLIENT_ID || !okIssuer || !okTime || String(t.email_verified) !== 'true') return null;
+  return { email: String(t.email || '').toLowerCase(), name: String(t.name || ''), hd: String(t.hd || '').toLowerCase() };
+}
+
+// 名簿にある期生の一覧（例 ["JKT16", "JKT15", "KLT16", ...]。新しい期が上）
+function cohorts_() {
+  const set = {};
+  values_(SHEET.roster).forEach(r => { const id = str_(r[0]).toUpperCase(); if (ID_RE.test(id)) set[id.slice(0, 5)] = true; });
+  return Object.keys(set).sort((a, b) => (b.slice(3) - a.slice(3)) || a.localeCompare(b));
 }
 
 // 生徒IDから名前と期生を返す。名簿シート（原本の4列だけを写したもの）を見る
@@ -215,6 +276,18 @@ function setup() {
 
   const extra = ss.getSheetByName('シート1') || ss.getSheetByName('Sheet1');
   if (extra && ss.getSheets().length > 1 && lastRow_(extra) === 0) ss.deleteSheet(extra);
+}
+
+// 先生用ログインの準備：1回だけ実行。「先生」シートを作り、坂井を最初の1人として入れる。
+// （実行すると「外部サービスへの接続」の許可を聞かれるので「許可」する）
+function setupTeachers() {
+  const ss = SpreadsheetApp.getActive();
+  const sh = ensure_(ss, TEACHER_SHEET, ['メールアドレス', '名前', '有効', 'メモ']);
+  sh.getRange('C2:C200').setDataValidation(SpreadsheetApp.newDataValidation().requireCheckbox().build());
+  if (lastRow_(sh) < 2) sh.getRange(2, 1, 1, 4).setValues([[Session.getEffectiveUser().getEmail(), '坂井', true, '管理者']]);
+  sh.protect().setDescription('先生の許可リスト。変更は坂井まで').setWarningOnly(true);
+  UrlFetchApp.fetch('https://oauth2.googleapis.com/tokeninfo', { muteHttpExceptions: true });   // 許可をもらうための空の問い合わせ
+  console.log('先生シートOK。期生：' + JSON.stringify(cohorts_()));
 }
 
 // 動作確認用：実行ログに結果が出る

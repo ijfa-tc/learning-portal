@@ -1,6 +1,10 @@
 // 画面の切り替えと表示。データの取得は data.js に任せる。
 (function () {
   const STORE_KEY = "ijfa_portal_student"; // このスマホで確認済みの生徒
+  const LAST_ID_KEY = "ijfa_portal_last_id"; // ログアウトした人のIDだけ（「もう一度入る」ボタン用。名前は残さない）
+  const TEACHER_KEY = "ijfa_portal_teacher"; // ログイン中の先生（名前・メール・期生の一覧・期限）
+  const TEACHER_DAYS = 14;                   // 先生のログインはこの日数で切れる（もう一度Googleで入る）
+  const CLIENT_ID = (window.PORTAL_CONFIG || {}).GOOGLE_CLIENT_ID || "";
   const CACHE_PREFIX = "ijfa_portal_cache_"; // 前回のホーム表示（期生ごと。教材一覧だけで個人情報は入れない）
   const ID_PATTERN = /^[A-Z]{3}[0-9]{5}$/;   // 例 JKT16001
   const $ = id => document.getElementById(id);
@@ -9,10 +13,14 @@
   let portal = null;   // ホームの表示データ
   let prefetch = null; // 本人確認の画面で先に取りに行ったホームのデータ { cohortKey, promise }
   let openCat = null;  // 開いているカテゴリー { cat, group }（裏で更新されたら表示し直す）
+  let current = null;  // いまホームに出している人（生徒・ゲスト・先生の確認用）
 
   // ---- 共通 ----
   function show(viewId) {
     document.querySelectorAll(".view").forEach(v => (v.hidden = v.id !== viewId));
+    // 上のバー（名前・ログアウト）はホームとカテゴリーの画面だけに出す
+    $("topbar").hidden = !["view-home", "view-category", "view-teacher"].includes(viewId);
+    $("preview-banner").hidden = !(current && current.preview && viewId !== "view-teacher");
     window.scrollTo(0, 0);
   }
   function loading(on) { $("loading").hidden = !on; }
@@ -84,6 +92,7 @@
         return;
       }
       pending = s;
+      $("logout-done").hidden = true;
       // 先読み：「はい」を押す前に、裏でホームのデータを取りに行く
       prefetch = { cohortKey: s.cohortKey, promise: PortalData.getPortal(s.cohortKey) };
       prefetch.promise.catch(() => {});
@@ -115,17 +124,25 @@
 
   // ---- 3. ホーム ----
   async function openHome(student) {
+    current = student;
     show("view-home");
     openCat = null;
     const guest = !!student.guest;
-    $("home-hello").textContent = guest ? "ゲストさん / Tamu" : student.name + " さん";
-    $("home-cohort").textContent = guest ? "IDがあれば、テストも受けられます / Dengan ID, Anda bisa ikut tes"
-                                         : student.cohort + "期 / Angkatan " + student.cohort;
+    if (student.preview) {   // 先生が生徒の画面を確認しているとき
+      $("top-name").textContent = "先生の確認用";
+      $("top-cohort").textContent = guest ? "ゲストの画面" : student.cohortKey + " の画面";
+    } else {
+      $("top-name").textContent = guest ? "ゲスト / Tamu" : student.name + " さん";
+      $("top-cohort").textContent = guest ? "" : student.cohort + "期 / Angkatan " + student.cohort;
+    }
+    $("guest-note").hidden = !guest;
     $("assigned-title").hidden = guest;
     $("assigned-list").hidden = guest;
-    $("switch-user").replaceChildren();
-    if (guest) twoLang($("switch-user"), "IDを入れる ", "Masukkan ID");
-    else twoLang($("switch-user"), "別の人です ", "Bukan saya");
+    // 右上のボタン：ゲストは「IDを入れる」、先生の確認用は「先生の画面へ」、ほかは「ログアウト」
+    $("logout-btn").replaceChildren();
+    if (student.preview) twoLang($("logout-btn"), "先生の画面へ", "Menu Guru");
+    else if (guest) twoLang($("logout-btn"), "IDを入れる", "Masukkan ID");
+    else twoLang($("logout-btn"), "ログアウト", "Keluar");
 
     // 1) 前回の表示があれば、まずそれを出す
     const key = student.cohortKey;
@@ -194,12 +211,55 @@
     return portal.materials.filter(m => m.categoryId === cat.id).sort(byOrderThenName);
   }
 
-  $("switch-user").addEventListener("click", () => {
-    forget();
+  // ---- ログアウト ----
+  // 右上のボタン → 確認 →「ログアウトする」でID入力の画面へ。
+  // ゲストは確認なしでID入力へ。先生の確認用の画面からは先生のホームへもどる
+  function openSheet(on) { $("logout-sheet").hidden = !on; if (on) $("logout-no").focus(); }
+  function logout() {
+    openSheet(false);
+    openCat = null;
+    current = null;
     $("login-id").value = "";
     $("login-error").textContent = "";
-    show("view-login");
+    if (loadTeacher()) {   // 先生
+      forgetTeacher();
+      try { if (window.google && google.accounts) google.accounts.id.disableAutoSelect(); } catch (e) {}
+      showLogin(true);
+      return;
+    }
+    const s = load();
+    forget();
+    try { if (s && s.id) localStorage.setItem(LAST_ID_KEY, s.id); } catch (e) {}
+    showLogin(!!(s && s.id));
+  }
+  $("logout-btn").addEventListener("click", () => {
+    if (current && current.preview) { openTeacherHome(); return; }
+    if (current && current.guest) { logout(); return; }
+    const teacher = !current && loadTeacher();
+    $("sheet-note").replaceChildren();
+    if (teacher) twoLang($("sheet-note"), "つぎはGoogleアカウントで入ります", "Lain kali masuk lagi dengan akun Google");
+    else twoLang($("sheet-note"), "つぎは生徒IDを入れて入ります", "Lain kali masuk lagi dengan ID siswa");
+    openSheet(true);
   });
+  $("logout-yes").addEventListener("click", logout);
+  $("logout-no").addEventListener("click", () => openSheet(false));
+  $("logout-sheet").addEventListener("click", e => { if (e.target.id === "logout-sheet") openSheet(false); }); // 外側を押したら閉じる
+  document.addEventListener("keydown", e => { if (e.key === "Escape") openSheet(false); });
+
+  // ID入力の画面。前にログアウトした人がいれば「〇〇〇でもう一度入る」を出す
+  function showLogin(justLoggedOut) {
+    $("logout-done").hidden = !justLoggedOut;
+    let last = null;
+    try { last = localStorage.getItem(LAST_ID_KEY); } catch (e) {}
+    const again = $("again-btn");
+    again.hidden = !last;
+    if (last) {
+      again.replaceChildren();
+      twoLang(again, last + " でもう一度入る ", "Masuk lagi");
+      again.onclick = () => { $("login-id").value = last; $("login-form").dispatchEvent(new Event("submit", { cancelable: true })); };
+    }
+    show("view-login");
+  }
 
   // ---- 4. カテゴリー（例 いろどり → 入門／初級1 を選ぶ → テスト一覧） ----
   function openCategory(cat, student, group, refresh) {
@@ -236,15 +296,110 @@
   }
   // もどる：グループの中 → カテゴリー → ホーム
   $("back-home").addEventListener("click", () => {
-    const s = load();
-    if (openCat && openCat.group && s) { openCategory(openCat.cat, s); return; }
+    if (openCat && openCat.group && current) { openCategory(openCat.cat, current); return; }
     openCat = null;
     show("view-home");
   });
 
+  // ---- 先生用ログイン（Googleでログイン → GASが許可リスト「先生」シートと照らし合わせる） ----
+  function loadTeacher() {
+    try {
+      const t = JSON.parse(localStorage.getItem(TEACHER_KEY));
+      return t && t.until > Date.now() ? t : null;   // 期限切れならログインし直し
+    } catch (e) { return null; }
+  }
+  function saveTeacher(t) { try { localStorage.setItem(TEACHER_KEY, JSON.stringify(t)); } catch (e) {} }
+  function forgetTeacher() { try { localStorage.removeItem(TEACHER_KEY); } catch (e) {} }
+
+  // Googleのログインボタンは、先生用ログインの画面を開いたときだけ読み込む（生徒の画面を重くしないため）
+  let gsiLoading = null;
+  function loadGsi() {
+    if (window.google && google.accounts && google.accounts.id) return Promise.resolve();
+    if (!gsiLoading) {
+      gsiLoading = new Promise((ok, ng) => {
+        const sc = document.createElement("script");
+        sc.src = "https://accounts.google.com/gsi/client";
+        sc.async = true;
+        sc.onload = ok;
+        sc.onerror = () => { gsiLoading = null; ng(new Error("gsi")); };
+        document.head.append(sc);
+      });
+    }
+    return gsiLoading;
+  }
+
+  async function openTeacherLogin() {
+    $("tl-error").textContent = "";
+    $("g-button").replaceChildren();
+    show("view-teacher-login");
+    if (!CLIENT_ID || PortalData.useSample) {
+      $("tl-error").textContent = "先生用ログインはじゅんびちゅうです / Segera hadir";
+      return;
+    }
+    try {
+      await loadGsi();
+      google.accounts.id.initialize({ client_id: CLIENT_ID, callback: onGoogleLogin, ux_mode: "popup" });
+      google.accounts.id.renderButton($("g-button"), { theme: "outline", size: "large", text: "signin_with", width: 280, locale: "ja" });
+    } catch (e) {
+      $("tl-error").textContent = "Googleにつながりません。電波を確認してください / Gagal terhubung ke Google";
+    }
+  }
+
+  async function onGoogleLogin(resp) {
+    $("tl-error").textContent = "";
+    loading(true);
+    try {
+      const r = await PortalData.teacherLogin(resp.credential);
+      if (!r.ok) {
+        $("tl-error").textContent = r.reason === "not_allowed"
+          ? "このアカウントは先生として登録されていません。坂井に連絡してください / Akun ini belum terdaftar sebagai guru"
+          : "ログインできませんでした。もう一度ためしてください / Gagal masuk. Coba lagi";
+        return;
+      }
+      saveTeacher({ name: r.teacher.name, email: r.teacher.email, cohorts: r.cohorts || [],
+                    until: Date.now() + TEACHER_DAYS * 86400000 });
+      openTeacherHome();
+    } catch (e) {
+      $("tl-error").textContent = "つながりません。あとでもう一度 / Gagal terhubung. Coba lagi nanti.";
+    } finally {
+      loading(false);
+    }
+  }
+
+  function openTeacherHome() {
+    const t = loadTeacher();
+    if (!t) { showLogin(false); return; }
+    current = null;
+    openCat = null;
+    $("top-name").textContent = t.name + " 先生";
+    $("top-cohort").textContent = "先生用 / Guru";
+    $("logout-btn").replaceChildren();
+    twoLang($("logout-btn"), "ログアウト", "Keluar");
+    // 期生の一覧（新しい期が上）＋ゲスト
+    const sel = $("t-cohort");
+    const keep = sel.value;
+    sel.replaceChildren();
+    t.cohorts.forEach(k => { const o = el("option", "", k + "（" + parseInt(k.slice(3), 10) + "期）"); o.value = k; sel.append(o); });
+    const g = el("option", "", "ゲストの画面"); g.value = "GUEST"; sel.append(g);
+    if (keep) sel.value = keep;
+    show("view-teacher");
+  }
+  // 選んだ期生の生徒の画面を見る（フォームのIDは空のまま）
+  $("t-view").addEventListener("click", () => {
+    const k = $("t-cohort").value;
+    if (!k) return;
+    const s = k === "GUEST"
+      ? { id: "", name: "", guest: true, cohort: "", cohortKey: "GUEST", preview: true }
+      : { id: "", name: "", cohort: String(parseInt(k.slice(3), 10)), cohortKey: k, preview: true };
+    openHome(s);
+  });
+  $("teacher-link").addEventListener("click", openTeacherLogin);
+  $("tl-back").addEventListener("click", () => showLogin(false));
+
   // ---- 起動 ----
   if (PortalData.useSample) $("sample-banner").hidden = false;
   const saved = load();
-  if (saved && (saved.id || saved.guest) && saved.cohortKey) openHome(saved);
-  else show("view-login");
+  if (loadTeacher()) openTeacherHome();
+  else if (saved && (saved.id || saved.guest) && saved.cohortKey) openHome(saved);
+  else showLogin(false);
 })();
