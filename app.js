@@ -3,7 +3,7 @@
   const STORE_KEY = "ijfa_portal_student"; // このスマホで確認済みの生徒
   const LAST_ID_KEY = "ijfa_portal_last_id"; // ログアウトした人のIDだけ（「もう一度入る」ボタン用。名前は残さない）
   const TEACHER_KEY = "ijfa_portal_teacher"; // ログイン中の先生（名前・メール・期生の一覧・期限）
-  const TEACHER_DAYS = 14;                   // 先生のログインはこの日数で切れる（もう一度Googleで入る）
+  const TEACHER_DAYS = 365;                  // 先生のログインは「ログアウト」を押すまで続く（念のため1年で切れる）
   const CLIENT_ID = (window.PORTAL_CONFIG || {}).GOOGLE_CLIENT_ID || "";
   const CACHE_PREFIX = "ijfa_portal_cache_"; // 前回のホーム表示（期生ごと。教材一覧だけで個人情報は入れない）
   const ID_PATTERN = /^[A-Z]{3}[0-9]{5}$/;   // 例 JKT16001
@@ -388,6 +388,18 @@
     const g = el("option", "", "ゲストの画面"); g.value = "GUEST"; sel.append(g);
     if (keep) sel.value = keep;
     show("view-teacher");
+    refreshCohorts(t);
+  }
+  // 期生の一覧を裏で最新にする（新しい期が入ったとき用）。失敗したら前の一覧のまま
+  async function refreshCohorts(t) {
+    try {
+      const r = await PortalData.getCohorts();
+      if (!r || !Array.isArray(r.cohorts) || r.cohorts.length === 0) return;
+      if (JSON.stringify(r.cohorts) === JSON.stringify(t.cohorts)) return;
+      t.cohorts = r.cohorts;
+      saveTeacher(t);
+      if (!$("view-teacher").hidden) openTeacherHome();
+    } catch (e) {}
   }
   // 選んだ期生の生徒の画面を見る（フォームのIDは空のまま）
   $("t-view").addEventListener("click", () => {

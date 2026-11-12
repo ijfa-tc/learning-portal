@@ -56,5 +56,11 @@ window.PortalData = (function () {
     return callApi({ action: "tsession", t: t });
   }
 
-  return { getStudent, getPortal, teacherSession, useSample };
+  // 期生の一覧 { cohorts: ["JKT16", ...] }（先生のホームの選択肢用。個人情報は入っていない）
+  async function getCohorts() {
+    if (useSample) return { cohorts: [] };
+    return callApi({ action: "cohorts" });
+  }
+
+  return { getStudent, getPortal, teacherSession, getCohorts, useSample };
 })();

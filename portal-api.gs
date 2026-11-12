@@ -10,6 +10,7 @@
  *   ?action=portal&cohort=JKT14  → カテゴリー・公開中の教材・その期生への指定テストを返す
  *   POST（Googleから）credential  → 先生か確かめ、ポータルへもどるボタンの画面を出す（合言葉 t つき）
  *   ?action=tsession&t=合言葉     → 先生の名前と期生の一覧を返す（合言葉は5分・1回だけ有効）
+ *   ?action=cohorts              → 期生の一覧（例 JKT16）だけを返す。先生のホームの選択肢を最新にする用
  *
  * 最初に1回だけ：setup を実行（シートの準備・フォーム一覧の取り込み・毎日の自動更新を設定）
  * 先生用ログインの準備：setupTeachers を1回実行（「先生」シートを作る＋外部への問い合わせを許可）
@@ -39,6 +40,7 @@ function doGet(e) {
     if (p.action === 'student') out = getStudent_(String(p.id || '').trim().toUpperCase());
     else if (p.action === 'portal') out = getPortal_(String(p.cohort || '').trim().toUpperCase());
     else if (p.action === 'tsession') out = teacherSession_(String(p.t || ''));
+    else if (p.action === 'cohorts') out = { cohorts: cohorts_() };
     else out = { error: 'unknown action' };
   } catch (err) {
     console.error(err);
