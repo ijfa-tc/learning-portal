@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <title>読み方練習 | IJFA</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <!-- 1. メニュー（5つの練習。中身は yomi.json） -->
+    <section id="view-menu" class="view">
+      <a class="btn btn-quiet back" href="./">← ポータル <span class="id-text">Portal</span></a>
+      <h1 class="title">読み方練習</h1>
+      <p class="sub">れんしゅうを えらんで ください<br><span class="id-text">Pilih latihan</span></p>
+      <div id="menu-list" class="list"></div>
+    </section>
+
+    <!-- 2. ステージを選ぶ -->
+    <section id="view-stage" class="view" hidden>
+      <button id="stage-back" class="btn btn-quiet back" type="button">← もどる <span class="id-text">Kembali</span></button>
+      <h2 id="stage-title" class="h2"></h2>
+      <div id="stage-list" class="list"></div>
+    </section>
+
+    <!-- 3. 問題 -->
+    <section id="view-quiz" class="view" hidden>
+      <div class="quiz-top">
+        <button id="q-quit" class="btn btn-quiet back" type="button">← やめる <span class="id-text">Berhenti</span></button>
+        <span id="q-progress" class="q-progress"></span>
+      </div>
+      <p class="sub">よみかたは どれですか。<span class="id-text">Bagaimana cara membacanya?</span></p>
+      <p id="q-number" class="q-number"></p>
+      <div id="q-choices" class="choices"></div>
+      <div id="q-feedback" class="feedback" hidden></div>
+      <button id="q-next" class="btn btn-main" type="button" hidden></button>
+    </section>
+
+    <!-- 4. 結果（どこにも送らない） -->
+    <section id="view-result" class="view" hidden>
+      <p id="r-stage" class="sub"></p>
+      <p id="r-score" class="r-score"></p>
+      <h2 id="r-tips-title" class="h2">にがてな ポイント <span class="id-text">Yang perlu diperhatikan</span></h2>
+      <div id="r-tips"></div>
+      <h2 id="r-wrong-title" class="h2">まちがえた もんだい <span class="id-text">Soal yang salah</span></h2>
+      <div id="r-wrong" class="list"></div>
+      <div class="row r-buttons">
+        <button id="r-retry-wrong" class="btn btn-main" type="button">まちがえた もんだいを もういちど <span class="id-text">Ulangi soal yang salah</span></button>
+        <button id="r-again" class="btn" type="button">あたらしい 10もん <span class="id-text">10 soal baru</span></button>
+        <button id="r-stages" class="btn" type="button">ほかの れんしゅう <span class="id-text">Latihan lain</span></button>
+      </div>
+    </section>
+
+    <p id="loading" class="loading" hidden>よみこみ中… <span class="id-text">Memuat…</span></p>
+  </main>
+
+  <script src="yomi.js"></script>
+</body>
+</html>

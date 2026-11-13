@@ -9,6 +9,10 @@
   --line: #d8dde3;
   --error: #b3261e;
   --notice: #fff4d6;
+  --ok: #1e7a3c;
+  --ok-bg: #e5f4ea;
+  --ng: #b3261e;
+  --ng-bg: #fbe9e7;
   --radius: 12px;
   --font: system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", "Segoe UI", sans-serif;
   color-scheme: light;
@@ -24,6 +28,10 @@
     --line: #2e3844;
     --error: #ff8a80;
     --notice: #3a3320;
+    --ok: #7fd49a;
+    --ok-bg: #1d3325;
+    --ng: #ff8a80;
+    --ng-bg: #3d2220;
     color-scheme: dark;
   }
 }
@@ -152,3 +160,38 @@ main { max-width: 520px; margin: 0 auto; padding: 24px 18px 48px; }
 .g-button { display: flex; justify-content: center; min-height: 48px; margin: 8px 0; }
 .pick { display: grid; gap: 10px; }
 .select { font-size: 18px; letter-spacing: 0; text-transform: none; appearance: auto; }
+
+/* 読み方練習（yomi.html） */
+.quiz-top { display: flex; align-items: center; justify-content: space-between; }
+.q-progress { color: var(--muted); font-size: 15px; }
+.q-number { font-size: 44px; font-weight: bold; text-align: center; margin: 12px 0 20px; word-break: break-all; }
+.choices { display: grid; gap: 10px; }
+.choice {
+  display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 10px 14px;
+  font-family: inherit; font-size: 20px; text-align: left; cursor: pointer;
+  border: 2px solid var(--line); border-radius: var(--radius); background: var(--surface); color: var(--text);
+}
+.choice:disabled { cursor: default; }
+.choice:focus-visible { outline: 3px solid var(--main); outline-offset: 2px; }
+.choice-no {
+  flex: none; display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; border: 2px solid var(--muted); border-radius: 50%; font-size: 15px; color: var(--muted);
+}
+.choice-text { word-break: break-all; }
+.choice-ok { border-color: var(--ok); background: var(--ok-bg); }
+.choice-ok .choice-no { border-color: var(--ok); background: var(--ok); color: var(--surface); }
+.choice-ng { border-color: var(--ng); background: var(--ng-bg); }
+.choice-ng .choice-no { border-color: var(--ng); background: var(--ng); color: var(--surface); }
+.feedback { margin: 16px 0; padding: 12px 14px; border-radius: var(--radius); border: 2px solid var(--line); background: var(--surface); }
+.feedback-ok { border-color: var(--ok); }
+.feedback-ng { border-color: var(--ng); }
+.fb-head { font-weight: bold; font-size: 19px; margin: 0 0 4px; }
+.feedback-ok .fb-head { color: var(--ok); }
+.feedback-ng .fb-head { color: var(--ng); }
+.fb-answer { font-size: 20px; font-weight: bold; margin: 0 0 6px; word-break: break-all; }
+.fb-tip { margin: 6px 0 0; font-size: 15px; }
+.fb-tip .id-text { display: block; }
+.r-score { font-size: 48px; font-weight: bold; text-align: center; margin: 4px 0 8px; }
+.r-q { display: block; font-weight: bold; word-break: break-all; }
+.r-buttons { margin-top: 24px; }
+a.btn { text-decoration: none; }
