@@ -158,7 +158,7 @@
 
   // 1問を作る（リストのステージ）
   function makeListQ(item) {
-    return { show: item.q, key: item.q, a: item.a, n: item.n, ni: item.ni,
+    return { show: item.q, key: item.q, sub: item.m, a: item.a, n: item.n, ni: item.ni,
              choices: item.x.map(x => ({ t: x[0], tag: x[1] })) };
   }
 
@@ -227,6 +227,9 @@
   // ---- 問題 ----
   function start(st, onlyThese) {
     stage = st;
+    const pr = mod.prompt || { ja: "よみかたは どれですか。", id: "Bagaimana cara membacanya?" };
+    $("q-prompt").textContent = "";
+    twoLang($("q-prompt"), pr.ja, pr.id);
     qs = onlyThese ? shuffle(onlyThese) : buildQuestions(st, mod.count || 10);
     pos = 0;
     wrong = [];
@@ -238,6 +241,8 @@
     const q = qs[pos];
     $("q-progress").textContent = (pos + 1) + " / " + qs.length;
     $("q-number").textContent = q.show;
+    $("q-sub").textContent = q.sub || "";      // ことばの意味（インドネシア語）。ないときは出さない
+    $("q-sub").hidden = !q.sub;
     $("q-feedback").hidden = true;
     $("q-next").hidden = true;
     const box = $("q-choices");

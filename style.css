@@ -164,7 +164,8 @@ main { max-width: 520px; margin: 0 auto; padding: 24px 18px 48px; }
 /* 読み方練習（yomi.html） */
 .quiz-top { display: flex; align-items: center; justify-content: space-between; }
 .q-progress { color: var(--muted); font-size: 15px; }
-.q-number { font-size: 44px; font-weight: bold; text-align: center; margin: 12px 0 20px; word-break: break-all; }
+.q-number { font-size: 40px; font-weight: bold; text-align: center; margin: 12px 0 20px; line-height: 1.25; overflow-wrap: anywhere; }
+.q-sub { color: var(--muted); text-align: center; margin: -14px 0 18px; }
 .choices { display: grid; gap: 10px; }
 .choice {
   display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 10px 14px;

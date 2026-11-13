@@ -5,6 +5,6 @@
     { "id": "kanji", "nameJa": "漢字の意味",             "nameId": "Arti kanji",                   "desc": "音読み・訓読み・意味",     "status": "soon" },
     { "id": "yomi",  "nameJa": "漢字の読み方",           "nameId": "Cara membaca kanji",           "desc": "学校 → がっこう",          "status": "soon" },
     { "id": "abc",   "nameJa": "アルファベットの読み方", "nameId": "Membaca alfabet ala Jepang",   "desc": "ATM → エーティーエム",     "status": "ready", "file": "yomi-abc.json" },
-    { "id": "kata",  "nameJa": "カタカナ語",             "nameId": "Kata serapan (katakana)",      "desc": "computer → コンピューター", "status": "soon" }
+    { "id": "kata",  "nameJa": "カタカナ語",             "nameId": "Kata serapan (katakana)",      "desc": "computer → コンピューター", "status": "ready", "file": "yomi-kata.json" }
   ]
 }
