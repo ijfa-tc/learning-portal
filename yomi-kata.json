@@ -6,8 +6,8 @@
   {"id": "s1", "nameJa": "生活の ことば", "nameId": "Kehidupan sehari-hari", "desc": "bus → バス、coffee → コーヒー", "list": "life"},
   {"id": "s2", "nameJa": "仕事の ことば", "nameId": "Pekerjaan", "desc": "computer → コンピューター", "list": "work"},
   {"id": "s3", "nameJa": "短く なる ことば", "nameId": "Kata yang disingkat", "desc": "air conditioner → エアコン", "list": "short"},
-  {"id": "s4", "nameJa": "しゅみの ことば（面接）", "nameId": "Hobi (untuk wawancara)", "desc": "soccer → サッカー、design → デザイン", "list": "hobby"},
-  {"id": "s5", "nameJa": "有名な 名前（面接）", "nameId": "Nama terkenal (untuk wawancara)", "desc": "Disneyland → ディズニーランド", "list": "names"},
+  {"id": "s4", "nameJa": "しゅみの ことば", "nameId": "Hobi", "desc": "soccer → サッカー、design → デザイン", "list": "hobby"},
+  {"id": "s5", "nameJa": "有名な 名前", "nameId": "Nama terkenal", "desc": "Disneyland → ディズニーランド", "list": "names"},
   {"id": "all", "nameJa": "ぜんぶ まぜる", "nameId": "Campur semua", "desc": "", "mix": ["s1", "s2", "s3", "s4", "s5"]}
  ],
  "tags": {
