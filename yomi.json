@@ -1,9 +1,9 @@
 {
-  "_note": "読み方練習のメニュー。status が soon のものは「じゅんびちゅう」で押せない。中身ができたら ready にして file を書く。",
+  "_note": "読み方練習のメニュー。status が soon のものは「じゅんびちゅう」で押せない。中身ができたら ready にして file を書く。1つのデータを2つの練習で使うときは mode を書く。",
   "modules": [
     { "id": "num",   "nameJa": "数字の読み方",           "nameId": "Cara membaca angka",           "desc": "15,000 → いちまんごせん", "status": "ready", "file": "yomi-num.json" },
-    { "id": "kanji", "nameJa": "漢字の意味",             "nameId": "Arti kanji",                   "desc": "音読み・訓読み・意味",     "status": "soon" },
-    { "id": "yomi",  "nameJa": "漢字の読み方",           "nameId": "Cara membaca kanji",           "desc": "学校 → がっこう",          "status": "soon" },
+    { "id": "kanji", "nameJa": "漢字の意味",             "nameId": "Arti kanji",                   "desc": "休 → istirahat",           "status": "ready", "file": "yomi-kanji.json", "mode": "imi" },
+    { "id": "yomi",  "nameJa": "漢字の読み方",           "nameId": "Cara membaca kanji",           "desc": "学校 → がっこう",          "status": "ready", "file": "yomi-kanji.json", "mode": "yomi" },
     { "id": "abc",   "nameJa": "アルファベットの読み方", "nameId": "Membaca alfabet ala Jepang",   "desc": "ATM → エーティーエム",     "status": "ready", "file": "yomi-abc.json" },
     { "id": "kata",  "nameJa": "カタカナ語",             "nameId": "Kata serapan (katakana)",      "desc": "computer → コンピューター", "status": "ready", "file": "yomi-kata.json" }
   ]

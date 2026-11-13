@@ -6,6 +6,8 @@
   let menu = null;     // yomi.json
   let mod = null;      // いま開いている練習のデータ（yomi-num.json など）
   let stage = null;    // いまのステージ
+  let stages = [];     // いま開いている練習のステージ一覧
+  let prompt = null;   // 問いの文（練習ごと）
   let qs = [];         // 出す問題 [{ show, a, choices:[{t, tag}], n, ni }]
   let pos = 0;         // 何問目か
   let wrong = [];      // まちがえた問題 { q, picked }
@@ -172,8 +174,10 @@
     let guard = 0;
     while (out.length < count && guard++ < 200) {
       const kind = kinds[out.length % kinds.length];
-      const s = mod.stages.find(x => x.id === kind);
-      const q = s.list ? makeListQ(pick(listOf(s))) : makeNumQ(s.gen);
+      const s = stages.find(x => x.id === kind);
+      const q = s.list ? makeListQ(pick(listOf(s)))
+        : window.YomiKanji && YomiKanji.isGen(s.gen) ? YomiKanji.makeQ(s, mod)   // 漢字（yomi-kanji.js）
+        : makeNumQ(s.gen);
       if (!q || keys.has(q.key)) continue;
       keys.add(q.key);
       out.push(q);
@@ -210,11 +214,15 @@
     try { mod = await getJson(m.file); }
     catch (e) { $("loading").hidden = true; alert("よみこめませんでした / Gagal memuat"); return; }
     $("loading").hidden = true;
+    // 1つのデータを2つの練習で使うときは mode で分ける（漢字の意味・漢字の読み方）
+    const md = m.mode && mod.modes ? mod.modes[m.mode] : mod;
+    stages = md.stages;
+    prompt = md.prompt || null;
     $("stage-title").textContent = "";
     twoLang($("stage-title"), m.nameJa, m.nameId);
     const list = $("stage-list");
     list.innerHTML = "";
-    mod.stages.forEach(st => {
+    stages.forEach(st => {
       const b = el("button", "item item-group");
       b.type = "button";
       twoLang(b, st.nameJa, st.nameId + (st.desc ? "　" + st.desc : ""));
@@ -227,7 +235,7 @@
   // ---- 問題 ----
   function start(st, onlyThese) {
     stage = st;
-    const pr = mod.prompt || { ja: "よみかたは どれですか。", id: "Bagaimana cara membacanya?" };
+    const pr = prompt || { ja: "よみかたは どれですか。", id: "Bagaimana cara membacanya?" };
     $("q-prompt").textContent = "";
     twoLang($("q-prompt"), pr.ja, pr.id);
     qs = onlyThese ? shuffle(onlyThese) : buildQuestions(st, mod.count || 10);
@@ -241,6 +249,7 @@
     const q = qs[pos];
     $("q-progress").textContent = (pos + 1) + " / " + qs.length;
     $("q-number").textContent = q.show;
+    $("q-number").classList.toggle("q-sign", q.style === "sign");   // 看板・表示は看板風に
     $("q-sub").textContent = q.sub || "";      // ことばの意味（インドネシア語）。ないときは出さない
     $("q-sub").hidden = !q.sub;
     $("q-feedback").hidden = true;
@@ -279,6 +288,8 @@
       if (tag) { const p = el("p", "fb-tip"); twoLang(p, tag.ja, tag.id); fb.append(p); }
     }
     if (q.n) { const p = el("p", "fb-tip"); twoLang(p, q.n, q.ni); fb.append(p); }
+    // 漢字カード（読み方の一覧・ことば）。正解でも まちがいでも 出す
+    (q.cards || []).forEach(c => fb.append(YomiKanji.renderCard(c, el, twoLang)));
     fb.hidden = false;
     $("q-next").textContent = "";
     twoLang($("q-next"), pos + 1 < qs.length ? "つぎへ" : "けっかを 見る", pos + 1 < qs.length ? " Lanjut" : " Lihat hasil");
