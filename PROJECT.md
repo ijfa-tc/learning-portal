@@ -18,7 +18,7 @@
 - app.js：画面の動き　data.js：データ読み込み　config.js：API_URL
 - style.css：見た目（色・フォントは先頭の :root だけで変える）
 - sample.json：API_URLが空のときに使うサンプル（名前は架空）
-- yomi.html / yomi.js：読み方練習（ポータルとは別ページ。教材リストの1行でつなぐ）。yomi.json＝練習のメニュー（status が soon なら「じゅんびちゅう」）、yomi-num.json＝数字の読み方の問題・まちがいの説明、yomi-abc.json＝アルファベット、yomi-kata.json＝カタカナ語、yomi-kanji.json＝漢字（意味・読み方の2つの練習で共通。もとはスプレッドシート「読み方練習 漢字データ（チェック用）」）、yomi-kanji.js＝漢字の問題づくり。yomi.js などを直したら yomi.html の ?v= の日付を変える
+- yomi.html / yomi.js：読み方練習と漢字（ポータルとは別ページ。yomi.html＝読み方練習、yomi.html?set=kanji＝漢字。教材リストの行でつなぐ）。yomi.json＝練習のメニュー（status が soon なら「じゅんびちゅう」）、yomi-num.json＝数字の読み方の問題・まちがいの説明、yomi-abc.json＝アルファベット、yomi-kata.json＝カタカナ語、yomi-kanji.json＝漢字（意味・読み方の2つの練習で共通。もとはスプレッドシート「読み方練習 漢字データ（チェック用）」）、yomi-kanji.js＝漢字の問題づくり。yomi.js などを直したら yomi.html の ?v= の日付を変える
 - portal-api.gs：GASのコードの控え。直したらApps Script側と内容をそろえ、新バージョンでデプロイし直す
 
 ## 決定済み

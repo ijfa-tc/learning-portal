@@ -190,10 +190,18 @@
   // =====================================================================
 
   // ---- メニュー ----
+  // ページの種類：yomi.html?set=kanji → 漢字、それ以外 → 読み方練習
+  const SET = new URLSearchParams(location.search).get("set") === "kanji" ? "kanji" : "yomi";
+
   function renderMenu() {
+    const info = (menu.sets || {})[SET];
+    if (info) {
+      $("menu-title").textContent = info.titleJa;
+      document.title = info.titleJa + " | IJFA";
+    }
     const list = $("menu-list");
     list.innerHTML = "";
-    menu.modules.forEach(m => {
+    menu.modules.filter(m => (m.set || "yomi") === SET).forEach(m => {
       if (m.status !== "ready") {
         const d = el("div", "item item-soon");
         twoLang(d, m.nameJa + "（じゅんびちゅう）", m.nameId + " (Segera hadir)");
