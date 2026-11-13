@@ -162,6 +162,9 @@
              choices: item.x.map(x => ({ t: x[0], tag: x[1] })) };
   }
 
+  // リストのステージの問題：list が true なら items、名前なら その名前のリスト（例 letters）
+  function listOf(s) { return mod[s.list === true ? "items" : s.list] || []; }
+
   // ステージの問題を count 問 そろえる（同じ問題は なるべく 出さない）
   function buildQuestions(st, count) {
     const kinds = st.mix ? st.mix : [st.id];
@@ -170,7 +173,7 @@
     while (out.length < count && guard++ < 200) {
       const kind = kinds[out.length % kinds.length];
       const s = mod.stages.find(x => x.id === kind);
-      const q = s.list ? makeListQ(pick(mod.items)) : makeNumQ(s.gen);
+      const q = s.list ? makeListQ(pick(listOf(s))) : makeNumQ(s.gen);
       if (!q || keys.has(q.key)) continue;
       keys.add(q.key);
       out.push(q);
