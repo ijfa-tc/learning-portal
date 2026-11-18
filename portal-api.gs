@@ -11,6 +11,8 @@
  *   POST（Googleから）credential  → 先生か確かめ、ポータルへもどるボタンの画面を出す（合言葉 t つき）
  *   ?action=tsession&t=合言葉     → 先生の名前と期生の一覧を返す（合言葉は5分・1回だけ有効）
  *   ?action=cohorts              → 期生の一覧（例 JKT16）だけを返す。先生のホームの選択肢を最新にする用
+ *   POST action=feedback         → ホームの「ご意見をお聞かせください」の内容を「報告・要望」シートに1行足す
+ *                                   （シートがなければ自動で作る。メールは送らない）
  *
  * 最初に1回だけ：setup を実行（シートの準備・フォーム一覧の取り込み・毎日の自動更新を設定）
  * 先生用ログインの準備：setupTeachers を1回実行（「先生」シートを作る＋外部への問い合わせを許可）
@@ -29,6 +31,9 @@ const TEACHER_CLIENT_ID = '104523748851-6vkdfmldttl2h96i03utphdr83eil1qt.apps.go
 const PORTAL_URL = 'https://ijfa-tc.github.io/learning-portal/';     // 先生用ログインのあと、もどる先
 const TEACHER_SHEET = '先生';                                          // 許可リスト（A メールアドレス / B 名前 / C 有効 / D メモ）
                                                                        // A列に「@lpkjapan.com」のように @から書くと、その会社アカウント全員を許可
+const FEEDBACK_SHEET = '報告・要望';                                   // ホームの意見フォームの送り先
+const FEEDBACK_MAX = 1000;                                             // 内容は1000文字まで
+const FEEDBACK_LIMIT = 10;                                             // 同じ人から1時間に10件まで（いたずら・連打よけ。ゲストは全員で30件）
 
 // =====================================================================
 // ポータルからの問い合わせ
@@ -53,6 +58,13 @@ function doGet(e) {
 // 先生か確かめたら、合言葉を作って「ポータルにもどる」ボタンの画面を出す
 function doPost(e) {
   const p = (e && e.parameter) || {};
+  // ホームの意見フォームから（ポータルが送ってくる）
+  if (p.action === 'feedback') {
+    let out;
+    try { out = saveFeedback_(p); }
+    catch (err) { console.error(err); out = { ok: false, reason: 'server' }; }
+    return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON);
+  }
   let back;
   try {
     const r = teacherLogin_(String(p.credential || ''));
@@ -189,6 +201,80 @@ function getPortal_(cohortKey) {
   const out = { categories, materials, assigned };
   cache.put('portal_' + cohortKey, JSON.stringify(out), CACHE_SEC);
   return out;
+}
+
+// =====================================================================
+// 意見・報告（ホームの「ご意見をお聞かせください」）
+// 「報告・要望」シートに1行足す。状況（未対応／確認中／対応済み／見送り）は先生がシートで変える
+// =====================================================================
+const FEEDBACK_HEADERS = ['受付日時', '種類', '内容', 'いつも起きる？', '状況', '担当', 'メモ',
+                          '名前', '生徒ID・メール', '区分', '端末', '画面サイズ', '送った画面', 'ブラウザ情報'];
+const FEEDBACK_KINDS = { error: 'エラー・こまったこと', idea: 'こんな機能がほしい', other: 'その他' };
+const FEEDBACK_FREQ = { always: 'いつも', sometimes: 'ときどき', once: '1回だけ' };
+
+function saveFeedback_(p) {
+  const kind = FEEDBACK_KINDS[str_(p.kind)];
+  const text = str_(p.text).slice(0, FEEDBACK_MAX);
+  if (!kind) return { ok: false, reason: 'kind' };
+  if (text.length < 2) return { ok: false, reason: 'text' };
+
+  // だれから？ 生徒は名簿で確かめて、名前は名簿のものを使う（ポータルから来た名前は使わない）
+  const role = str_(p.role);
+  let name = '', who = '', group = '';
+  if (role === 'student') {
+    const s = getStudent_(str_(p.id).toUpperCase());
+    if (!s.found) return { ok: false, reason: 'id' };
+    name = s.student.name; who = s.student.id; group = s.student.cohortKey;
+  } else if (role === 'teacher') {
+    name = str_(p.name).slice(0, 60); who = str_(p.email).slice(0, 100); group = '先生';
+  } else {
+    name = 'ゲスト'; group = 'ゲスト';
+  }
+
+  // 送りすぎよけ（1時間あたり）
+  const cache = CacheService.getScriptCache();
+  const key = 'fb_' + (who || 'guest');
+  const count = Number(cache.get(key) || 0);
+  if (count >= (who ? FEEDBACK_LIMIT : FEEDBACK_LIMIT * 3)) return { ok: false, reason: 'limit' };
+  cache.put(key, String(count + 1), 3600);
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const sh = feedbackSheet_();
+    const row = [new Date(), kind, text, FEEDBACK_FREQ[str_(p.freq)] || '', '未対応', '', '',
+                 name, who, group, str_(p.device).slice(0, 30), str_(p.screen).slice(0, 20),
+                 str_(p.view).slice(0, 30), str_(p.ua).slice(0, 300)];
+    sh.getRange(lastRow_(sh) + 1, 1, 1, row.length).setValues([row.map(safeCell_)]);
+  } finally {
+    lock.releaseLock();
+  }
+  return { ok: true };
+}
+
+// 「報告・要望」シート。なければ作る（見出し・状況のプルダウン・列の幅）
+function feedbackSheet_() {
+  const ss = SpreadsheetApp.getActive();
+  let sh = ss.getSheetByName(FEEDBACK_SHEET);
+  if (sh) return sh;
+  sh = ensure_(ss, FEEDBACK_SHEET, FEEDBACK_HEADERS);
+  sh.getRange('A2:A2000').setNumberFormat('yyyy/MM/dd HH:mm');
+  sh.getRange('E2:E2000').setDataValidation(SpreadsheetApp.newDataValidation()
+    .requireValueInList(['未対応', '確認中', '対応済み', '見送り'], true).build());
+  sh.getRange('C2:C2000').setWrap(true);
+  sh.setColumnWidth(1, 130); sh.setColumnWidth(2, 150); sh.setColumnWidth(3, 360);
+  sh.setColumnWidth(5, 90); sh.setColumnWidth(14, 200);
+  return sh;
+}
+
+// = + - @ で始まる文字は、シートで計算式にならないように ' をつける
+function safeCell_(v) {
+  return (typeof v === 'string' && /^[=+\-@]/.test(v)) ? "'" + v : v;
+}
+
+// 動作確認用：「報告・要望」シートにテストの1行が入る（確かめたら行を消してOK）
+function testFeedback() {
+  console.log(JSON.stringify(saveFeedback_({ kind: 'other', text: 'テストです', role: 'guest', view: 'テスト' })));
 }
 
 // =====================================================================
