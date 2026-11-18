@@ -21,6 +21,8 @@
     // 上のバー（名前・ログアウト）はホームとカテゴリーの画面だけに出す
     $("topbar").hidden = !["view-home", "view-category", "view-teacher"].includes(viewId);
     $("preview-banner").hidden = !(current && current.preview && viewId !== "view-teacher");
+    // 意見フォームは生徒・ゲストのホームと先生のホームだけ（先生の確認用の画面では出さない）
+    $("feedback").hidden = !((viewId === "view-home" && !(current && current.preview)) || viewId === "view-teacher");
     window.scrollTo(0, 0);
   }
   function loading(on) { $("loading").hidden = !on; }
@@ -412,6 +414,66 @@
   });
   $("teacher-link").addEventListener("click", () => openTeacherLogin());
   $("tl-back").addEventListener("click", () => showLogin(false));
+
+  // ---- 意見・報告フォーム（ホームのいちばん下） ----
+  function fbChecked(name) {
+    const r = document.querySelector('#fb-form input[name="' + name + '"]:checked');
+    return r ? r.value : "";
+  }
+  // 端末のだいたいの種類（直すときにいちばん役に立つ）
+  function deviceName() {
+    const ua = navigator.userAgent;
+    if (/iPhone/.test(ua)) return "iPhone";
+    if (/iPad/.test(ua)) return "iPad";
+    if (/Android/.test(ua)) return /Mobile/.test(ua) ? "Android スマホ" : "Android タブレット";
+    if (/Windows/.test(ua)) return "Windows";
+    if (/Macintosh/.test(ua)) return "Mac";
+    return "その他";
+  }
+  // 「エラー・こまったこと」のときだけ「いつも起きる？」を出す
+  $("fb-form").addEventListener("change", e => {
+    $("fb-error").textContent = "";
+    if (e.target.name === "kind") $("fb-freq-set").hidden = fbChecked("kind") !== "error";
+  });
+  $("fb-form").addEventListener("submit", async e => {
+    e.preventDefault();
+    const kind = fbChecked("kind");
+    const text = $("fb-text").value.trim();
+    $("fb-error").textContent = "";
+    if (!kind) { $("fb-error").textContent = "どんなことか選んでください / Pilih jenisnya dulu"; return; }
+    if (text.length < 5) { $("fb-error").textContent = "もう少しくわしく書いてください / Tulis sedikit lebih rinci"; return; }
+
+    // だれが送ったか（生徒はIDだけ送り、名前はGASが名簿から入れる）
+    const t = !current ? loadTeacher() : null;
+    const who = t ? { role: "teacher", name: t.name, email: t.email }
+              : (current && current.guest) ? { role: "guest" }
+              : { role: "student", id: current ? current.id : "" };
+    const send = $("fb-send");
+    send.disabled = true;
+    try {
+      const r = await PortalData.sendFeedback(Object.assign({
+        kind: kind, text: text, freq: kind === "error" ? fbChecked("freq") : "",
+        view: t ? "先生のホーム" : "ホーム", device: deviceName(),
+        screen: window.innerWidth + "x" + window.innerHeight, ua: navigator.userAgent.slice(0, 300)
+      }, who));
+      if (!r || !r.ok) throw new Error((r && r.reason) || "ng");
+      $("fb-form").reset();
+      $("fb-freq-set").hidden = true;
+      $("fb-form").hidden = true;
+      $("fb-done").hidden = false;
+    } catch (err) {
+      $("fb-error").textContent = err.message === "limit"
+        ? "たくさん送られたので、少し時間をおいてください / Terlalu banyak. Coba lagi nanti."
+        : "送れませんでした。電波を確認して、もう一度 / Gagal mengirim. Cek sinyal dan coba lagi.";
+    } finally {
+      send.disabled = false;
+    }
+  });
+  $("fb-again").addEventListener("click", () => {
+    $("fb-done").hidden = true;
+    $("fb-form").hidden = false;
+    $("fb-text").focus();
+  });
 
   // ---- 起動 ----
   if (PortalData.useSample) $("sample-banner").hidden = false;

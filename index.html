@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex, nofollow">
   <title>IJFA Learning Portal</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=20261118">
 </head>
 <body>
   <!-- サンプルデータで動いているときだけ表示 -->
@@ -95,6 +95,42 @@
       <div id="material-list" class="list"></div>
     </section>
 
+    <!-- 意見・報告フォーム（生徒のホームと先生のホームのいちばん下。送り先はGASの「報告・要望」シート） -->
+    <details id="feedback" class="feedback-box" hidden>
+      <summary class="fb-summary">ご意見をお聞かせください<span class="id-text">Kami ingin mendengar pendapat Anda</span></summary>
+      <div class="fb-body">
+        <p class="fb-lead">エラーやこまったこと、「こんな機能があったら便利だな」と思ったことなど、使ってみた皆さんの意見を集めています。インドネシア語でもかまいませんので、自由に書いてください。できるだけ具体的に書いてもらえると、改善に役立ちます。</p>
+        <p class="fb-lead id-text">Kami mengumpulkan pendapat dari semua yang sudah mencoba portal ini, misalnya error, hal yang membingungkan atau menyulitkan, atau fitur yang menurut Anda akan berguna. Silakan tulis dengan bebas, boleh dalam bahasa Indonesia. Semakin jelas dan rinci tulisan Anda, semakin membantu kami untuk memperbaikinya.</p>
+        <form id="fb-form" novalidate>
+          <fieldset class="fb-set">
+            <legend class="fb-label">どんなこと？ <span class="id-text">Tentang apa?</span></legend>
+            <div class="fb-kinds">
+              <label class="fb-kind"><input type="radio" name="kind" value="error"><span>⚠ エラー・こまったこと<span class="id-text">Error・Kesulitan</span></span></label>
+              <label class="fb-kind"><input type="radio" name="kind" value="idea"><span>💡 こんな機能がほしい<span class="id-text">Usulan fitur</span></span></label>
+              <label class="fb-kind"><input type="radio" name="kind" value="other"><span>💬 その他<span class="id-text">Lainnya</span></span></label>
+            </div>
+          </fieldset>
+          <fieldset id="fb-freq-set" class="fb-set" hidden>
+            <legend class="fb-label">いつも起きる？ <span class="id-text">Apakah selalu terjadi?</span></legend>
+            <div class="fb-freq">
+              <label class="fb-kind fb-small"><input type="radio" name="freq" value="always"><span>いつも<span class="id-text">Selalu</span></span></label>
+              <label class="fb-kind fb-small"><input type="radio" name="freq" value="sometimes"><span>ときどき<span class="id-text">Kadang</span></span></label>
+              <label class="fb-kind fb-small"><input type="radio" name="freq" value="once"><span>1回だけ<span class="id-text">Sekali</span></span></label>
+            </div>
+          </fieldset>
+          <label class="fb-label" for="fb-text">くわしく書いてください <span class="id-text">Tulis dengan rinci</span></label>
+          <textarea id="fb-text" class="fb-text" rows="5" maxlength="1000"
+                    placeholder="例：JLPT N3 模試1の聴解5番で、音声が流れない（スマホ）&#10;Contoh: Di JLPT N3 Ujian Coba 1, Choukai nomor 5, audionya tidak keluar (HP)"></textarea>
+          <p id="fb-error" class="error" role="alert"></p>
+          <button id="fb-send" class="btn btn-main" type="submit">送る <span class="id-text">Kirim</span></button>
+        </form>
+        <div id="fb-done" class="fb-done" hidden>
+          <p class="fb-thanks">Terima kasih! ありがとうございました</p>
+          <button id="fb-again" class="btn" type="button">もう1つ送る <span class="id-text">Kirim lagi</span></button>
+        </div>
+      </div>
+    </details>
+
     <!-- ログアウトの確認（まちがって押しても大丈夫なように） -->
     <div id="logout-sheet" class="sheet-bg" hidden>
       <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
@@ -110,8 +146,9 @@
     <p id="loading" class="loading" hidden>よみこみ中… <span class="id-text">Memuat…</span></p>
   </main>
 
+  <!-- ?v= は、古い画面が残らないようにするための日付。js を直したら変える -->
   <script src="config.js"></script>
-  <script src="data.js"></script>
-  <script src="app.js"></script>
+  <script src="data.js?v=20261118"></script>
+  <script src="app.js?v=20261118"></script>
 </body>
 </html>

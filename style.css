@@ -165,6 +165,38 @@ main { max-width: 520px; margin: 0 auto; padding: 24px 18px 48px; }
 .pick { display: grid; gap: 10px; }
 .select { font-size: 18px; letter-spacing: 0; text-transform: none; appearance: auto; }
 
+/* 意見・報告フォーム（ホームのいちばん下。押すと開く） */
+.feedback-box { margin-top: 40px; background: var(--surface); border: 2px dashed var(--line); border-radius: var(--radius); }
+.fb-summary { position: relative; min-height: 56px; padding: 14px 44px 14px 16px; font-weight: bold; cursor: pointer; list-style: none; }
+.fb-summary::-webkit-details-marker { display: none; }
+.fb-summary::after { content: "＋"; position: absolute; right: 16px; top: 14px; color: var(--muted); }
+.feedback-box[open] .fb-summary::after { content: "－"; }
+.fb-summary .id-text { display: block; }
+.fb-body { padding: 0 16px 16px; }
+.fb-lead { margin: 0 0 10px; font-size: 15px; }
+p.fb-lead.id-text { display: block; font-size: 14px; }
+.fb-set { border: none; margin: 0; padding: 0; min-width: 0; }
+.fb-label { display: block; font-weight: bold; font-size: 16px; margin: 16px 0 8px; padding: 0; }
+.fb-label .id-text { font-size: 14px; }
+.fb-kinds { display: grid; gap: 8px; }
+.fb-freq { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.fb-kind {
+  display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 8px 12px; cursor: pointer;
+  font-size: 16px; line-height: 1.35; border: 2px solid var(--line); border-radius: var(--radius); background: var(--bg);
+}
+.fb-kind input { flex: none; width: 20px; height: 20px; margin: 0; accent-color: var(--main); }
+.fb-kind .id-text { display: block; }
+.fb-kind:has(input:checked) { border-color: var(--main); background: var(--surface); }
+.fb-small { gap: 6px; padding: 8px; font-size: 15px; }
+.fb-text {
+  display: block; width: 100%; padding: 12px; font-family: inherit; font-size: 16px; line-height: 1.5; resize: vertical;
+  border: 2px solid var(--line); border-radius: var(--radius); background: var(--bg); color: var(--text);
+}
+.fb-text:focus { outline: none; border-color: var(--main); }
+.fb-done { text-align: center; }
+.fb-thanks { font-weight: bold; color: var(--ok); margin: 8px 0 14px; }
+.btn:disabled { opacity: 0.6; cursor: default; }
+
 /* 読み方練習（yomi.html） */
 .quiz-top { display: flex; align-items: center; justify-content: space-between; }
 .q-progress { color: var(--muted); font-size: 15px; }

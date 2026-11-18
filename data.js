@@ -62,5 +62,16 @@ window.PortalData = (function () {
     return callApi({ action: "cohorts" });
   }
 
-  return { getStudent, getPortal, teacherSession, getCohorts, useSample };
+  // ホームの意見フォーム：GASの「報告・要望」シートへ送る。返り値 { ok } / { ok: false, reason }
+  async function sendFeedback(params) {
+    if (useSample) return { ok: true, sample: true };
+    const res = await fetch(API_URL, {
+      method: "POST",
+      body: new URLSearchParams(Object.assign({ action: "feedback" }, params))
+    });
+    if (!res.ok) throw new Error("API error " + res.status);
+    return res.json();
+  }
+
+  return { getStudent, getPortal, teacherSession, getCohorts, sendFeedback, useSample };
 })();
