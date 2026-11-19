@@ -103,12 +103,16 @@ window.YomiKanji = (function () {
   }
 
   // ---- 問題 ----
+  // st.d があるときは、その むずかしさの字だけを出す（1＝やさしい、2＝むずかしい。データの d がない字は 1）
+  // ひっかけの選択肢は、むずかしさに関係なく 同じレベルの字から
+  // hint：「ヒント」ボタンで見られる 例のことば（2つまで）
   function kmean(st) {
     const list = data.kanji.filter(e => e.lv === st.lv);
-    const e = pick(list);
+    const pool = st.d ? list.filter(e => (e.d || 1) === st.d) : list;
+    const e = pick(pool);
     const look = shuffle(e.look.filter(c => byK[c] && byK[c].m !== e.m).map(c => ({ t: byK[c].m, tag: "look" }))).slice(0, 2);
     const other = shuffle(list.filter(x => x !== e).map(x => ({ t: x.m, tag: "other" })));
-    return { key: "m" + e.k, show: e.k, a: e.m, choices: collect(e.m, [look, other]), cards: [kanjiCard(e)] };
+    return { key: "m" + e.k, show: e.k, a: e.m, hint: e.w.slice(0, 2), choices: collect(e.m, [look, other]), cards: [kanjiCard(e)] };
   }
 
   function kword(st) {

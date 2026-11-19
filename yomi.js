@@ -210,6 +210,12 @@
       }
       const b = el("button", "item item-group");
       b.type = "button";
+      // 「〇〇な人は こちら！」の ひとこと（yomi.json の catchJa・catchId。ないときは出さない）
+      if (m.catchJa) {
+        const c = el("span", "item-catch", m.catchJa);
+        if (m.catchId) c.append(el("span", "id-text", m.catchId));
+        b.append(c);
+      }
       twoLang(b, m.nameJa, m.nameId + (m.desc ? "　" + m.desc : ""));
       b.addEventListener("click", () => openModule(m));
       list.append(b);
@@ -262,6 +268,16 @@
     $("q-sub").hidden = !q.sub;
     $("q-feedback").hidden = true;
     $("q-next").hidden = true;
+    // ヒント（漢字の意味）：押すと 例のことばが 出る
+    const hb = $("q-hint-box");
+    hb.innerHTML = "";
+    hb.hidden = true;
+    $("q-hint").hidden = !(q.hint && q.hint.length);
+    (q.hint || []).forEach(w => {
+      const li = el("li");
+      li.append(el("b", "", w[0]), document.createTextNode("（" + w[1] + "）"), el("span", "kcard-wm", w[2]));
+      hb.append(li);
+    });
     const box = $("q-choices");
     box.innerHTML = "";
     const all = shuffle([{ t: q.a, ok: true }].concat(q.choices));
@@ -274,8 +290,14 @@
     });
   }
 
+  $("q-hint").addEventListener("click", () => {
+    $("q-hint-box").hidden = false;
+    $("q-hint").hidden = true;
+  });
+
   function answer(c, btn) {
     const q = qs[pos];
+    $("q-hint").hidden = true;   // 答えたら ヒントボタンは しまう（カードに 全部 出るので）
     const buttons = Array.from($("q-choices").children);
     buttons.forEach(b => {
       b.disabled = true;

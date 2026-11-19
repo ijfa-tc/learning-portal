@@ -248,3 +248,11 @@ a.btn { text-decoration: none; }
 .kcard-w li { padding: 3px 0; border-top: 1px dashed var(--line); }
 .kcard-wm { color: var(--muted); margin-left: 8px; }
 .kcard-h, .kcard-where { margin: 8px 0 0; font-size: 14px; color: var(--muted); }
+
+/* 読み方練習：ボタンの上の ひとこと（「〇〇な人は こちら！」） */
+.item-catch { display: block; margin-bottom: 4px; font-size: 14px; color: var(--main); }
+.item-catch .id-text { display: block; font-size: 12px; }
+/* 読み方練習：ヒント（例のことば） */
+.btn-hint { display: block; margin: 0 auto 14px; min-height: 40px; font-size: 15px; }
+.hint-box { list-style: none; margin: 0 0 16px; padding: 10px 12px; border: 1px dashed var(--line); border-radius: var(--radius); background: var(--bg); font-size: 15px; }
+.hint-box li { padding: 3px 0; }
