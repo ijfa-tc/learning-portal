@@ -240,11 +240,27 @@
       const b = el("button", "item item-group");
       b.type = "button";
       twoLang(b, st.nameJa, st.nameId + (st.desc ? "　" + st.desc : ""));
-      b.addEventListener("click", () => start(st));
+      // view が cards のステージは 問題ではなく カードの一覧（部首）
+      b.addEventListener("click", () => (st.view === "cards" ? showCards(st) : start(st)));
       list.append(b);
     });
     show("view-stage");
   }
+
+  // ---- カードの一覧（部首カードを 見る） ----
+  function showCards(st) {
+    $("cards-title").textContent = "";
+    twoLang($("cards-title"), st.nameJa, st.nameId);
+    const list = $("cards-list");
+    list.innerHTML = "";
+    YomiKanji.bushuCards(mod).forEach(c => list.append(YomiKanji.renderCard(c, el, twoLang)));
+    // 見おわったら 練習へ（練習のステージが あるとき）
+    const practice = stages.find(x => x.gen);
+    $("cards-practice").hidden = !practice;
+    $("cards-practice").onclick = () => start(practice);
+    show("view-cards");
+  }
+  $("cards-back").addEventListener("click", () => show("view-stage"));
 
   // ---- 問題 ----
   function start(st, onlyThese) {
@@ -264,6 +280,9 @@
     $("q-progress").textContent = (pos + 1) + " / " + qs.length;
     $("q-number").textContent = q.show;
     $("q-number").classList.toggle("q-sign", q.style === "sign");   // 看板・表示は看板風に
+    // 部首から考える：問いは 意味（ことば）なので 小さめ、選択肢は 漢字なので 大きく
+    $("q-number").classList.toggle("q-word", q.style === "guess");
+    $("q-choices").classList.toggle("choices-kanji", q.style === "guess");
     $("q-sub").textContent = q.sub || "";      // ことばの意味（インドネシア語）。ないときは出さない
     $("q-sub").hidden = !q.sub;
     $("q-feedback").hidden = true;

@@ -256,3 +256,11 @@ a.btn { text-decoration: none; }
 .btn-hint { display: block; margin: 0 auto 14px; min-height: 40px; font-size: 15px; }
 .hint-box { list-style: none; margin: 0 0 16px; padding: 10px 12px; border: 1px dashed var(--line); border-radius: var(--radius); background: var(--bg); font-size: 15px; }
 .hint-box li { padding: 3px 0; }
+/* 部首カード：ひとこと説明 */
+.kcard-story { margin: 8px 0 0; font-size: 15px; }
+.kcard-story .id-text { display: block; }
+#cards-list .kcard { margin-bottom: 12px; }
+#cards-practice { margin-top: 8px; width: 100%; }
+/* 部首から考える：問いは ことば（小さめ）、選択肢は 漢字（大きく） */
+.q-number.q-word { font-size: 30px; }
+.choices-kanji .choice-text { font-size: 30px; }

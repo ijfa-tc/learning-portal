@@ -10,6 +10,8 @@
     { "id": "kata",  "set": "yomi",  "nameJa": "カタカナ語",             "nameId": "Kata serapan (katakana)",      "desc": "computer → コンピューター", "status": "ready", "file": "yomi-kata.json" },
     { "id": "yomi",  "set": "kanji", "nameJa": "漢字の読み方",           "nameId": "Cara membaca kanji",           "desc": "学校 → がっこう",          "status": "ready", "file": "yomi-kanji.json", "mode": "yomi",
       "catchJa": "漢字に 自信が ない 人は こちら！", "catchId": "Belum percaya diri dengan kanji? Mulai dari sini!" },
+    { "id": "bushu", "set": "kanji", "nameJa": "部首",                   "nameId": "Bagian kanji (bushu)",         "desc": "氵 → air",                 "status": "ready", "file": "yomi-bushu.json",
+      "catchJa": "漢字の しくみを 知りたい 人は こちら！", "catchId": "Kenali bagian-bagian kanji!" },
     { "id": "kanji", "set": "kanji", "nameJa": "漢字の意味",             "nameId": "Arti kanji",                   "desc": "休 → istirahat",           "status": "ready", "file": "yomi-kanji.json", "mode": "imi",
       "catchJa": "漢字マスターに なりたい 人は こちら！", "catchId": "Untuk yang ingin jadi master kanji!" }
   ]

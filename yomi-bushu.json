@@ -1,0 +1,35 @@
+{
+ "_note": "漢字ページの「部首」のデータ。もとはスプレッドシート「読み方練習 漢字データ（チェック用）」の「部首」シート（2026-11-19 坂井さん確認）。b：部首の形、name：名前（おぼえなくてOK）、m：意味、sj・si：ひとこと（日本語・インドネシア語）、ex：つながりが見える字と意味。直すときはシートを直してから、Claudeにこのファイルを作り直してもらう。",
+ "count": 10,
+ "prompt": {"ja": "部首を ヒントに、意味に あう 漢字を えらんで ください。", "id": "Pilih kanji yang cocok dengan artinya. Petunjuk: bushu."},
+ "stages": [
+  {"id": "cards", "nameJa": "部首カードを 見る", "nameId": "Lihat kartu bushu", "desc": "氵 = air → 海・泳・洗", "view": "cards"},
+  {"id": "guess", "nameJa": "部首から 意味を 考える", "nameId": "Tebak arti dari bushu", "desc": "berenang → 泳", "gen": "bguess"}
+ ],
+ "tags": {
+  "other": {"ja": "ほかの 部首の 漢字です。部首の 形を よく 見てみましょう。", "id": "Itu kanji dengan bushu lain. Perhatikan bentuk bushu-nya baik-baik."}
+ },
+ "bushu": [
+  {"b": "亻", "name": "にんべん", "m": "orang", "sj": "人が 立っている 形", "si": "Bentuk orang berdiri", "ex": [["休", "istirahat"], ["住", "tinggal"], ["体", "tubuh"], ["働", "bekerja"]]},
+  {"b": "氵", "name": "さんずい", "m": "air", "sj": "水の しずく", "si": "Tetesan air", "ex": [["海", "laut"], ["泳", "berenang"], ["洗", "mencuci"], ["流", "mengalir"], ["酒", "minuman keras"], ["港", "pelabuhan"]]},
+  {"b": "扌", "name": "てへん", "m": "tangan", "sj": "手の 形", "si": "Bentuk tangan", "ex": [["持", "memegang"], ["押", "menekan"], ["打", "memukul"], ["投", "melempar"], ["指", "jari"], ["抱", "memeluk"]]},
+  {"b": "口", "name": "くち", "m": "mulut", "sj": "口の 形", "si": "Bentuk mulut", "ex": [["呼", "memanggil"], ["吸", "menghisap"], ["味", "rasa"], ["鳴", "berbunyi"], ["吹", "meniup"]]},
+  {"b": "言", "name": "ごんべん", "m": "kata; berbicara", "sj": "口から ことばが 出る", "si": "Kata-kata keluar dari mulut", "ex": [["話", "berbicara"], ["語", "bahasa"], ["読", "membaca"], ["説", "menjelaskan"], ["談", "berbicara"]]},
+  {"b": "日", "name": "ひ・ひへん", "m": "matahari; hari", "sj": "太陽の 形", "si": "Bentuk matahari", "ex": [["明", "terang"], ["晴", "cerah"], ["暗", "gelap"], ["昼", "siang"], ["晩", "malam"], ["時", "waktu"]]},
+  {"b": "目", "name": "め", "m": "mata", "sj": "目の 形（たてにした）", "si": "Bentuk mata (diputar tegak)", "ex": [["見", "melihat"], ["眠", "tidur"]]},
+  {"b": "頁", "name": "おおがい", "m": "kepala", "sj": "人の 頭の 形", "si": "Bentuk kepala orang", "ex": [["顔", "wajah"], ["頭", "kepala"]]},
+  {"b": "心", "name": "こころ・りっしんべん（忄）", "m": "hati; perasaan", "sj": "心ぞうの 形。左に つくと「忄」", "si": "Bentuk jantung. Di sebelah kiri menjadi 忄", "ex": [["思", "berpikir"], ["悲", "sedih"], ["感", "merasa"], ["想", "membayangkan"], ["愛", "cinta"], ["怒", "marah"], ["怖", "takut"], ["情", "perasaan"]]},
+  {"b": "女", "name": "おんな・おんなへん", "m": "perempuan", "sj": "女の人の 形", "si": "Bentuk perempuan", "ex": [["姉", "kakak perempuan"], ["妹", "adik perempuan"], ["娘", "anak perempuan"], ["妻", "istri"], ["婦", "wanita"]]},
+  {"b": "力", "name": "ちから", "m": "tenaga; kekuatan", "sj": "うでの 力こぶ", "si": "Otot lengan yang kuat", "ex": [["動", "bergerak"], ["助", "membantu"], ["努", "berusaha"], ["勉", "berusaha"], ["労", "kerja keras"], ["勤", "bekerja"]]},
+  {"b": "艹", "name": "くさかんむり", "m": "tumbuhan", "sj": "草が 生えている 形", "si": "Rumput yang tumbuh", "ex": [["花", "bunga"], ["茶", "teh"], ["草", "rumput"], ["葉", "daun"], ["薬", "obat"]]},
+  {"b": "雨", "name": "あめかんむり", "m": "hujan; cuaca", "sj": "空から 雨が ふる 形", "si": "Hujan turun dari langit", "ex": [["雪", "salju"], ["電", "listrik"]]},
+  {"b": "火", "name": "ひ・れっか（灬）", "m": "api; panas", "sj": "火が もえる 形。下に つくと「灬」", "si": "Bentuk api. Di bawah menjadi 灬", "ex": [["熱", "panas"], ["煙", "asap"]]},
+  {"b": "土", "name": "つち・つちへん", "m": "tanah", "sj": "地面から 芽が 出る 形", "si": "Tunas keluar dari tanah", "ex": [["地", "tanah"], ["場", "tempat"]]},
+  {"b": "宀", "name": "うかんむり", "m": "rumah; atap", "sj": "家の やね", "si": "Atap rumah", "ex": [["家", "rumah"], ["室", "ruangan"], ["宿", "menginap"], ["宅", "rumah"], ["客", "tamu"]]},
+  {"b": "門", "name": "もんがまえ", "m": "pintu; gerbang", "sj": "2まいの 戸の 門", "si": "Gerbang dengan dua pintu", "ex": [["開", "membuka"], ["閉", "menutup"]]},
+  {"b": "辶", "name": "しんにょう", "m": "jalan; bergerak", "sj": "道を 歩いて 進む", "si": "Berjalan di jalan", "ex": [["近", "dekat"], ["遠", "jauh"], ["道", "jalan"], ["送", "mengirim"], ["通", "lewat"], ["返", "mengembalikan"], ["進", "maju"], ["逃", "melarikan diri"]]},
+  {"b": "貝", "name": "かい", "m": "uang; harta", "sj": "むかしは 貝が お金だった", "si": "Dulu kerang dipakai sebagai uang", "ex": [["買", "membeli"], ["貸", "meminjamkan"], ["費", "biaya"], ["財", "harta"], ["貧", "miskin"]]},
+  {"b": "疒", "name": "やまいだれ", "m": "sakit", "sj": "病気で ベッドに ねている", "si": "Orang sakit berbaring di tempat tidur", "ex": [["病", "sakit"], ["痛", "sakit"], ["疲", "lelah"]]},
+  {"b": "飠", "name": "しょくへん", "m": "makan", "sj": "「食」が 左に ついた 形", "si": "Bentuk 食 (makan) di sebelah kiri", "ex": [["飲", "minum"], ["飯", "nasi"]]}
+ ]
+}

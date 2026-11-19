@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex, nofollow">
   <title>読み方練習 | IJFA</title>
-  <link rel="stylesheet" href="style.css?v=20261119a">
+  <link rel="stylesheet" href="style.css?v=20261119b">
 </head>
 <body>
   <main>
@@ -22,6 +22,15 @@
       <button id="stage-back" class="btn btn-quiet back" type="button">← もどる <span class="id-text">Kembali</span></button>
       <h2 id="stage-title" class="h2"></h2>
       <div id="stage-list" class="list"></div>
+    </section>
+
+    <!-- 2b. カードの一覧（部首カードを 見る） -->
+    <section id="view-cards" class="view" hidden>
+      <button id="cards-back" class="btn btn-quiet back" type="button">← もどる <span class="id-text">Kembali</span></button>
+      <h2 id="cards-title" class="h2"></h2>
+      <p class="sub">部首を 見ると、漢字の 意味が わかる ことが あります。名前は おぼえなくても 大丈夫！<br><span class="id-text">Dari bushu, kita bisa menebak arti kanji. Namanya tidak perlu dihafal!</span></p>
+      <div id="cards-list"></div>
+      <button id="cards-practice" class="btn btn-main" type="button">練習する <span class="id-text">Latihan</span></button>
     </section>
 
     <!-- 3. 問題 -->
@@ -59,7 +68,7 @@
     <p id="loading" class="loading" hidden>よみこみ中… <span class="id-text">Memuat…</span></p>
   </main>
 
-  <script src="yomi-kanji.js?v=20261119a"></script>
-  <script src="yomi.js?v=20261119a"></script>
+  <script src="yomi-kanji.js?v=20261119b"></script>
+  <script src="yomi.js?v=20261119b"></script>
 </body>
 </html>

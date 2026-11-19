@@ -158,18 +158,71 @@ window.YomiKanji = (function () {
              cards: [{ type: "sign", w: s.w, r: s.r, m: s.m, where: s.where }] };
   }
 
+  // ---- 部首（データは yomi-bushu.json） ----
+  // 漢字カードに部首を出すため、部首データを 1回だけ 読んでおく（読めなくても 練習は できる）
+  let bushuOf = null;   // 字 → 部首
+  function setBushu(mod) {
+    if (bushuOf) return;
+    bushuOf = {};
+    mod.bushu.forEach(b => b.ex.forEach(x => (bushuOf[x[0]] = b)));
+  }
+  function loadBushu() {
+    if (bushuOf) return;
+    fetch("yomi-bushu.json").then(r => r.json()).then(setBushu).catch(() => {});
+  }
+  const bushuCard = b => ({ type: "bushu", b: b.b, name: b.name, m: b.m, sj: b.sj, si: b.si, ex: b.ex });
+
+  // 部首から意味を考える：「berenang」→ 泳（ヒント 氵＝air）。
+  // まちがいの選択肢は ほかの部首の「つながりが見える字」だけから（同じ意味の字は 入れない）
+  function bguess(st, mod) {
+    setBushu(mod);
+    const b = pick(mod.bushu), x = pick(b.ex);
+    const other = shuffle(mod.bushu.filter(o => o !== b).flatMap(o => o.ex)
+      .filter(y => y[1] !== x[1]).map(y => ({ t: y[0], tag: "other" })));
+    return { key: "g" + x[0], show: x[1], style: "guess", sub: "ヒント： " + b.b + " ＝ " + b.m, a: x[0],
+             choices: collect(x[0], [other]), cards: [bushuCard(b)] };
+  }
+
   const GEN = { kmean, kword, smean, kread, ksame, sread };
 
   // 1問を作る。3つの選択肢がそろわないときは null（yomi.js が作り直す）
   function makeQ(st, mod) {
+    if (st.gen === "bguess") {
+      const q = bguess(st, mod);
+      return q.choices.length === 3 ? q : null;
+    }
     init(mod);
+    loadBushu();
     const q = GEN[st.gen](st);
     return q && q.choices.length === 3 ? q : null;
   }
 
+  // 部首カードの一覧（「部首カードを 見る」）
+  function bushuCards(mod) { setBushu(mod); return mod.bushu.map(bushuCard); }
+
   // カードの見た目を作る（el, twoLang は yomi.js から借りる）
   function renderCard(c, el, twoLang) {
     const box = el("div", "kcard");
+    if (c.type === "bushu") {
+      const head = el("div", "kcard-head");
+      head.append(el("span", "kcard-k", c.b));
+      const t = el("div");
+      t.append(el("div", "kcard-m", c.m));
+      t.append(el("div", "kcard-r", "なまえ：" + c.name + "（おぼえなくて OK）"));
+      head.append(t);
+      box.append(head);
+      const p = el("p", "kcard-story");
+      twoLang(p, c.sj, c.si);
+      box.append(p);
+      const ul = el("ul", "kcard-w");
+      c.ex.forEach(x => {
+        const li = el("li");
+        li.append(el("b", "", x[0]), el("span", "kcard-wm", x[1]));
+        ul.append(li);
+      });
+      box.append(ul);
+      return box;
+    }
     if (c.type === "sign") {
       const head = el("div", "kcard-head");
       head.append(el("span", "kcard-sign", c.w));
@@ -200,8 +253,11 @@ window.YomiKanji = (function () {
     });
     box.append(ul);
     if (c.h) box.append(el("p", "kcard-h", c.h));
+    // 部首（つながりが見える字のときだけ）
+    const bu = bushuOf && bushuOf[c.k];
+    if (bu) box.append(el("p", "kcard-h", "部首 Bushu：" + bu.b + " ＝ " + bu.m));
     return box;
   }
 
-  return { makeQ, renderCard, isGen: g => !!GEN[g], _test: { swapReadings, mutations } };
+  return { makeQ, renderCard, bushuCards, isGen: g => !!GEN[g] || g === "bguess", _test: { swapReadings, mutations } };
 })();
