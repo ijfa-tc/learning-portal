@@ -292,8 +292,12 @@
     hb.innerHTML = "";
     hb.hidden = true;
     $("q-hint").hidden = !(q.hint && q.hint.length);
+    // ボタンの文字：部首の練習は「部首を 見る」、ほかは「ことばを 見る」
+    $("q-hint").textContent = "";
+    twoLang($("q-hint"), q.hintBushu ? "ヒント（部首を 見る） " : "ヒント（ことばを 見る） ", "Lihat petunjuk");
     (q.hint || []).forEach(w => {
       const li = el("li");
+      if (typeof w === "string") { li.textContent = w; hb.append(li); return; }   // 1行の ヒント（部首）
       li.append(el("b", "", w[0]), document.createTextNode("（" + w[1] + "）"), el("span", "kcard-wm", w[2]));
       hb.append(li);
     });

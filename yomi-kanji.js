@@ -178,8 +178,9 @@ window.YomiKanji = (function () {
     setBushu(mod);
     const b = pick(mod.bushu), x = pick(b.ex);
     const other = shuffle(mod.bushu.filter(o => o !== b).flatMap(o => o.ex)
-      .filter(y => y[1] !== x[1]).map(y => ({ t: y[0], tag: "other" })));
-    return { key: "g" + x[0], show: x[1], style: "guess", sub: "ヒント： " + b.b + " ＝ " + b.m, a: x[0],
+      .filter(y => y[1] !== x[1] && !(b.nx || "").includes(y[0]))   // nx：その部首の形が入っている字（土 の問題に 煙 など）は出さない
+      .map(y => ({ t: y[0], tag: "other" })));
+    return { key: "g" + x[0], show: x[1], style: "guess", hint: [b.b + " ＝ " + b.m], hintBushu: true, a: x[0],   // ヒントは ボタンを 押したら 見える
              choices: collect(x[0], [other]), cards: [bushuCard(b)] };
   }
 
