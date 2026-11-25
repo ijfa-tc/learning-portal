@@ -1,5 +1,5 @@
 {
- "version": "2026-11-25i",
+ "version": "2026-11-26h",
  "lessons": [
   {
    "no": 1,
@@ -180,175 +180,175 @@
    "no": 26,
    "ja": "〜んです、〜ていただけませんか、〜たらいいですか",
    "id": "menjelaskan alasan (~n desu), bolehkah Anda ~?, sebaiknya bagaimana?",
-   "ready": false,
+   "ready": true,
    "stage": "N4"
   },
   {
    "no": 27,
    "ja": "可能形、見えます・聞こえます、しか〜ない",
    "id": "bisa (bentuk potensial), terlihat / terdengar, hanya ~",
-   "ready": false,
+   "ready": true,
    "stage": "N4"
   },
   {
    "no": 28,
    "ja": "〜ながら、〜ています（習慣）、〜し、〜し",
    "id": "sambil ~, kebiasaan, ~ dan juga ~ (alasan)",
-   "ready": false,
+   "ready": true,
    "stage": "N4"
   },
   {
    "no": 29,
    "ja": "自動詞＋ています（状態）、〜てしまいます",
    "id": "keadaan (terbuka, rusak, dll.), sudah terlanjur ~ / selesai ~",
-   "ready": false,
+   "ready": true,
    "stage": "N4"
   },
   {
    "no": 30,
    "ja": "〜てあります、〜ておきます",
    "id": "sudah di~ (keadaan hasil), ~ dulu (persiapan)",
-   "ready": false,
+   "ready": true,
    "stage": "N4"
   },
   {
    "no": 31,
    "ja": "意向形、〜ようと思っています、〜つもりです、〜予定です",
    "id": "ayo ~ (bentuk ajakan), berniat ~, rencana",
-   "ready": false,
+   "ready": true,
    "stage": "N4"
   },
   {
    "no": 32,
    "ja": "〜ほうがいいです、〜でしょう、〜かもしれません",
    "id": "sebaiknya ~, mungkin ~ (perkiraan), mungkin saja ~",
-   "ready": false,
+   "ready": true,
    "stage": "N4"
   },
   {
    "no": 33,
    "ja": "命令形・禁止形、〜と書いてあります、〜と伝えて いただけませんか",
    "id": "bentuk perintah & larangan, artinya ~, menyampaikan pesan",
-   "ready": false,
+   "ready": true,
    "stage": "N4"
   },
   {
    "no": 34,
    "ja": "〜とおりに、〜あとで、〜て／〜ないで（どうやって）",
    "id": "sesuai dengan ~, setelah ~, dengan cara ~ / tanpa ~",
-   "ready": false,
+   "ready": true,
    "stage": "N4"
   },
   {
    "no": 35,
    "ja": "条件形（〜ば）、〜なら、どうすれば いいですか",
    "id": "kalau ~ (bentuk -ba), kalau soal ~, sebaiknya bagaimana?",
-   "ready": false,
+   "ready": true,
    "stage": "N4"
   },
   {
    "no": 36,
    "ja": "〜ように（目的）、〜ようになります、〜ようにしています",
    "id": "supaya ~, menjadi bisa ~, berusaha untuk ~",
-   "ready": false,
+   "ready": true,
    "stage": "N4"
   },
   {
    "no": 37,
    "ja": "受身（〜られます）",
    "id": "bentuk pasif (di~)",
-   "ready": false,
+   "ready": true,
    "stage": "N4"
   },
   {
    "no": 38,
    "ja": "〜のは・〜のが・〜のを（名詞化）",
    "id": "mengubah kalimat menjadi kata benda (~ no)",
-   "ready": false,
+   "ready": true,
    "stage": "N4"
   },
   {
    "no": 39,
    "ja": "〜て・〜なくて（理由）、〜ので",
    "id": "karena ~ (perasaan & keadaan), karena ~ (node)",
-   "ready": false,
+   "ready": true,
    "stage": "N4"
   },
   {
    "no": 40,
    "ja": "〜か、〜かどうか、〜てみます",
    "id": "apakah ~ atau tidak, mencoba ~",
-   "ready": false,
+   "ready": true,
    "stage": "N4"
   },
   {
    "no": 41,
    "ja": "いただきます・くださいます・やります（授受の 敬語）",
    "id": "memberi & menerima (bahasa hormat)",
-   "ready": false,
+   "ready": true,
    "stage": "N4"
   },
   {
    "no": 42,
    "ja": "〜ために（目的）、〜のに（用途）",
    "id": "untuk ~ (tujuan), dipakai untuk ~",
-   "ready": false,
+   "ready": true,
    "stage": "N4"
   },
   {
    "no": 43,
    "ja": "〜そうです（様子）、〜てきます",
    "id": "kelihatannya ~, pergi lalu kembali",
-   "ready": false,
+   "ready": true,
    "stage": "N4"
   },
   {
    "no": 44,
    "ja": "〜すぎます、〜やすい・〜にくい、〜く／〜にします",
    "id": "terlalu ~, mudah / sulit ~, membuat jadi ~, memilih ~",
-   "ready": false,
+   "ready": true,
    "stage": "N4"
   },
   {
    "no": 45,
    "ja": "〜場合は、〜のに（逆接）",
    "id": "kalau terjadi ~, padahal ~",
-   "ready": false,
+   "ready": true,
    "stage": "N4"
   },
   {
    "no": 46,
    "ja": "〜ところです、〜たばかりです、〜はずです",
    "id": "baru akan / sedang / baru saja ~, seharusnya ~",
-   "ready": false,
+   "ready": true,
    "stage": "N4"
   },
   {
    "no": 47,
    "ja": "〜そうです（伝聞）、〜ようです",
    "id": "katanya ~, sepertinya ~",
-   "ready": false,
+   "ready": true,
    "stage": "N4"
   },
   {
    "no": 48,
    "ja": "使役（〜させます）、〜させていただけませんか",
    "id": "menyuruh / membiarkan (bentuk kausatif), izinkan saya ~",
-   "ready": false,
+   "ready": true,
    "stage": "N4"
   },
   {
    "no": 49,
    "ja": "尊敬語（お〜になります・〜られます など）",
    "id": "sonkeigo (bahasa hormat untuk orang lain)",
-   "ready": false,
+   "ready": true,
    "stage": "N4"
   },
   {
    "no": 50,
    "ja": "謙譲語（お〜します など）",
    "id": "kenjougo (bahasa merendah untuk diri sendiri)",
-   "ready": false,
+   "ready": true,
    "stage": "N4"
   }
  ],
