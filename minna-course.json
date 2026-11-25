@@ -1,5 +1,5 @@
 {
- "version": "2026-11-26h",
+ "version": "2026-11-26j",
  "lessons": [
   {
    "no": 1,
@@ -412,7 +412,7 @@
     1,
     8
    ],
-   "ready": false
+   "ready": true
   },
   {
    "id": "M02",
@@ -421,7 +421,7 @@
     9,
     17
    ],
-   "ready": false
+   "ready": true
   },
   {
    "id": "M03",

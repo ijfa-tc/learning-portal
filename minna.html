@@ -70,6 +70,10 @@ button .idt{color:inherit;opacity:.85;font-size:11px}
 .blank:empty::before{content:"\00a0"}
 ruby{ruby-position:over}rt{font-size:.5em}
 .opts{display:grid;gap:8px}
+.ctx{border:1px solid var(--rule);background:var(--soft);border-radius:6px;padding:12px 14px;margin:0 0 12px;font-size:17px;line-height:2;line-break:strict;overflow-wrap:break-word}
+.ctx h4{margin:0 0 4px;font-size:16px}
+.ctx table{border-collapse:collapse;width:100%;font-size:15px;line-height:1.6}.ctx td,.ctx th{border:1px solid var(--rule);padding:4px 6px;text-align:left}.ctx th{white-space:nowrap;width:1%}
+.word{font-weight:700;font-size:21px}
 .opt{display:grid;grid-template-columns:2em 1fr;align-items:center;gap:8px;text-align:left;background:var(--bg);border:1.5px solid var(--rule);border-radius:8px;padding:10px 12px;font-family:var(--f-paper);font-size:18px;line-height:1.5;min-height:52px}
 .opt .n{font-family:var(--f-ui);font-weight:700;font-size:14px;width:1.8em;height:1.8em;border-radius:50%;border:1.5px solid var(--ink);display:grid;place-items:center}
 .opt[aria-checked="true"]{border-color:var(--ink);background:var(--soft)}
@@ -136,11 +140,14 @@ const $ = id => document.getElementById(id);
 const ID = t => `<span class="idt">${t}</span>`;
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const pad = n => String(n).padStart(2,"0");
-const lid = n => "L" + pad(n);
+const lid = n => /^M/.test(String(n)) ? String(n) : "L" + pad(+n);
+/* まとめテスト（M01〜）は id が "M01" のような 文字 */
+const isM = n => /^M/.test(String(n));
+const unitName = n => isM(n) ? ((COURSE && COURSE.matome.find(m=>m.id===n)) || {title:n}).title : `第${n}課`;
 let COURSE = null, DATA = null, S = {};
 const CACHE = {};
 
-const SEC = {vocab:{ja:"語彙", id:"Kosakata", n:10}, kanji:{ja:"漢字", id:"Kanji", n:5}, grammar:{ja:"文法", id:"Tata bahasa", n:10}};
+const SEC = {vocab:{ja:"語彙", id:"Kosakata", n:10}, kanji:{ja:"漢字", id:"Kanji", n:5}, grammar:{ja:"文法", id:"Tata bahasa", n:10}, read:{ja:"読解", id:"Membaca", n:0}};
 const FMT = {
   "文脈規定":   {ins:"[ ] に 入る ものは どれですか。1・2・3・4から いちばん いい ものを 一つ えらんで ください。", id:"Pilih jawaban yang paling tepat untuk bagian [ ].", fid:"Konteks kalimat"},
   "絵を見て":   {ins:"絵を 見て ください。いちばん いい ものを 一つ えらんで ください。", id:"Lihat gambar, lalu pilih jawaban yang paling tepat.", fid:"Lihat gambar"},
@@ -148,6 +155,10 @@ const FMT = {
   "漢字読み":   {ins:"＿＿の ことばは ひらがなで どう 書きますか。", id:"Bagaimana cara membaca kata bergaris bawah (dalam hiragana)?", fid:"Cara baca kanji"},
   "表記":       {ins:"＿＿の ことばは どう 書きますか。", id:"Bagaimana cara menulis kata bergaris bawah (kanji)?", fid:"Penulisan"},
   "文法形式の判断":{ins:"[ ] に 何を 入れますか。いちばん いい ものを 一つ えらんで ください。", id:"Pilih bentuk tata bahasa yang tepat untuk [ ].", fid:"Bentuk tata bahasa"},
+  "用法":       {ins:"つぎの ことばの つかいかたが いちばん いい 文を 一つ えらんで ください。", id:"Pilih kalimat yang memakai kata ini dengan paling tepat.", fid:"Penggunaan kata"},
+  "文章の文法": {ins:"文章を 読んで、［ ］に 入る いちばん いい ものを 一つ えらんで ください。", id:"Baca teks, lalu pilih yang paling tepat untuk ［ ］.", fid:"Tata bahasa dalam teks"},
+  "内容理解":   {ins:"文章を 読んで、しつもんに こたえて ください。いちばん いい ものを 一つ えらんで ください。", id:"Baca teks, lalu jawab pertanyaannya.", fid:"Pemahaman isi"},
+  "情報検索":   {ins:"上の あんないを 見て、しつもんに こたえて ください。いちばん いい ものを 一つ えらんで ください。", id:"Lihat informasi di atas, lalu jawab pertanyaannya.", fid:"Mencari informasi"},
   "文の組み立て":{ins:"★ に 入る ものは どれですか。ことばを ならべて 文を 作って ください。", id:"Susun kata menjadi kalimat. Mana yang masuk ke bagian ★?", fid:"Menyusun kalimat"},
 };
 /* ★の 4つの わくは 1行に まとめる */
@@ -181,7 +192,8 @@ function newTest(d, last){
     return {s, v:cand[Math.floor(Math.random()*cand.length)]};
   });
   const groups = []; picks.forEach(pk => { const f = d.slots[pk.s][0].sec + "|" + d.slots[pk.s][0].fmt; let g = groups.find(x=>x.f===f); if(!g) groups.push(g = {f, xs:[]}); g.xs.push(pk); });
-  return groups.flatMap(g => shuffle(g.xs)).map(pk => makeQ(d, pk.s, pk.v, shuffle([0,1,2,3])));
+  /* 文章が ある 問題（文章の文法・読解）は 順番を かえない */
+  return groups.flatMap(g => g.xs.some(pk => d.slots[pk.s][0].ctx) ? g.xs : shuffle(g.xs)).map(pk => makeQ(d, pk.s, pk.v, shuffle([0,1,2,3])));
 }
 const NAME = () => store.get("minnaName", "");
 
@@ -210,6 +222,7 @@ function route(){
   const P = new URLSearchParams(location.search);
   hideNav(); window.scrollTo(0,0);
   if(P.get("note")) return notePage();
+  if(P.get("M")) return lessonPage(P.get("M"));
   const L = +(P.get("L") || 0);
   if(L) return lessonPage(L);
   topPage();
@@ -226,9 +239,11 @@ function statusHTML(n){
   if(!r) return "";
   return `<b>${r.ok}</b>/${r.n}<br><span style="color:var(--${passOf(r.ok,r.n)?"ok":"ng"});font-weight:700">${passOf(r.ok,r.n)?"合格":"不合格"}</span>`;
 }
+/* 記録を 見る 単位：課（1〜50）と、できて いる まとめテスト */
+const units = () => [...COURSE.lessons.map(l=>l.no), ...COURSE.matome.filter(m=>m.ready).map(m=>m.id)];
 function noteCount(){
   let c = 0;
-  COURSE.lessons.forEach(l => { c += wrongOf(recOf(l.no)).length; });
+  units().forEach(u => { c += wrongOf(recOf(u)).length; });
   return c;
 }
 function topPage(){
@@ -253,6 +268,7 @@ function topPage(){
   const list = $("list");
   list.innerHTML = lessonList();
   list.querySelectorAll("[data-l]").forEach(b => b.onclick = () => { store.set("minnaName", $("nm").value.trim()); go("L=" + b.dataset.l); });
+  list.querySelectorAll("[data-m]").forEach(b => b.onclick = () => { store.set("minnaName", $("nm").value.trim()); go("M=" + b.dataset.m); });
 }
 function lessonRow(l){
   const st = statusHTML(l.no);
@@ -271,7 +287,8 @@ function lessonList(){
     COURSE.lessons.filter(l=>l.no>=b.range[0] && l.no<=b.range[1]).forEach(l => h += lessonRow(l));
     [b.matome, b.total].filter(Boolean).forEach(mid => {
       const m = COURSE.matome.find(x=>x.id===mid);
-      h += `<div class="lrow mt off"><span class="no">まとめ</span><span class="g">${m.title}（JLPT形式）${ID("Tes rangkuman (format JLPT)")}</span><span class="st">じゅんびちゅう</span></div>`;
+      const tag = m.ready ? "button" : "div";
+      h += `<${tag} class="lrow mt${m.ready?"":" off"}" ${m.ready?`data-m="${m.id}" type="button"`:""}><span class="no">まとめ</span><span class="g">${m.title}（JLPT形式）${ID("Tes rangkuman (format JLPT)")}</span><span class="st">${m.ready ? (statusHTML(m.id) || "まだ") : "じゅんびちゅう"}</span></${tag}>`;
     });
   });
   return h;
@@ -279,21 +296,22 @@ function lessonList(){
 
 /* ---------- 課の ページ ---------- */
 async function lessonPage(n){
-  const meta = COURSE.lessons.find(l=>l.no===n);
+  const meta = isM(n) ? COURSE.matome.find(m=>m.id===n) : COURSE.lessons.find(l=>l.no===n);
   if(!meta || !meta.ready){ go(""); return; }
   try{ DATA = await getJSON("minna-" + lid(n) + ".json"); }catch(e){ $("app").innerHTML = `<p class="lead" style="margin-top:24px">問題を 読みこめませんでした。${ID("Gagal memuat soal.")}</p>`; return; }
   const r = recOf(n);
-  $("ttl").textContent = `第${n}課`;
+  $("ttl").textContent = unitName(n);
   $("app").innerHTML = `
     <button class="back" id="back">‹ 課の 一覧${ID("Daftar bab")}</button>
-    <h1>第${n}課</h1>
+    <h1>${unitName(n)}</h1>
     <p class="lead">${DATA.title}${ID(DATA.titleId)}</p>
-    <div class="card"><h3>この 課の 文法${ID("Tata bahasa di bab ini")}</h3><ul class="glist">${DATA.grammar.map(g=>`<li>${g.ja}${ID(g.id)}</li>`).join("")}</ul></div>
+    ${DATA.grammar.length ? `<div class="card"><h3>この 課の 文法${ID("Tata bahasa di bab ini")}</h3><ul class="glist">${DATA.grammar.map(g=>`<li>${g.ja}${ID(g.id)}</li>`).join("")}</ul></div>` : ""}
+    ${DATA.parts ? `<div class="card"><h3>テストの 中身${ID("Isi tes")}</h3><ul class="glist">${DATA.parts.map(x=>`<li>${x.ja}${ID(x.id)}</li>`).join("")}</ul></div>` : ""}
     ${r ? `<div class="card"><h3>前の 結果${ID("Hasil sebelumnya")}</h3><div class="score">${r.ok}<small> / ${r.n}</small></div>${verdictHTML(r.ok, r.n)}<p>${fmtDate(r.at)}　受験 ${r.attempt}回目${ID(`Percobaan ke-${r.attempt}`)}</p>
       <div class="btnrow"><button class="btn ghost" id="seeRes">答えあわせを 見る${ID("Lihat pembahasan")}</button>
       ${wrongOf(r).length ? `<button class="btn ghost" id="retry">まちがえた ${wrongOf(r).length}問だけ もう一度${ID("Ulangi soal yang salah saja")}</button>` : ""}</div></div>` : ""}
     <div class="card"><h3>テスト${ID("Tes")}</h3>
-      <p>25問 ・ めやす 15分（時間の せいげんは ありません）${ID("25 soal · sekitar 15 menit (tanpa batas waktu)")}</p>
+      <p>${DATA.slots.length}問 ・ めやす ${DATA.minutes||15}分（時間の せいげんは ありません）${ID(`${DATA.slots.length} soal · sekitar ${DATA.minutes||15} menit (tanpa batas waktu)`)}</p>
       <p>受けるたびに 問題と 選択肢の 順番が かわります。${ID("Soal dan urutan pilihan berubah setiap kali tes.")}</p>
       <div><button class="btn" id="start">${r ? "さいしょから もう一度" : "はじめる"}${ID(r ? "Ulangi dari awal (hasil lama diganti)" : "Mulai")}</button></div></div>`;
   $("back").onclick = () => go("");
@@ -306,20 +324,20 @@ function fmtDate(t){ const d = new Date(t); return `${d.getFullYear()}/${pad(d.g
 /* ---------- 問題 ---------- */
 function startTest(o){ S = {...o, ans:Array(o.qs.length).fill(0), idx:0}; question(0); }
 function qHTML(q, no, review){
-  return `${q.pic?`<div class="pic" aria-label="絵">${q.pic}</div>`:""}
-    <div class="stem"><span class="qn">${no}</span>${blankHTML(q.stem)}</div>`;
+  return `${q.ctx?`<div class="ctx">${q.ctx}</div>`:""}${q.pic?`<div class="pic" aria-label="絵">${q.pic}</div>`:""}
+    <div class="stem"><span class="qn">${no}</span>${q.fmt==="用法"?`<span class="word">${q.stem}</span>`:blankHTML(q.stem)}</div>`;
 }
 function question(i){
   S.idx = i; const q = S.qs[i], N = S.qs.length;
   const prev = S.qs[i-1];
-  $("ttl").textContent = S.kind==="lesson" ? `第${S.n}課　${SEC[q.sec].ja}` : `もう一度　${SEC[q.sec].ja}`;
+  $("ttl").textContent = S.kind==="lesson" ? `${unitName(S.n)}　${SEC[q.sec].ja}` : `もう一度　${SEC[q.sec].ja}`;
   $("prog").hidden = false; $("progBar").style.width = Math.round(i/N*100) + "%";
   $("app").innerHTML = `
     <section class="paper">
       ${!prev || prev.fmt!==q.fmt || prev.sec!==q.sec ? `<p class="ins">${insHTML(q.fmt)}</p>` : ""}
       ${qHTML(q, i+1)}
       <div class="opts" role="radiogroup" aria-label="こたえ">${q.ch.map((c,k)=>`<button type="button" class="opt" role="radio" aria-checked="${S.ans[i]===k+1}" data-k="${k+1}"><span class="n">${k+1}</span><span>${c}</span></button>`).join("")}</div>
-      <p class="fmt">${SEC[q.sec].ja}・${q.fmt}${S.kind!=="lesson"?`　（第${q.L}課）`:""}</p>
+      <p class="fmt">${SEC[q.sec].ja}・${q.fmt}${S.kind!=="lesson"?`　（${unitName(q.L)}）`:""}</p>
     </section>`;
   $("app").querySelectorAll(".opt").forEach(b => b.onclick = () => {
     const v = +b.dataset.k; S.ans[i] = S.ans[i]===v ? 0 : v;
@@ -356,7 +374,7 @@ function finish(){
     /* もう一度：正解した 問題を ノートから けす */
     const byL = {};
     S.qs.forEach((q,i) => { if(S.ans[i]===q.a) (byL[q.L] = byL[q.L] || []).push(q.s+":"+q.v); });
-    Object.entries(byL).forEach(([L, fixed]) => { const r = recOf(+L); if(r){ r.items.forEach(it => { if(fixed.includes(it.s+":"+it.v)) it.f = true; }); saveRec(+L, r); } });
+    Object.entries(byL).forEach(([L, fixed]) => { const r = recOf(L); if(r){ r.items.forEach(it => { if(fixed.includes(it.s+":"+it.v)) it.f = true; }); saveRec(L, r); } });
   }
   resultPage(false);
 }
@@ -383,13 +401,13 @@ function verdictHTML(ok, n){
 }
 function resultPage(fromRecord){
   const T = tally(), lesson = S.kind==="lesson";
-  $("ttl").textContent = lesson ? `第${S.n}課　結果` : "もう一度　結果";
+  $("ttl").textContent = lesson ? `${unitName(S.n)}　結果` : "もう一度　結果";
   const [mj, mi] = message(T.ok, T.n);
   const bar = (label, idl, o) => `<div><span>${label}${ID(idl)}</span><i><b class="${o.ok/o.n<0.7?"low":""}" style="width:${Math.round(o.ok/o.n*100)}%"></b></i><span>${o.ok}/${o.n}</span></div>`;
   const wrongN = T.n - T.ok;
   $("app").innerHTML = `
-    <button class="back" id="back">‹ ${lesson?`第${S.n}課に もどる`:"ノートに もどる"}${ID("Kembali")}</button>
-    <h1>${lesson?`第${S.n}課　結果`:"もう一度　結果"}</h1>
+    <button class="back" id="back">‹ ${lesson?`${unitName(S.n)}に もどる`:"ノートに もどる"}${ID("Kembali")}</button>
+    <h1>${lesson?`${unitName(S.n)}　結果`:"もう一度　結果"}</h1>
     <div class="card">
       <div class="score">${T.ok}<small> / ${T.n}問 正解</small></div>${ID(`Benar ${T.ok} dari ${T.n} soal`)}
       ${lesson && S.attempt ? `<p style="margin:0">受験 ${S.attempt}回目${ID(`Percobaan ke-${S.attempt}`)}</p>` : ""}
@@ -406,19 +424,19 @@ function resultPage(fromRecord){
     </div>
     <h2>答えあわせ${ID("Pembahasan")}</h2>
     ${S.qs.map((q,i)=>reviewHTML(q,i)).join("")}
-    <div class="btnrow" style="margin-top:12px"><button class="btn" id="back2">${lesson?`第${S.n}課に もどる`:"ノートに もどる"}${ID("Kembali")}</button></div>`;
-  const back = () => lesson ? go("L="+S.n) : go("note=1");
+    <div class="btnrow" style="margin-top:12px"><button class="btn" id="back2">${lesson?`${unitName(S.n)}に もどる`:"ノートに もどる"}${ID("Kembali")}</button></div>`;
+  const back = () => lesson ? go((isM(S.n)?"M=":"L=")+S.n) : go("note=1");
   $("back").onclick = back; $("back2").onclick = back;
   const saveName = () => store.set("minnaName", $("rnm").value.trim());
   $("rnm").onchange = saveName;
   $("dlRes").onclick = async () => { saveName(); showImages([await drawResult()], "result"); };
-  if($("dlNote")) $("dlNote").onclick = async () => { saveName(); showImages(await drawNote(S.qs.map((q,i)=>({q, me:S.ans[i]})).filter(x=>x.me!==x.q.a), lesson?`第${S.n}課`:"もう一度"), "wrong"); };
+  if($("dlNote")) $("dlNote").onclick = async () => { saveName(); showImages(await drawNote(S.qs.map((q,i)=>({q, me:S.ans[i]})).filter(x=>x.me!==x.q.a), lesson?unitName(S.n):"もう一度"), "wrong"); };
   bindLang();
 }
 function reviewHTML(q, i){
   const me = S.ans[i], good = me===q.a, k = "x"+i;
-  return `<div class="rv"><div class="top"><span class="qn">${i+1}</span><span class="pill ${good?"ok":"ng"}">${good?"正解":"まちがい"}</span><span>${SEC[q.sec].ja}・${q.fmt}${S.kind!=="lesson"?`・第${q.L}課`:""}</span></div>
-    ${q.pic?`<div class="pic">${q.pic}</div>`:""}<div class="stem">${blankHTML(q.stem)}</div>
+  return `<div class="rv"><div class="top"><span class="qn">${i+1}</span><span class="pill ${good?"ok":"ng"}">${good?"正解":"まちがい"}</span><span>${SEC[q.sec].ja}・${q.fmt}${S.kind!=="lesson"?`・${unitName(q.L)}`:""}</span></div>
+    ${q.ctx?`<details class="more"><summary>文章を 見る${ID("Lihat teks")}</summary><div class="ctx">${q.ctx}</div></details>`:""}${q.pic?`<div class="pic">${q.pic}</div>`:""}<div class="stem">${q.fmt==="用法"?`<span class="word">${q.stem}</span>`:blankHTML(q.stem)}</div>
     <div class="opts">${q.ch.map((c,j)=>`<div class="opt ${j+1===q.a?"right":(j+1===me?"wrong":"")}"><span class="n">${j+1}</span><span>${c}${j+1===q.a?"　○":(j+1===me?"　×":"")}</span></div>`).join("")}</div>
     ${me?"":`<p class="ex" style="color:var(--ng)">こたえて いません${ID("Tidak dijawab")}</p>`}
     <div class="ltabs"><button aria-pressed="true" data-lx="${k}" data-l="ja">やさしい 日本語</button><button aria-pressed="false" data-lx="${k}" data-l="id">Bahasa Indonesia</button></div>
@@ -436,9 +454,9 @@ function bindLang(){
 async function notePage(){
   $("ttl").textContent = "まちがえた 問題ノート";
   const items = [];
-  for(const l of COURSE.lessons){
-    const r = recOf(l.no), w = wrongOf(r); if(!w.length) continue;
-    const d = await getJSON("minna-" + lid(l.no) + ".json");
+  for(const u of units()){
+    const r = recOf(u), w = wrongOf(r); if(!w.length) continue;
+    const d = await getJSON("minna-" + lid(u) + ".json");
     w.forEach(it => items.push({q:makeQ(d, it.s, it.v, it.p), me:it.me}));
   }
   const byL = {}; items.forEach(x => (byL[x.q.L] = byL[x.q.L] || []).push(x));
@@ -449,8 +467,8 @@ async function notePage(){
     ${items.length ? `<div class="card"><h3>${items.length}問${ID(`${items.length} soal`)}</h3>
       <div class="btnrow"><button class="btn" id="redo">ぜんぶ もう一度 とく${ID("Kerjakan semua lagi")}</button>
       <button class="btn ghost" id="dl">⬇ ノートを 画像で 保存${ID("Simpan catatan sebagai gambar")}</button></div><div class="pv" id="pv"></div></div>
-      ${Object.entries(byL).map(([L, xs]) => `<h2>第${L}課　${xs.length}問</h2>` + xs.map(({q,me}) => `<div class="rv"><div class="top"><span>${SEC[q.sec].ja}・${q.fmt}</span></div>
-        ${q.pic?`<div class="pic">${q.pic}</div>`:""}<div class="stem">${blankHTML(q.stem)}</div>
+      ${Object.entries(byL).map(([L, xs]) => `<h2>${unitName(isM(L)?L:+L)}　${xs.length}問</h2>` + xs.map(({q,me}) => `<div class="rv"><div class="top"><span>${SEC[q.sec].ja}・${q.fmt}</span></div>
+        ${q.ctx?`<details class="more"><summary>文章を 見る${ID("Lihat teks")}</summary><div class="ctx">${q.ctx}</div></details>`:""}${q.pic?`<div class="pic">${q.pic}</div>`:""}<div class="stem">${blankHTML(q.stem)}</div>
         <div class="opts">${q.ch.map((c,j)=>`<div class="opt"><span class="n">${j+1}</span><span>${c}</span></div>`).join("")}</div>
         <details class="more"><summary>こたえを 見る${ID("Lihat jawaban")}</summary><p class="ex"><b>こたえ：${q.a}　${q.ch[q.a-1]}</b>（あなた：${me||"－"}）<br>${q.ja}${ID(q.idn)}</p></details></div>`).join("")).join("")}`
       : `<div class="card"><p class="note-ok">まちがえた 問題は ありません。${ID("Tidak ada soal yang salah.")}</p></div>`}`;
@@ -500,13 +518,13 @@ function head(g, title, sub, extra){
 async function drawResult(){
   await fontsReady();
   const T = tally(), lesson = S.kind==="lesson";
-  const rows = S.qs.map((q,i)=>({no:i+1, kind:`${SEC[q.sec].ja}・${q.fmt}${lesson?"":`（${q.L}課）`}`, me:S.ans[i], a:q.a}));
+  const rows = S.qs.map((q,i)=>({no:i+1, kind:`${SEC[q.sec].ja}・${q.fmt}${lesson?"":`（${unitName(q.L)}）`}`, me:S.ans[i], a:q.a}));
   const grs = lesson ? DATA.grammar.filter(g=>T.gr[g.g]) : [];
-  const top = lesson ? 340 : 300, secH = 3*64 + 40, grTop = top + secH + 40, grH = grs.length ? 60 + grs.length*56 : 0;
+  const top = lesson ? 340 : 300, secH = Object.keys(T.sec).length*64 + 40, grTop = top + secH + 40, grH = grs.length ? 60 + grs.length*56 : 0;
   const listTop = grTop + grH + 90, rowH = 54, H = listTop + rows.length*rowH + 110;
   const [c, g] = canvas(H);
   g.strokeStyle="#1c2125"; g.lineWidth=4; g.strokeRect(24,24,W-48,H-48);
-  head(g, lesson ? `みんなの日本語　第${S.n}課　結果` : "みんなの日本語　もう一度　結果", lesson ? `${plain(DATA.title)}` : "まちがえた 問題の やりなおし", lesson && S.attempt ? `受験 ${S.attempt}回目` : "");
+  head(g, lesson ? `みんなの日本語　${unitName(S.n)}　結果` : "みんなの日本語　もう一度　結果", lesson ? `${plain(DATA.title)}` : "まちがえた 問題の やりなおし", lesson && S.attempt ? `受験 ${S.attempt}回目` : "");
   g.fillStyle="#1c2125"; g.font=`700 100px ${CG}`; const sc = String(T.ok); g.textAlign="right";
   g.fillText(sc, W-200, 220); g.textAlign="left"; g.font=`400 34px ${CG}`; g.fillStyle="#5b646c"; g.fillText(` / ${T.n}`, W-196, 220);
   g.font=`400 22px ${CG}`; g.fillText(`Benar ${T.ok} dari ${T.n} soal`, W-340, 258);
@@ -551,7 +569,8 @@ async function drawNote(list, label){
   const blocks = list.map(({q, me}) => {
     const lines = [];
     const add = (text, font, color, size, gap=0) => { m.font = font; wrap(m, text, W-160).forEach(t => lines.push({t, font, color, size})); if(gap) lines.push({gap}); };
-    add(`第${q.L}課　${SEC[q.sec].ja}・${q.fmt}`, `700 24px ${CG}`, "#5b646c", 36);
+    add(`${unitName(q.L)}　${SEC[q.sec].ja}・${q.fmt}`, `700 24px ${CG}`, "#5b646c", 36);
+    if(q.ctx) add(plain(q.ctx.replace(/<\/(p|h4|tr)>|<br>/g, "　")), `400 24px ${CM}`, "#5b646c", 36);
     if(q.pic) add(q.pic, `400 56px ${CG}`, "#1c2125", 70);
     add(plain(q.stem), `400 32px ${CM}`, "#1c2125", 50);
     q.ch.forEach((c,j) => add(`${j+1}　${plain(c)}${j+1===q.a?"　○ こたえ":(j+1===me?"　× あなた":"")}`, `${j+1===q.a?700:400} 28px ${CM}`, j+1===q.a?"#2e7a4e":(j+1===me?"#b3261e":"#1c2125"), 44));
