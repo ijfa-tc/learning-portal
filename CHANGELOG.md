@@ -33,3 +33,4 @@
 - 2026-11-26：まとめテスト M05（第26〜33課・JLPT N4形式 40問、N4の 漢字・分かち書きなし）を追加（minna-M05.json、minna-course.json を更新）。
 - 2026-11-26：まとめテスト M06（第34〜42課・JLPT N4形式 40問）を追加（minna-M06.json、minna-course.json を更新）。
 - 2026-11-26：まとめテスト M07（第43〜50課・JLPT N4形式 40問）を追加（minna-M07.json、minna-course.json を更新）。
+- 2026-11-26：まとめテスト M08（N4段階 総合・第26〜50課・54問）を追加（minna-M08.json、minna-course.json を更新）。

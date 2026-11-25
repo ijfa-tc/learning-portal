@@ -1,5 +1,5 @@
 {
- "version": "2026-11-26o",
+ "version": "2026-11-26p",
  "lessons": [
   {
    "no": 1,
@@ -475,7 +475,7 @@
     26,
     50
    ],
-   "ready": false
+   "ready": true
   }
  ]
 }
