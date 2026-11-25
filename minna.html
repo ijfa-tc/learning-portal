@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="only light">
+<meta name="theme-color" content="#ffffff">
+<title>みんなの日本語 テスト｜IJFA</title>
+<meta name="description" content="みんなの日本語 1〜50課の 語彙・漢字・文法テスト。JLPT N5・N4の 形式で 練習できます。IJFA トレーニングセンター作成。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=BIZ+UDMincho:wght@400;700&display=swap">
+<style>
+*{box-sizing:border-box}
+:root{
+  color-scheme:light;
+  --paper:#f6f7f5; --bg:#ffffff; --ink:#1c2125; --muted:#5b646c; --rule:#d5dad6; --soft:#eceeec;
+  --accent:#22385a; --ok:#2e7a4e; --ng:#b3261e; --ok-soft:#e3f1e8; --ng-soft:#f8e2e0; --warn:#8a5a00; --warn-soft:#fbf0dc;
+  --f-paper:"BIZ UDMincho","Hiragino Mincho ProN","Yu Mincho",serif;
+  --f-ui:"BIZ UDPGothic","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-ui);font-size:15px;line-height:1.6;padding-bottom:env(safe-area-inset-bottom,0px)}
+[hidden]{display:none!important}
+button{font:inherit;cursor:pointer;color:inherit}
+.wrap{max-width:560px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-left,0px)) 120px max(16px,env(safe-area-inset-right,0px))}
+header.bar{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--rule);padding-top:env(safe-area-inset-top,0px)}
+header.bar .in{max-width:560px;margin:0 auto;display:flex;align-items:center;gap:10px;padding:10px 16px}
+.ttl{font-weight:700;font-size:14px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prog{height:4px;background:var(--rule)}.prog i{display:block;height:100%;background:var(--ink);width:0;transition:width .2s}
+h1{font-family:var(--f-paper);font-size:24px;margin:22px 0 4px;text-wrap:balance}
+h2{font-size:16px;margin:22px 0 8px}
+.lead{color:var(--muted);margin:0 0 16px;font-size:14px}
+.idt{display:block;font-size:12px;line-height:1.5;color:var(--muted);font-weight:400}
+button .idt{color:inherit;opacity:.85;font-size:11px}
+.card{background:var(--bg);border:1px solid var(--rule);border-radius:8px;padding:14px 16px;display:grid;gap:8px;margin-bottom:10px}
+.card h3{margin:0;font-size:16px}
+.card p{margin:0;color:var(--muted);font-size:13.5px}
+.btn{border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:8px;padding:10px 16px;font-weight:700}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn.small{padding:6px 12px;font-size:13px}
+.btn:disabled{opacity:.4;cursor:default}
+.btn:focus-visible,.opt:focus-visible,a:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.btnrow{display:grid;gap:8px}
+.field{display:grid;gap:4px;font-size:12.5px;color:var(--muted)}
+.field input{font:inherit;font-size:16px;padding:9px 10px;border:1px solid var(--rule);border-radius:6px;background:var(--paper);color:var(--ink);width:100%}
+/* 課の 一覧 */
+.stage{display:flex;align-items:baseline;gap:8px;margin:22px 0 6px}
+.stage b{font-size:17px}.stage span{font-size:12px;color:var(--muted)}
+.blk{font-size:13px;color:var(--muted);margin:14px 0 6px;font-weight:700}
+.lrow{display:grid;grid-template-columns:3.2em 1fr auto;gap:10px;align-items:center;background:var(--bg);border:1px solid var(--rule);border-radius:8px;padding:10px 12px;margin-bottom:6px;text-decoration:none;color:var(--ink);width:100%;text-align:left}
+.lrow .no{font-weight:700;font-size:15px;text-align:center;border:1.5px solid var(--ink);border-radius:6px;line-height:1.7}
+.lrow .g{font-size:13.5px;line-height:1.5;min-width:0}
+.lrow .g .idt{font-size:11.5px}
+.lrow .st{font-size:12.5px;font-variant-numeric:tabular-nums;color:var(--muted);text-align:right;white-space:nowrap}
+.lrow .st b{font-size:16px;color:var(--ink)}
+.lrow.off{opacity:.55}
+.lrow.mt{border-style:dashed}
+.lrow.mt .no{border-style:dashed;font-size:12px}
+/* 問題 */
+.paper{font-family:var(--f-paper);background:var(--bg);border:1px solid var(--rule);border-radius:6px;padding:16px;margin-top:16px}
+.ins{font-family:var(--f-ui);font-size:13px;color:var(--muted);margin:0 0 10px;line-height:1.6}
+.ins .idt{font-size:11.5px}
+.qn{font-family:var(--f-ui);font-weight:700;display:inline-block;min-width:1.8em;border:1.5px solid var(--ink);text-align:center;margin-right:8px;font-size:13px;line-height:1.5}
+.stem{font-size:19px;line-height:2.1;margin:4px 0 12px;line-break:strict;overflow-wrap:break-word}
+.stem u{text-decoration-thickness:1.5px;text-underline-offset:6px}
+.pic{font-size:64px;line-height:1.2;text-align:center;margin:6px 0 4px;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
+.blank{display:inline-block;min-width:3em;border-bottom:1.5px solid var(--ink);text-align:center;margin:0 3px;line-height:1.6}
+.slots{display:inline-block;white-space:nowrap}.slots .blank{min-width:2.2em;margin:0 2px}
+.blank:empty::before{content:"\00a0"}
+ruby{ruby-position:over}rt{font-size:.5em}
+.opts{display:grid;gap:8px}
+.opt{display:grid;grid-template-columns:2em 1fr;align-items:center;gap:8px;text-align:left;background:var(--bg);border:1.5px solid var(--rule);border-radius:8px;padding:10px 12px;font-family:var(--f-paper);font-size:18px;line-height:1.5;min-height:52px}
+.opt .n{font-family:var(--f-ui);font-weight:700;font-size:14px;width:1.8em;height:1.8em;border-radius:50%;border:1.5px solid var(--ink);display:grid;place-items:center}
+.opt[aria-checked="true"]{border-color:var(--ink);background:var(--soft)}
+.opt[aria-checked="true"] .n{background:var(--ink);color:#fff}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--ng);background:var(--ng-soft)}
+.fmt{font-family:var(--f-ui);font-size:12px;color:var(--muted);margin-top:12px}
+.nav{position:fixed;left:0;right:0;bottom:0;background:var(--bg);border-top:1px solid var(--rule);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));z-index:6}
+.nav .in{max-width:560px;margin:0 auto;display:flex;gap:8px;align-items:center}
+.nav .mid{flex:1;text-align:center;font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.confirm{border:1.5px solid var(--ink);background:var(--soft);border-radius:8px;padding:12px;display:grid;gap:10px;margin-top:14px}
+.confirm p{margin:0;font-size:14px}
+.confirm .row{display:flex;gap:8px;justify-content:flex-end}
+/* 結果 */
+.score{font-size:44px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.score small{font-size:16px;color:var(--muted);font-weight:400}
+.bars{display:grid;gap:7px;font-size:13px;font-variant-numeric:tabular-nums}
+.bars>div{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) 3em;gap:8px;align-items:center}
+.bars i{height:8px;background:var(--rule);border-radius:99px;overflow:hidden;display:block}
+.bars i b{display:block;height:100%;background:var(--ink)}
+.bars i b.low{background:var(--ng)}
+.bars>div>span:last-child{text-align:right}
+.msg{font-weight:700;font-size:15px}
+.verdict{font-size:24px;font-weight:700;text-align:center;padding:8px;border-radius:8px;line-height:1.3}
+.verdict small{display:block;font-size:12px;font-weight:400}
+.verdict.pass{background:var(--ok-soft);color:var(--ok)}
+.verdict.fail{background:var(--ng-soft);color:var(--ng)}
+.rv{border:1px solid var(--rule);border-radius:8px;background:var(--bg);padding:12px 14px;display:grid;gap:8px;margin-bottom:10px}
+.rv .top{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.pill{font-size:12px;font-weight:700;padding:1px 8px;border-radius:99px}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}.pill.ng{background:var(--ng-soft);color:var(--ng)}
+.rv .stem{font-size:16px;line-height:2;margin:0}
+.rv .pic{font-size:44px;text-align:left}
+.rv .opts{gap:6px}.rv .opt{font-size:15px;min-height:0;padding:6px 10px;cursor:default}
+.ltabs{display:flex;gap:6px}
+.ltabs button{border:1px solid var(--rule);background:transparent;color:var(--muted);border-radius:99px;padding:2px 10px;font-size:12px}
+.ltabs button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.ex{font-size:13.5px;line-height:1.7}
+.pv{display:grid;gap:8px}
+.pv img{width:100%;border:1px solid var(--rule);border-radius:6px}
+details.more summary{cursor:pointer;font-size:13px;color:var(--muted)}
+.back{display:inline-block;margin:14px 0 0;color:var(--accent);font-size:14px;text-decoration:none;font-weight:700;background:none;border:0;padding:0}
+.glist{margin:0;padding-left:1.2em;font-size:14px}
+.glist li{margin:2px 0}
+.foot{font-size:12px;color:var(--muted);margin-top:24px;line-height:1.7}
+.note-ok{font-size:17px;font-weight:700;color:var(--ok)}
+@media (prefers-reduced-motion: reduce){.prog i{transition:none}}
+</style>
+</head>
+<body>
+<header class="bar"><div class="in"><div class="ttl" id="ttl">みんなの日本語 テスト</div><button class="btn ghost small" id="zoom" aria-label="文字の 大きさ">あ＋</button></div><div class="prog" id="prog" hidden><i id="progBar"></i></div></header>
+<main class="wrap" id="app"></main>
+<div class="nav" id="nav" hidden><div class="in" id="navIn"></div></div>
+
+<script>
+/* ====================================================================
+   みんなの日本語 1〜50課 テスト（IJFA）
+   ・データ：course.json（課の 一覧・いろどり対応）、L01.json〜（各課の 問題）
+   ・記録は この スマホの ブラウザに のこす（成績は 送らない）
+   ・結果と まちがえた 問題は PNG で 保存
+   ・このフォルダだけで 動く（ポータルの 外に コピーしても 動く）
+   ==================================================================== */
+const $ = id => document.getElementById(id);
+const ID = t => `<span class="idt">${t}</span>`;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const pad = n => String(n).padStart(2,"0");
+const lid = n => "L" + pad(n);
+let COURSE = null, DATA = null, S = {};
+const CACHE = {};
+
+const SEC = {vocab:{ja:"語彙", id:"Kosakata", n:10}, kanji:{ja:"漢字", id:"Kanji", n:5}, grammar:{ja:"文法", id:"Tata bahasa", n:10}};
+const FMT = {
+  "文脈規定":   {ins:"[ ] に 入る ものは どれですか。1・2・3・4から いちばん いい ものを 一つ えらんで ください。", id:"Pilih jawaban yang paling tepat untuk bagian [ ].", fid:"Konteks kalimat"},
+  "絵を見て":   {ins:"絵を 見て ください。いちばん いい ものを 一つ えらんで ください。", id:"Lihat gambar, lalu pilih jawaban yang paling tepat.", fid:"Lihat gambar"},
+  "言い換え類義":{ins:"＿＿の 文と だいたい 同じ いみの 文は どれですか。", id:"Pilih kalimat yang artinya hampir sama dengan kalimat bergaris bawah.", fid:"Persamaan arti"},
+  "漢字読み":   {ins:"＿＿の ことばは ひらがなで どう 書きますか。", id:"Bagaimana cara membaca kata bergaris bawah (dalam hiragana)?", fid:"Cara baca kanji"},
+  "表記":       {ins:"＿＿の ことばは どう 書きますか。", id:"Bagaimana cara menulis kata bergaris bawah (kanji)?", fid:"Penulisan"},
+  "文法形式の判断":{ins:"[ ] に 何を 入れますか。いちばん いい ものを 一つ えらんで ください。", id:"Pilih bentuk tata bahasa yang tepat untuk [ ].", fid:"Bentuk tata bahasa"},
+  "文の組み立て":{ins:"★ に 入る ものは どれですか。ことばを ならべて 文を 作って ください。", id:"Susun kata menjadi kalimat. Mana yang masuk ke bagian ★?", fid:"Menyusun kalimat"},
+};
+/* ★の 4つの わくは 1行に まとめる */
+const blankHTML = s => s.replace(/((?:\[(?: |★)\]\s*){4})/, m => `<span class="slots">${m}</span>`).replace(/\[★\]/g,'<span class="blank star">★</span>').replace(/\[ \]/g,'<span class="blank"></span>');
+const insHTML = f => `${blankHTML(FMT[f].ins).replace('<span class="blank"></span>','（　）')}${ID(FMT[f].id)}`;
+
+/* ---------- 記録（この スマホ） ---------- */
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v==null ? d : JSON.parse(v); }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} },
+  del(k){ try{ localStorage.removeItem(k); }catch(e){} }
+};
+/* 記録：{ok, n, at, attempt, items:[{s:問題の わく, v:どの 問題, p:選択肢の ならび, me:こたえ, w:まちがい, f:あとで 正解}]} */
+const recOf = n => store.get("minnaRec2:" + lid(n), null);
+const saveRec = (n, r) => store.set("minnaRec2:" + lid(n), r);
+const wrongOf = r => r ? r.items.filter(it => it.w && !it.f) : [];
+const shuffle = a => { a = a.slice(); for(let i=a.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; } return a; };
+/* わく s の 問題 v を、選択肢の ならび p で 作る */
+function makeQ(d, s, v, p){
+  const b = d.slots[s][v];
+  return {...b, ch:p.map(k=>b.ch[k]), a:p.indexOf(b.a-1)+1, L:d.lesson, s, v, p};
+}
+/* 毎回 ちがう テストに する：
+   ・わくごとに 同じ レベルの 問題（2つ以上）から 1つ えらぶ（前回と ちがう ものを 優先）
+   ・同じ 形式の 中で 問題の 順番を まぜる（形式の 順番は JLPT と 同じ）
+   ・選択肢の 順番も まぜる */
+function newTest(d, last){
+  const lastV = {}; if(last) last.items.forEach(it => lastV[it.s] = it.v);
+  const picks = d.slots.map((vs, s) => {
+    let cand = vs.map((_, v) => v); if(cand.length > 1 && lastV[s] != null) cand = cand.filter(v => v !== lastV[s]);
+    return {s, v:cand[Math.floor(Math.random()*cand.length)]};
+  });
+  const groups = []; picks.forEach(pk => { const f = d.slots[pk.s][0].sec + "|" + d.slots[pk.s][0].fmt; let g = groups.find(x=>x.f===f); if(!g) groups.push(g = {f, xs:[]}); g.xs.push(pk); });
+  return groups.flatMap(g => shuffle(g.xs)).map(pk => makeQ(d, pk.s, pk.v, shuffle([0,1,2,3])));
+}
+const NAME = () => store.get("minnaName", "");
+
+/* ---------- 読みこみ ---------- */
+async function getJSON(path){
+  if(CACHE[path]) return CACHE[path];
+  const v = COURSE ? COURSE.version : Date.now();
+  const raw = await (await fetch(`${path}?v=${encodeURIComponent(v)}`)).text();
+  /* {漢字|かんじ} を ルビに する（第4課 以降で つかう） */
+  const d = JSON.parse(raw.replace(/\{([^{}|"\\]+)\|([^{}|"\\]+)\}/g, "<ruby>$1<rt>$2</rt></ruby>"));
+  return CACHE[path] = d;
+}
+async function boot(){
+  try{ COURSE = await (await fetch("minna-course.json?t=" + Date.now())).json(); }
+  catch(e){ $("app").innerHTML = `<p class="lead" style="margin-top:24px">読みこめませんでした。インターネットを たしかめて、ページを 読みこみなおして ください。${ID("Gagal memuat. Periksa internet lalu muat ulang halaman.")}</p>`; return; }
+  const P = new URLSearchParams(location.search);
+  if(P.get("name")) store.set("minnaName", P.get("name"));
+  /* ポータルから ?id=JKT16001 で 来たら、生徒IDを おぼえて 画像に 出す */
+  const pid = String(P.get("id") || "").trim().toUpperCase();
+  if(/^[A-Z]{3}[0-9]{5}$/.test(pid)) store.set("minnaId", pid);
+  route();
+}
+window.addEventListener("popstate", route);
+function go(q){ history.pushState(null, "", q ? "?" + q : location.pathname); route(); }
+function route(){
+  const P = new URLSearchParams(location.search);
+  hideNav(); window.scrollTo(0,0);
+  if(P.get("note")) return notePage();
+  const L = +(P.get("L") || 0);
+  if(L) return lessonPage(L);
+  topPage();
+}
+function hideNav(){ $("nav").hidden = true; $("prog").hidden = true; }
+
+/* ---------- トップ ---------- */
+/* 合格ライン：60% 以上 */
+const PASS = 0.6;
+const passOf = (ok, n) => ok/n >= PASS;
+const needOf = n => Math.ceil(n*PASS);
+function statusHTML(n){
+  const r = recOf(n);
+  if(!r) return "";
+  return `<b>${r.ok}</b>/${r.n}<br><span style="color:var(--${passOf(r.ok,r.n)?"ok":"ng"});font-weight:700">${passOf(r.ok,r.n)?"合格":"不合格"}</span>`;
+}
+function noteCount(){
+  let c = 0;
+  COURSE.lessons.forEach(l => { c += wrongOf(recOf(l.no)).length; });
+  return c;
+}
+function topPage(){
+  $("ttl").textContent = "みんなの日本語 テスト";
+  const nc = noteCount();
+  $("app").innerHTML = `
+    ${/learning-portal/.test(location.pathname) ? `<a class="back" href="./">‹ ポータルに もどる${ID("Kembali ke portal")}</a>` : ""}
+    <h1>みんなの日本語 テスト</h1>
+    <p class="lead">1課 25問（語彙 10・漢字 5・文法 10）。JLPT N5・N4と 同じ 形の 問題で、課ごとに 力を つけます。${ID("1 bab = 25 soal (kosakata 10, kanji 5, tata bahasa 10). Bentuk soalnya sama dengan JLPT N5/N4.")}</p>
+    <div class="card">
+      <label class="field" for="nm">なまえ（結果の 画像に 出ます）${ID("Nama (muncul di gambar hasil)")}<input id="nm" autocomplete="name" value="${esc(NAME())}"></label>
+    </div>
+    <div class="card">
+      <h3>まちがえた 問題ノート${ID("Catatan soal yang salah")}</h3>
+      <p>${nc ? `いま ${nc}問 あります。もう一度 といて、ぜんぶ 正解に しましょう。` : "まだ ありません。"}${ID(nc ? `Ada ${nc} soal. Kerjakan lagi sampai semuanya benar.` : "Belum ada.")}</p>
+      <div><button class="btn${nc?"":" ghost"}" id="goNote" ${nc?"":"disabled"}>ノートを ひらく${ID("Buka catatan")}</button></div>
+    </div>
+    <div id="list"></div>
+    <p class="foot">試験運用版です。問題は IJFA トレーニングセンターの オリジナルです（教科書・問題集の 問題では ありません）。「N5段階・N4段階」は IJFAの めやすです。記録は この スマホの ブラウザに のこります。同じ 課を もう一度 すると、新しい 結果に かわります。</p>`;
+  $("nm").onchange = () => store.set("minnaName", $("nm").value.trim());
+  $("goNote").onclick = () => go("note=1");
+  const list = $("list");
+  list.innerHTML = lessonList();
+  list.querySelectorAll("[data-l]").forEach(b => b.onclick = () => { store.set("minnaName", $("nm").value.trim()); go("L=" + b.dataset.l); });
+}
+function lessonRow(l){
+  const st = statusHTML(l.no);
+  const tag = l.ready ? "button" : "div";
+  return `<${tag} class="lrow${l.ready?"":" off"}" ${l.ready?`data-l="${l.no}" type="button"`:""}>
+    <span class="no">${l.no}</span>
+    <span class="g">${l.ja}${ID(l.id)}</span>
+    <span class="st">${l.ready ? (st || "まだ") : "じゅんびちゅう"}</span></${tag}>`;
+}
+function lessonList(){
+  let h = "";
+  COURSE.blocks.forEach((b,i) => {
+    if(i===0) h += `<div class="stage"><b>N5段階</b><span>1〜25課（初級Ⅰ）・Tahap N5</span></div>`;
+    if(i===3) h += `<div class="stage"><b>N4段階</b><span>26〜50課（初級Ⅱ）・Tahap N4</span></div>`;
+    h += `<div class="blk">${b.title}</div>`;
+    COURSE.lessons.filter(l=>l.no>=b.range[0] && l.no<=b.range[1]).forEach(l => h += lessonRow(l));
+    [b.matome, b.total].filter(Boolean).forEach(mid => {
+      const m = COURSE.matome.find(x=>x.id===mid);
+      h += `<div class="lrow mt off"><span class="no">まとめ</span><span class="g">${m.title}（JLPT形式）${ID("Tes rangkuman (format JLPT)")}</span><span class="st">じゅんびちゅう</span></div>`;
+    });
+  });
+  return h;
+}
+
+/* ---------- 課の ページ ---------- */
+async function lessonPage(n){
+  const meta = COURSE.lessons.find(l=>l.no===n);
+  if(!meta || !meta.ready){ go(""); return; }
+  try{ DATA = await getJSON("minna-" + lid(n) + ".json"); }catch(e){ $("app").innerHTML = `<p class="lead" style="margin-top:24px">問題を 読みこめませんでした。${ID("Gagal memuat soal.")}</p>`; return; }
+  const r = recOf(n);
+  $("ttl").textContent = `第${n}課`;
+  $("app").innerHTML = `
+    <button class="back" id="back">‹ 課の 一覧${ID("Daftar bab")}</button>
+    <h1>第${n}課</h1>
+    <p class="lead">${DATA.title}${ID(DATA.titleId)}</p>
+    <div class="card"><h3>この 課の 文法${ID("Tata bahasa di bab ini")}</h3><ul class="glist">${DATA.grammar.map(g=>`<li>${g.ja}${ID(g.id)}</li>`).join("")}</ul></div>
+    ${r ? `<div class="card"><h3>前の 結果${ID("Hasil sebelumnya")}</h3><div class="score">${r.ok}<small> / ${r.n}</small></div>${verdictHTML(r.ok, r.n)}<p>${fmtDate(r.at)}　受験 ${r.attempt}回目${ID(`Percobaan ke-${r.attempt}`)}</p>
+      <div class="btnrow"><button class="btn ghost" id="seeRes">答えあわせを 見る${ID("Lihat pembahasan")}</button>
+      ${wrongOf(r).length ? `<button class="btn ghost" id="retry">まちがえた ${wrongOf(r).length}問だけ もう一度${ID("Ulangi soal yang salah saja")}</button>` : ""}</div></div>` : ""}
+    <div class="card"><h3>テスト${ID("Tes")}</h3>
+      <p>25問 ・ めやす 15分（時間の せいげんは ありません）${ID("25 soal · sekitar 15 menit (tanpa batas waktu)")}</p>
+      <p>受けるたびに 問題と 選択肢の 順番が かわります。${ID("Soal dan urutan pilihan berubah setiap kali tes.")}</p>
+      <div><button class="btn" id="start">${r ? "さいしょから もう一度" : "はじめる"}${ID(r ? "Ulangi dari awal (hasil lama diganti)" : "Mulai")}</button></div></div>`;
+  $("back").onclick = () => go("");
+  $("start").onclick = () => startTest({kind:"lesson", n, qs:newTest(DATA, r)});
+  if(r){ $("seeRes").onclick = () => { S = {kind:"lesson", n, attempt:r.attempt, qs:r.items.map(it=>makeQ(DATA, it.s, it.v, it.p)), ans:r.items.map(it=>it.me)}; resultPage(true); };
+    if($("retry")) $("retry").onclick = () => startTest({kind:"retry", n, qs:shuffle(wrongOf(r)).map(it=>makeQ(DATA, it.s, it.v, shuffle([0,1,2,3])))}); }
+}
+function fmtDate(t){ const d = new Date(t); return `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+
+/* ---------- 問題 ---------- */
+function startTest(o){ S = {...o, ans:Array(o.qs.length).fill(0), idx:0}; question(0); }
+function qHTML(q, no, review){
+  return `${q.pic?`<div class="pic" aria-label="絵">${q.pic}</div>`:""}
+    <div class="stem"><span class="qn">${no}</span>${blankHTML(q.stem)}</div>`;
+}
+function question(i){
+  S.idx = i; const q = S.qs[i], N = S.qs.length;
+  const prev = S.qs[i-1];
+  $("ttl").textContent = S.kind==="lesson" ? `第${S.n}課　${SEC[q.sec].ja}` : `もう一度　${SEC[q.sec].ja}`;
+  $("prog").hidden = false; $("progBar").style.width = Math.round(i/N*100) + "%";
+  $("app").innerHTML = `
+    <section class="paper">
+      ${!prev || prev.fmt!==q.fmt || prev.sec!==q.sec ? `<p class="ins">${insHTML(q.fmt)}</p>` : ""}
+      ${qHTML(q, i+1)}
+      <div class="opts" role="radiogroup" aria-label="こたえ">${q.ch.map((c,k)=>`<button type="button" class="opt" role="radio" aria-checked="${S.ans[i]===k+1}" data-k="${k+1}"><span class="n">${k+1}</span><span>${c}</span></button>`).join("")}</div>
+      <p class="fmt">${SEC[q.sec].ja}・${q.fmt}${S.kind!=="lesson"?`　（第${q.L}課）`:""}</p>
+    </section>`;
+  $("app").querySelectorAll(".opt").forEach(b => b.onclick = () => {
+    const v = +b.dataset.k; S.ans[i] = S.ans[i]===v ? 0 : v;
+    $("app").querySelectorAll(".opt").forEach(x => x.setAttribute("aria-checked", S.ans[i]===+x.dataset.k));
+  });
+  $("nav").hidden = false;
+  $("navIn").innerHTML = `<button class="btn ghost small" id="prev" ${i===0?"disabled":""}>まえへ</button>
+    <span class="mid">${i+1} / ${N}　（${S.ans.filter(Boolean).length}問 こたえた）</span>
+    ${i<N-1 ? `<button class="btn small" id="next">つぎへ</button>` : `<button class="btn small" id="fin">おわる</button>`}`;
+  $("prev").onclick = () => question(i-1);
+  if($("next")) $("next").onclick = () => question(i+1);
+  if($("fin")) $("fin").onclick = askFinish;
+  window.scrollTo(0,0);
+}
+function askFinish(){
+  const empty = S.ans.map((v,i)=>v?0:i+1).filter(Boolean);
+  const old = $("app").querySelector(".confirm"); if(old) old.remove();
+  const box = document.createElement("div"); box.className = "confirm";
+  box.innerHTML = `<p>${empty.length ? `まだ こたえて いない 問題が あります：${empty.join("・")}。` : "ぜんぶ こたえました。"}おわりますか。${ID(`${empty.length ? `Masih ada soal yang belum dijawab: ${empty.join(", ")}. ` : "Semua soal sudah dijawab. "}Selesai sekarang?`)}</p>
+    <div class="row"><button class="btn ghost small" id="cNo">もどる${ID("Kembali")}</button><button class="btn small" id="cYes">おわる${ID("Selesai")}</button></div>`;
+  $("app").appendChild(box);
+  $("cNo").onclick = () => box.remove();
+  $("cYes").onclick = finish;
+  box.scrollIntoView({behavior:"smooth", block:"center"});
+}
+function finish(){
+  hideNav();
+  if(S.kind === "lesson"){
+    const ok = S.qs.filter((q,i)=>S.ans[i]===q.a).length;
+    /* 何回目の 受験か（この スマホで かぞえる） */
+    const cnt = store.get("minnaCount:" + lid(S.n), 0) + 1; store.set("minnaCount:" + lid(S.n), cnt); S.attempt = cnt;
+    saveRec(S.n, {ok, n:S.qs.length, at:Date.now(), attempt:cnt, items:S.qs.map((q,i)=>({s:q.s, v:q.v, p:q.p, me:S.ans[i], w:S.ans[i]!==q.a}))});
+  } else {
+    /* もう一度：正解した 問題を ノートから けす */
+    const byL = {};
+    S.qs.forEach((q,i) => { if(S.ans[i]===q.a) (byL[q.L] = byL[q.L] || []).push(q.s+":"+q.v); });
+    Object.entries(byL).forEach(([L, fixed]) => { const r = recOf(+L); if(r){ r.items.forEach(it => { if(fixed.includes(it.s+":"+it.v)) it.f = true; }); saveRec(+L, r); } });
+  }
+  resultPage(false);
+}
+
+/* ---------- 結果 ---------- */
+function tally(){
+  const sec = {}, gr = {};
+  S.qs.forEach((q,i) => {
+    const good = S.ans[i]===q.a;
+    const s = sec[q.sec] = sec[q.sec] || {ok:0,n:0}; s.n++; if(good) s.ok++;
+    if(q.g && DATA && S.kind==="lesson"){ const o = gr[q.g] = gr[q.g] || {ok:0,n:0}; o.n++; if(good) o.ok++; }
+  });
+  return {sec, gr, ok:S.qs.filter((q,i)=>S.ans[i]===q.a).length, n:S.qs.length};
+}
+function message(ok, n){
+  const p = ok/n;
+  if(p>=0.9) return ["よく できました！ つぎの 課へ 進みましょう。", "Bagus sekali! Lanjut ke bab berikutnya."];
+  if(p>=PASS) return ["合格です。まちがえた 問題を もう一度 やってから、つぎの 課へ 進みましょう。", "Lulus. Ulangi soal yang salah, lalu lanjut ke bab berikutnya."];
+  return ["教科書で この 課を 復習してから、もう一度 やりましょう。", "Pelajari lagi bab ini di buku, lalu coba lagi."];
+}
+function verdictHTML(ok, n){
+  const p = passOf(ok, n);
+  return `<div class="verdict ${p?"pass":"fail"}">${p?"合格":"不合格"}<small>${p?"LULUS":"TIDAK LULUS"}　・　合格ライン 60%（${needOf(n)}問）／ Batas lulus 60% (${needOf(n)} soal)</small></div>`;
+}
+function resultPage(fromRecord){
+  const T = tally(), lesson = S.kind==="lesson";
+  $("ttl").textContent = lesson ? `第${S.n}課　結果` : "もう一度　結果";
+  const [mj, mi] = message(T.ok, T.n);
+  const bar = (label, idl, o) => `<div><span>${label}${ID(idl)}</span><i><b class="${o.ok/o.n<0.7?"low":""}" style="width:${Math.round(o.ok/o.n*100)}%"></b></i><span>${o.ok}/${o.n}</span></div>`;
+  const wrongN = T.n - T.ok;
+  $("app").innerHTML = `
+    <button class="back" id="back">‹ ${lesson?`第${S.n}課に もどる`:"ノートに もどる"}${ID("Kembali")}</button>
+    <h1>${lesson?`第${S.n}課　結果`:"もう一度　結果"}</h1>
+    <div class="card">
+      <div class="score">${T.ok}<small> / ${T.n}問 正解</small></div>${ID(`Benar ${T.ok} dari ${T.n} soal`)}
+      ${lesson && S.attempt ? `<p style="margin:0">受験 ${S.attempt}回目${ID(`Percobaan ke-${S.attempt}`)}</p>` : ""}
+      ${lesson ? verdictHTML(T.ok, T.n) : ""}
+      <p class="msg" style="color:var(--ink)">${lesson ? mj : (wrongN ? `正解した ${T.ok}問は ノートから けしました。` : "ぜんぶ 正解！ ノートから けしました。")}${ID(lesson ? mi : "Soal yang benar sudah dihapus dari catatan.")}</p>
+      <div class="bars">${Object.entries(SEC).filter(([k])=>T.sec[k]).map(([k,v])=>bar(v.ja, v.id, T.sec[k])).join("")}</div>
+      ${lesson && Object.keys(T.gr).length ? `<details class="more"><summary>文法ごとの 正解${ID("Benar per tata bahasa")}</summary><div class="bars" style="margin-top:8px">${DATA.grammar.filter(g=>T.gr[g.g]).map(g=>bar(g.ja, g.id, T.gr[g.g])).join("")}</div></details>` : ""}
+      <div class="btnrow">
+        <label class="field" for="rnm">なまえ（画像に 出ます）${ID("Nama (muncul di gambar)")}<input id="rnm" autocomplete="name" value="${esc(NAME())}"></label>
+        <button class="btn" id="dlRes">⬇ 結果の 画像を 保存${ID("Simpan gambar hasil")}</button>
+        ${wrongN ? `<button class="btn ghost" id="dlNote">⬇ まちがえた 問題を 画像で 保存${ID("Simpan soal yang salah sebagai gambar")}</button>` : ""}
+      </div>
+      <div class="pv" id="pv"></div>
+    </div>
+    <h2>答えあわせ${ID("Pembahasan")}</h2>
+    ${S.qs.map((q,i)=>reviewHTML(q,i)).join("")}
+    <div class="btnrow" style="margin-top:12px"><button class="btn" id="back2">${lesson?`第${S.n}課に もどる`:"ノートに もどる"}${ID("Kembali")}</button></div>`;
+  const back = () => lesson ? go("L="+S.n) : go("note=1");
+  $("back").onclick = back; $("back2").onclick = back;
+  const saveName = () => store.set("minnaName", $("rnm").value.trim());
+  $("rnm").onchange = saveName;
+  $("dlRes").onclick = async () => { saveName(); showImages([await drawResult()], "result"); };
+  if($("dlNote")) $("dlNote").onclick = async () => { saveName(); showImages(await drawNote(S.qs.map((q,i)=>({q, me:S.ans[i]})).filter(x=>x.me!==x.q.a), lesson?`第${S.n}課`:"もう一度"), "wrong"); };
+  bindLang();
+}
+function reviewHTML(q, i){
+  const me = S.ans[i], good = me===q.a, k = "x"+i;
+  return `<div class="rv"><div class="top"><span class="qn">${i+1}</span><span class="pill ${good?"ok":"ng"}">${good?"正解":"まちがい"}</span><span>${SEC[q.sec].ja}・${q.fmt}${S.kind!=="lesson"?`・第${q.L}課`:""}</span></div>
+    ${q.pic?`<div class="pic">${q.pic}</div>`:""}<div class="stem">${blankHTML(q.stem)}</div>
+    <div class="opts">${q.ch.map((c,j)=>`<div class="opt ${j+1===q.a?"right":(j+1===me?"wrong":"")}"><span class="n">${j+1}</span><span>${c}${j+1===q.a?"　○":(j+1===me?"　×":"")}</span></div>`).join("")}</div>
+    ${me?"":`<p class="ex" style="color:var(--ng)">こたえて いません${ID("Tidak dijawab")}</p>`}
+    <div class="ltabs"><button aria-pressed="true" data-lx="${k}" data-l="ja">やさしい 日本語</button><button aria-pressed="false" data-lx="${k}" data-l="id">Bahasa Indonesia</button></div>
+    <div class="ex" id="${k}" data-ja="${esc(q.ja)}" data-id="${esc(q.idn)}">${q.ja}</div></div>`;
+}
+function bindLang(){
+  $("app").querySelectorAll("[data-lx]").forEach(b => b.onclick = () => {
+    const k = b.dataset.lx, el = $(k);
+    el.textContent = b.dataset.l==="ja" ? el.dataset.ja : el.dataset.id;
+    $("app").querySelectorAll(`[data-lx="${k}"]`).forEach(x => x.setAttribute("aria-pressed", x===b));
+  });
+}
+
+/* ---------- まちがえた 問題ノート ---------- */
+async function notePage(){
+  $("ttl").textContent = "まちがえた 問題ノート";
+  const items = [];
+  for(const l of COURSE.lessons){
+    const r = recOf(l.no), w = wrongOf(r); if(!w.length) continue;
+    const d = await getJSON("minna-" + lid(l.no) + ".json");
+    w.forEach(it => items.push({q:makeQ(d, it.s, it.v, it.p), me:it.me}));
+  }
+  const byL = {}; items.forEach(x => (byL[x.q.L] = byL[x.q.L] || []).push(x));
+  $("app").innerHTML = `
+    <button class="back" id="back">‹ 課の 一覧${ID("Daftar bab")}</button>
+    <h1>まちがえた 問題ノート</h1>
+    <p class="lead">まちがえた 問題が ここに たまります。「もう一度」で 正解すると、ノートから きえます。${ID("Soal yang salah dikumpulkan di sini. Kalau dijawab benar lewat \"Ulangi\", soalnya hilang dari catatan.")}</p>
+    ${items.length ? `<div class="card"><h3>${items.length}問${ID(`${items.length} soal`)}</h3>
+      <div class="btnrow"><button class="btn" id="redo">ぜんぶ もう一度 とく${ID("Kerjakan semua lagi")}</button>
+      <button class="btn ghost" id="dl">⬇ ノートを 画像で 保存${ID("Simpan catatan sebagai gambar")}</button></div><div class="pv" id="pv"></div></div>
+      ${Object.entries(byL).map(([L, xs]) => `<h2>第${L}課　${xs.length}問</h2>` + xs.map(({q,me}) => `<div class="rv"><div class="top"><span>${SEC[q.sec].ja}・${q.fmt}</span></div>
+        ${q.pic?`<div class="pic">${q.pic}</div>`:""}<div class="stem">${blankHTML(q.stem)}</div>
+        <div class="opts">${q.ch.map((c,j)=>`<div class="opt"><span class="n">${j+1}</span><span>${c}</span></div>`).join("")}</div>
+        <details class="more"><summary>こたえを 見る${ID("Lihat jawaban")}</summary><p class="ex"><b>こたえ：${q.a}　${q.ch[q.a-1]}</b>（あなた：${me||"－"}）<br>${q.ja}${ID(q.idn)}</p></details></div>`).join("")).join("")}`
+      : `<div class="card"><p class="note-ok">まちがえた 問題は ありません。${ID("Tidak ada soal yang salah.")}</p></div>`}`;
+  $("back").onclick = () => go("");
+  if(items.length){
+    /* もう一度：問題の 順番と 選択肢の 順番を まぜる */
+    const reperm = q => { const np = shuffle([0,1,2,3]); return {...q, ch:np.map(k=>q.ch[k]), a:np.indexOf(q.a-1)+1, p:np.map(k=>q.p[k])}; };
+    $("redo").onclick = () => { DATA = null; startTest({kind:"note", qs:shuffle(items.map(x=>reperm(x.q)))}); };
+    $("dl").onclick = async () => showImages(await drawNote(items, "ノート"), "note");
+  }
+}
+
+/* ---------- 画像（PNG） ---------- */
+const CG = '"BIZ UDPGothic","Hiragino Sans","Yu Gothic",sans-serif';
+const CM = '"BIZ UDMincho","Hiragino Mincho ProN",serif';
+const W = 1080, MAXH = 4200;
+const SID = () => store.get("minnaId", "");
+const who = () => (NAME() || "No name") + (SID() ? `（${SID()}）` : "");
+function stamp(){ const d = new Date(); return {txt:fmtDate(d), file:`${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}`}; }
+function fileName(){ return (NAME()||"").normalize("NFKD").replace(/[^A-Za-z0-9._-]+/g,"_").replace(/^_+|_+$/g,"") || "NoName"; }
+/* HTMLを 画像用の 文字に：下線は【 】、空らんは（　　）、ルビは 漢字（よみ） */
+function plain(s){
+  return String(s).replace(/<br\s*\/?>/g,"\n").replace(/<ruby>(.*?)<rt>(.*?)<\/rt><\/ruby>/g,"$1（$2）")
+    .replace(/<u>(.*?)<\/u>/g,"【$1】").replace(/\[★\]/g,"（★）").replace(/\[ \]/g,"（　　）").replace(/<[^>]+>/g,"");
+}
+/* 1文字ずつ はかって 折りかえす */
+function wrap(g, text, maxW){
+  const out = [];
+  String(text).split("\n").forEach(par => {
+    let line = "";
+    for(const ch of Array.from(par)){
+      if(g.measureText(line + ch).width > maxW && line){ out.push(line); line = /[\s　]/.test(ch) ? "" : ch; }
+      else line += ch;
+    }
+    out.push(line);
+  });
+  return out;
+}
+function canvas(h){ const c = document.createElement("canvas"); c.width = W; c.height = h; const g = c.getContext("2d"); g.fillStyle="#fff"; g.fillRect(0,0,W,h); g.textBaseline="alphabetic"; return [c,g]; }
+async function fontsReady(){ try{ await document.fonts.load(`700 30px ${CG}`); await document.fonts.load(`400 30px ${CM}`); await document.fonts.ready; }catch(e){} }
+function head(g, title, sub, extra){
+  g.fillStyle="#1c2125"; g.font=`700 42px ${CM}`; g.fillText(title, 64, 104);
+  g.fillStyle="#5b646c"; g.font=`400 24px ${CG}`; g.fillText(sub, 64, 144);
+  g.fillStyle="#1c2125"; g.font=`700 36px ${CG}`; g.fillText(who(), 64, 200);
+  g.fillStyle="#5b646c"; g.font=`400 26px ${CG}`; g.fillText(stamp().txt + (extra ? "　" + extra : ""), 64, 242);
+}
+async function drawResult(){
+  await fontsReady();
+  const T = tally(), lesson = S.kind==="lesson";
+  const rows = S.qs.map((q,i)=>({no:i+1, kind:`${SEC[q.sec].ja}・${q.fmt}${lesson?"":`（${q.L}課）`}`, me:S.ans[i], a:q.a}));
+  const grs = lesson ? DATA.grammar.filter(g=>T.gr[g.g]) : [];
+  const top = lesson ? 340 : 300, secH = 3*64 + 40, grTop = top + secH + 40, grH = grs.length ? 60 + grs.length*56 : 0;
+  const listTop = grTop + grH + 90, rowH = 54, H = listTop + rows.length*rowH + 110;
+  const [c, g] = canvas(H);
+  g.strokeStyle="#1c2125"; g.lineWidth=4; g.strokeRect(24,24,W-48,H-48);
+  head(g, lesson ? `みんなの日本語　第${S.n}課　結果` : "みんなの日本語　もう一度　結果", lesson ? `${plain(DATA.title)}` : "まちがえた 問題の やりなおし", lesson && S.attempt ? `受験 ${S.attempt}回目` : "");
+  g.fillStyle="#1c2125"; g.font=`700 100px ${CG}`; const sc = String(T.ok); g.textAlign="right";
+  g.fillText(sc, W-200, 220); g.textAlign="left"; g.font=`400 34px ${CG}`; g.fillStyle="#5b646c"; g.fillText(` / ${T.n}`, W-196, 220);
+  g.font=`400 22px ${CG}`; g.fillText(`Benar ${T.ok} dari ${T.n} soal`, W-340, 258);
+  if(lesson){
+    const p = passOf(T.ok, T.n);
+    g.fillStyle = p ? "#2e7a4e" : "#b3261e"; g.font=`700 38px ${CG}`; g.fillText(p ? "合格" : "不合格", 64, 302);
+    const vw = g.measureText(p ? "合格" : "不合格").width;
+    g.font=`400 22px ${CG}`; g.fillText(`${p?"LULUS":"TIDAK LULUS"}　合格ライン 60%（${needOf(T.n)}問）`, 64 + vw + 20, 300);
+  }
+  const barRow = (y, label, sub, o) => {
+    g.fillStyle="#1c2125"; g.font=`400 28px ${CG}`; g.fillText(label, 64, y);
+    g.fillStyle="#5b646c"; g.font=`400 18px ${CG}`; g.fillText(sub, 64, y+22);
+    g.fillStyle="#e4e8e5"; g.fillRect(460, y-20, 420, 18);
+    g.fillStyle = o.ok/o.n<0.7 ? "#b3261e" : "#1c2125"; g.fillRect(460, y-20, Math.round(420*o.ok/o.n), 18);
+    g.fillStyle="#1c2125"; g.font=`700 28px ${CG}`; g.textAlign="right"; g.fillText(`${o.ok}/${o.n}`, W-64, y); g.textAlign="left";
+  };
+  g.fillStyle="#1c2125"; g.fillRect(56, top, W-112, 3);
+  let y = top + 60;
+  Object.entries(SEC).forEach(([k,v]) => { if(T.sec[k]){ barRow(y, v.ja, v.id, T.sec[k]); y += 64; } });
+  if(grs.length){
+    g.fillStyle="#1c2125"; g.font=`700 26px ${CG}`; g.fillText("文法ごとの 正解", 64, grTop+20);
+    grs.forEach((gg,i) => barRow(grTop + 76 + i*56, gg.ja.length>14 ? gg.ja.slice(0,14)+"…" : gg.ja, gg.id.slice(0,40), T.gr[gg.g]));
+  }
+  const cols = [64, 150, 700, 830, 960];
+  g.fillStyle="#1c2125"; g.font=`700 24px ${CG}`; ["番号","問題","あなた","こたえ","結果"].forEach((t,i)=>g.fillText(t, cols[i], listTop-20));
+  g.fillRect(56, listTop-6, W-112, 3);
+  rows.forEach((r,i) => {
+    const yy = listTop + i*rowH + 38, good = r.me===r.a;
+    if(i%2){ g.fillStyle="#f2f4f2"; g.fillRect(56, yy-36, W-112, rowH); }
+    g.fillStyle="#1c2125"; g.font=`700 26px ${CG}`; g.fillText(String(r.no), cols[0], yy);
+    g.font=`400 24px ${CG}`; g.fillText(r.kind, cols[1], yy);
+    g.font=`700 26px ${CG}`; g.fillText(r.me?String(r.me):"－", cols[2]+20, yy); g.fillText(String(r.a), cols[3]+20, yy);
+    g.fillStyle = good ? "#2e7a4e" : "#b3261e"; g.font=`700 30px ${CG}`; g.fillText(good?"○":"×", cols[4]+14, yy);
+  });
+  g.fillStyle="#5b646c"; g.font=`400 22px ${CG}`; g.fillText("IJFA トレーニングセンター　みんなの日本語 テスト（オリジナル問題）", 64, H-56);
+  return c;
+}
+/* まちがえた 問題の 画像（長い ときは 何枚かに 分ける） */
+async function drawNote(list, label){
+  await fontsReady();
+  const [, m] = canvas(10);
+  const blocks = list.map(({q, me}) => {
+    const lines = [];
+    const add = (text, font, color, size, gap=0) => { m.font = font; wrap(m, text, W-160).forEach(t => lines.push({t, font, color, size})); if(gap) lines.push({gap}); };
+    add(`第${q.L}課　${SEC[q.sec].ja}・${q.fmt}`, `700 24px ${CG}`, "#5b646c", 36);
+    if(q.pic) add(q.pic, `400 56px ${CG}`, "#1c2125", 70);
+    add(plain(q.stem), `400 32px ${CM}`, "#1c2125", 50);
+    q.ch.forEach((c,j) => add(`${j+1}　${plain(c)}${j+1===q.a?"　○ こたえ":(j+1===me?"　× あなた":"")}`, `${j+1===q.a?700:400} 28px ${CM}`, j+1===q.a?"#2e7a4e":(j+1===me?"#b3261e":"#1c2125"), 44));
+    if(!me) add("あなた：こたえて いない（Tidak dijawab）", `400 24px ${CG}`, "#b3261e", 38);
+    lines.push({gap:true});
+    add(plain(q.ja), `400 25px ${CG}`, "#1c2125", 38);
+    add(plain(q.idn), `400 23px ${CG}`, "#5b646c", 35);
+    const h = lines.reduce((a,l)=>a + (l.gap ? 14 : l.size), 0) + 48;
+    return {lines, h};
+  });
+  const pages = []; let cur = [], hh = 0, HEAD = 300, FOOT = 90;
+  blocks.forEach(b => { if(cur.length && HEAD + hh + b.h + FOOT > MAXH){ pages.push(cur); cur = []; hh = 0; } cur.push(b); hh += b.h; });
+  if(cur.length) pages.push(cur);
+  return pages.map((pg, pi) => {
+    const H = HEAD + pg.reduce((a,b)=>a+b.h,0) + FOOT;
+    const [c, g] = canvas(H);
+    g.strokeStyle="#1c2125"; g.lineWidth=4; g.strokeRect(24,24,W-48,H-48);
+    head(g, `まちがえた 問題　${label}`, `Soal yang salah · ${list.length}問${pages.length>1?`（${pi+1}/${pages.length}枚目）`:""}`);
+    let y = HEAD;
+    pg.forEach(b => {
+      g.fillStyle="#d5dad6"; g.fillRect(56, y-10, W-112, 2);
+      let yy = y + 30;
+      b.lines.forEach(l => { if(l.gap){ yy += 14; return; } g.font = l.font; g.fillStyle = l.color; g.fillText(l.t, 80, yy + l.size*0.62); yy += l.size; });
+      y += b.h;
+    });
+    g.fillStyle="#5b646c"; g.font=`400 22px ${CG}`; g.fillText("IJFA トレーニングセンター　みんなの日本語 テスト", 64, H-50);
+    return c;
+  });
+}
+function imgBase(kind){ return `minna-${S.kind==="lesson"?lid(S.n):kind}_${kind}_${fileName()}_${stamp().file}`; }
+function showImages(cs, kind){
+  const box = $("pv"); if(!box) return;
+  const base = imgBase(kind);
+  box.innerHTML = cs.map((c,i) => `<img alt="結果の画像 ${i+1}" src="${c.toDataURL("image/png")}"><button class="btn small ghost" data-dl="${i}">⬇ ${cs.length>1?`${i+1}枚目を `:""}もう一度 保存${ID("Simpan lagi")}</button>`).join("") +
+    `<p class="lead" style="margin:0">保存できない ときは、画像を 長おしして 保存して ください。${ID("Kalau tidak tersimpan, tekan lama gambarnya lalu simpan.")}</p>`;
+  const save = i => { const a = document.createElement("a"); a.href = cs[i].toDataURL("image/png"); a.download = `${base}${cs.length>1?`_${i+1}`:""}.png`; document.body.appendChild(a); a.click(); a.remove(); };
+  box.querySelectorAll("[data-dl]").forEach(b => b.onclick = () => save(+b.dataset.dl));
+  save(0);
+  box.scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+/* 文字の 大きさ */
+(function(){
+  const Z = [1, 1.15, 1.3]; let z = store.get("minnaZoom", 1); if(!Z.includes(z)) z = 1;
+  const apply = v => { document.documentElement.style.fontSize = (v*100) + "%"; document.body.style.zoom = ""; document.querySelector("main").style.zoom = v; $("zoom").textContent = v>1 ? `あ ${Math.round(v*100)}%` : "あ＋"; };
+  apply(z);
+  $("zoom").onclick = () => { z = Z[(Z.indexOf(z)+1)%Z.length]; store.set("minnaZoom", z); apply(z); };
+})();
+boot();
+</script>
+</body>
+</html>

@@ -1,0 +1,481 @@
+{
+ "version": "2026-11-25a",
+ "lessons": [
+  {
+   "no": 1,
+   "ja": "NはNです／じゃありません、〜か、も、NのN",
+   "id": "N adalah N / bukan N, kalimat tanya, juga, milik/dari",
+   "ready": true,
+   "stage": "N5"
+  },
+  {
+   "no": 2,
+   "ja": "これ・それ・あれ、この・その・あのN、そうです",
+   "id": "ini / itu, N ini / N itu, betul / bukan",
+   "ready": true,
+   "stage": "N5"
+  },
+  {
+   "no": 3,
+   "ja": "ここ・そこ・あそこ、こちら、〜は どこですか、いくら",
+   "id": "di sini / di situ / di sana, di mana?, berapa harganya?",
+   "ready": true,
+   "stage": "N5"
+  },
+  {
+   "no": 4,
+   "ja": "時刻・曜日、〜ます／ました、に（時）、から・まで",
+   "id": "jam & hari, kata kerja sopan (sekarang/lampau), pada (waktu), dari ~ sampai ~",
+   "ready": false,
+   "stage": "N5"
+  },
+  {
+   "no": 5,
+   "ja": "へ 行きます、で（乗り物）、と（人）、日付",
+   "id": "pergi ke ~, naik (kendaraan), bersama (orang), tanggal",
+   "ready": false,
+   "stage": "N5"
+  },
+  {
+   "no": 6,
+   "ja": "を（目的語）、で（場所）、〜ませんか、〜ましょう",
+   "id": "melakukan sesuatu (objek), di (tempat kegiatan), mau ~?, ayo ~",
+   "ready": false,
+   "stage": "N5"
+  },
+  {
+   "no": 7,
+   "ja": "で（道具・ことば）、あげます・もらいます、もう〜ました",
+   "id": "dengan (alat/bahasa), memberi & menerima, sudah ~",
+   "ready": false,
+   "stage": "N5"
+  },
+  {
+   "no": 8,
+   "ja": "い形容詞・な形容詞（肯定・否定・名詞修飾）",
+   "id": "kata sifat (positif, negatif, menerangkan benda)",
+   "ready": false,
+   "stage": "N5"
+  },
+  {
+   "no": 9,
+   "ja": "好き・上手・わかります・あります、〜から（理由）",
+   "id": "suka, pandai, mengerti, punya, karena ~",
+   "ready": false,
+   "stage": "N5"
+  },
+  {
+   "no": 10,
+   "ja": "あります・います、Nの 上・下・中",
+   "id": "ada (benda / orang hidup), posisi: atas, bawah, dalam",
+   "ready": false,
+   "stage": "N5"
+  },
+  {
+   "no": 11,
+   "ja": "数え方（〜つ・〜人・〜枚…）、期間・回数",
+   "id": "cara menghitung benda & orang, lamanya, berapa kali",
+   "ready": false,
+   "stage": "N5"
+  },
+  {
+   "no": 12,
+   "ja": "過去（名詞・形容詞）、より・どちら・いちばん",
+   "id": "bentuk lampau (kata benda & sifat), lebih ~ daripada, yang mana, paling",
+   "ready": false,
+   "stage": "N5"
+  },
+  {
+   "no": 13,
+   "ja": "ほしい、〜たい、〜に 行きます（目的）",
+   "id": "ingin (benda), ingin (melakukan), pergi untuk ~",
+   "ready": false,
+   "stage": "N5"
+  },
+  {
+   "no": 14,
+   "ja": "て形、〜てください、〜ています（進行）、〜ましょうか",
+   "id": "bentuk -te, tolong ~, sedang ~, boleh saya ~?",
+   "ready": false,
+   "stage": "N5"
+  },
+  {
+   "no": 15,
+   "ja": "〜てもいいです、〜てはいけません、〜ています（状態）",
+   "id": "boleh ~, tidak boleh ~, keadaan (tinggal, bekerja, dll.)",
+   "ready": false,
+   "stage": "N5"
+  },
+  {
+   "no": 16,
+   "ja": "〜て、〜て（つなぐ）、〜てから、NはNが〜",
+   "id": "menyambung kalimat (lalu ~), setelah ~",
+   "ready": false,
+   "stage": "N5"
+  },
+  {
+   "no": 17,
+   "ja": "ない形、〜ないでください、〜なければなりません、〜なくてもいいです",
+   "id": "bentuk -nai, tolong jangan ~, harus ~, tidak perlu ~",
+   "ready": false,
+   "stage": "N5"
+  },
+  {
+   "no": 18,
+   "ja": "辞書形、〜ことができます、趣味は〜ことです、〜まえに",
+   "id": "bentuk kamus, bisa ~, hobi saya ~, sebelum ~",
+   "ready": false,
+   "stage": "N5"
+  },
+  {
+   "no": 19,
+   "ja": "た形、〜たことがあります、〜たり〜たり、〜くなります",
+   "id": "bentuk -ta, pernah ~, ~ dan ~ (contoh kegiatan), menjadi ~",
+   "ready": false,
+   "stage": "N5"
+  },
+  {
+   "no": 20,
+   "ja": "普通形・普通体（ていねいじゃない 話し方）",
+   "id": "bentuk biasa (gaya bicara akrab)",
+   "ready": false,
+   "stage": "N5"
+  },
+  {
+   "no": 21,
+   "ja": "〜と思います、〜と言いました、〜でしょう？",
+   "id": "saya pikir ~, berkata ~, ~ kan?",
+   "ready": false,
+   "stage": "N5"
+  },
+  {
+   "no": 22,
+   "ja": "名詞修飾（〜ている人、〜た所 など）",
+   "id": "kalimat yang menerangkan kata benda (orang yang ~, tempat yang ~)",
+   "ready": false,
+   "stage": "N5"
+  },
+  {
+   "no": 23,
+   "ja": "〜とき、〜と（いつも そうなる）",
+   "id": "ketika ~, kalau ~ pasti ~",
+   "ready": false,
+   "stage": "N5"
+  },
+  {
+   "no": 24,
+   "ja": "くれます、〜てあげます・〜てもらいます・〜てくれます",
+   "id": "(orang lain) memberi saya, melakukan sesuatu untuk orang lain",
+   "ready": false,
+   "stage": "N5"
+  },
+  {
+   "no": 25,
+   "ja": "〜たら、〜ても",
+   "id": "kalau ~ / setelah ~, walaupun ~",
+   "ready": false,
+   "stage": "N5"
+  },
+  {
+   "no": 26,
+   "ja": "〜んです、〜ていただけませんか、〜たらいいですか",
+   "id": "menjelaskan alasan (~n desu), bolehkah Anda ~?, sebaiknya bagaimana?",
+   "ready": false,
+   "stage": "N4"
+  },
+  {
+   "no": 27,
+   "ja": "可能形、見えます・聞こえます、しか〜ない",
+   "id": "bisa (bentuk potensial), terlihat / terdengar, hanya ~",
+   "ready": false,
+   "stage": "N4"
+  },
+  {
+   "no": 28,
+   "ja": "〜ながら、〜ています（習慣）、〜し、〜し",
+   "id": "sambil ~, kebiasaan, ~ dan juga ~ (alasan)",
+   "ready": false,
+   "stage": "N4"
+  },
+  {
+   "no": 29,
+   "ja": "自動詞＋ています（状態）、〜てしまいます",
+   "id": "keadaan (terbuka, rusak, dll.), sudah terlanjur ~ / selesai ~",
+   "ready": false,
+   "stage": "N4"
+  },
+  {
+   "no": 30,
+   "ja": "〜てあります、〜ておきます",
+   "id": "sudah di~ (keadaan hasil), ~ dulu (persiapan)",
+   "ready": false,
+   "stage": "N4"
+  },
+  {
+   "no": 31,
+   "ja": "意向形、〜ようと思っています、〜つもりです、〜予定です",
+   "id": "ayo ~ (bentuk ajakan), berniat ~, rencana",
+   "ready": false,
+   "stage": "N4"
+  },
+  {
+   "no": 32,
+   "ja": "〜ほうがいいです、〜でしょう、〜かもしれません",
+   "id": "sebaiknya ~, mungkin ~ (perkiraan), mungkin saja ~",
+   "ready": false,
+   "stage": "N4"
+  },
+  {
+   "no": 33,
+   "ja": "命令形・禁止形、〜と書いてあります、〜と伝えて いただけませんか",
+   "id": "bentuk perintah & larangan, artinya ~, menyampaikan pesan",
+   "ready": false,
+   "stage": "N4"
+  },
+  {
+   "no": 34,
+   "ja": "〜とおりに、〜あとで、〜て／〜ないで（どうやって）",
+   "id": "sesuai dengan ~, setelah ~, dengan cara ~ / tanpa ~",
+   "ready": false,
+   "stage": "N4"
+  },
+  {
+   "no": 35,
+   "ja": "条件形（〜ば）、〜なら、どうすれば いいですか",
+   "id": "kalau ~ (bentuk -ba), kalau soal ~, sebaiknya bagaimana?",
+   "ready": false,
+   "stage": "N4"
+  },
+  {
+   "no": 36,
+   "ja": "〜ように（目的）、〜ようになります、〜ようにしています",
+   "id": "supaya ~, menjadi bisa ~, berusaha untuk ~",
+   "ready": false,
+   "stage": "N4"
+  },
+  {
+   "no": 37,
+   "ja": "受身（〜られます）",
+   "id": "bentuk pasif (di~)",
+   "ready": false,
+   "stage": "N4"
+  },
+  {
+   "no": 38,
+   "ja": "〜のは・〜のが・〜のを（名詞化）",
+   "id": "mengubah kalimat menjadi kata benda (~ no)",
+   "ready": false,
+   "stage": "N4"
+  },
+  {
+   "no": 39,
+   "ja": "〜て・〜なくて（理由）、〜ので",
+   "id": "karena ~ (perasaan & keadaan), karena ~ (node)",
+   "ready": false,
+   "stage": "N4"
+  },
+  {
+   "no": 40,
+   "ja": "〜か、〜かどうか、〜てみます",
+   "id": "apakah ~ atau tidak, mencoba ~",
+   "ready": false,
+   "stage": "N4"
+  },
+  {
+   "no": 41,
+   "ja": "いただきます・くださいます・やります（授受の 敬語）",
+   "id": "memberi & menerima (bahasa hormat)",
+   "ready": false,
+   "stage": "N4"
+  },
+  {
+   "no": 42,
+   "ja": "〜ために（目的）、〜のに（用途）",
+   "id": "untuk ~ (tujuan), dipakai untuk ~",
+   "ready": false,
+   "stage": "N4"
+  },
+  {
+   "no": 43,
+   "ja": "〜そうです（様子）、〜てきます",
+   "id": "kelihatannya ~, pergi lalu kembali",
+   "ready": false,
+   "stage": "N4"
+  },
+  {
+   "no": 44,
+   "ja": "〜すぎます、〜やすい・〜にくい、〜く／〜にします",
+   "id": "terlalu ~, mudah / sulit ~, membuat jadi ~, memilih ~",
+   "ready": false,
+   "stage": "N4"
+  },
+  {
+   "no": 45,
+   "ja": "〜場合は、〜のに（逆接）",
+   "id": "kalau terjadi ~, padahal ~",
+   "ready": false,
+   "stage": "N4"
+  },
+  {
+   "no": 46,
+   "ja": "〜ところです、〜たばかりです、〜はずです",
+   "id": "baru akan / sedang / baru saja ~, seharusnya ~",
+   "ready": false,
+   "stage": "N4"
+  },
+  {
+   "no": 47,
+   "ja": "〜そうです（伝聞）、〜ようです",
+   "id": "katanya ~, sepertinya ~",
+   "ready": false,
+   "stage": "N4"
+  },
+  {
+   "no": 48,
+   "ja": "使役（〜させます）、〜させていただけませんか",
+   "id": "menyuruh / membiarkan (bentuk kausatif), izinkan saya ~",
+   "ready": false,
+   "stage": "N4"
+  },
+  {
+   "no": 49,
+   "ja": "尊敬語（お〜になります・〜られます など）",
+   "id": "sonkeigo (bahasa hormat untuk orang lain)",
+   "ready": false,
+   "stage": "N4"
+  },
+  {
+   "no": 50,
+   "ja": "謙譲語（お〜します など）",
+   "id": "kenjougo (bahasa merendah untuk diri sendiri)",
+   "ready": false,
+   "stage": "N4"
+  }
+ ],
+ "blocks": [
+  {
+   "title": "1〜8課",
+   "range": [
+    1,
+    8
+   ],
+   "matome": "M01"
+  },
+  {
+   "title": "9〜17課",
+   "range": [
+    9,
+    17
+   ],
+   "matome": "M02"
+  },
+  {
+   "title": "18〜25課",
+   "range": [
+    18,
+    25
+   ],
+   "matome": "M03",
+   "total": "M04"
+  },
+  {
+   "title": "26〜33課",
+   "range": [
+    26,
+    33
+   ],
+   "matome": "M05"
+  },
+  {
+   "title": "34〜42課",
+   "range": [
+    34,
+    42
+   ],
+   "matome": "M06"
+  },
+  {
+   "title": "43〜50課",
+   "range": [
+    43,
+    50
+   ],
+   "matome": "M07",
+   "total": "M08"
+  }
+ ],
+ "matome": [
+  {
+   "id": "M01",
+   "title": "まとめ 1〜8課",
+   "range": [
+    1,
+    8
+   ],
+   "ready": false
+  },
+  {
+   "id": "M02",
+   "title": "まとめ 9〜17課",
+   "range": [
+    9,
+    17
+   ],
+   "ready": false
+  },
+  {
+   "id": "M03",
+   "title": "まとめ 18〜25課",
+   "range": [
+    18,
+    25
+   ],
+   "ready": false
+  },
+  {
+   "id": "M04",
+   "title": "N5段階 総合（1〜25課）",
+   "range": [
+    1,
+    25
+   ],
+   "ready": false
+  },
+  {
+   "id": "M05",
+   "title": "まとめ 26〜33課",
+   "range": [
+    26,
+    33
+   ],
+   "ready": false
+  },
+  {
+   "id": "M06",
+   "title": "まとめ 34〜42課",
+   "range": [
+    34,
+    42
+   ],
+   "ready": false
+  },
+  {
+   "id": "M07",
+   "title": "まとめ 43〜50課",
+   "range": [
+    43,
+    50
+   ],
+   "ready": false
+  },
+  {
+   "id": "M08",
+   "title": "N4段階 総合（26〜50課）",
+   "range": [
+    26,
+    50
+   ],
+   "ready": false
+  }
+ ]
+}

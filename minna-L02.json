@@ -1,0 +1,823 @@
+{
+ "id": "L02",
+ "lesson": 2,
+ "title": "これ・それ・あれ、この・その・あのN、そうです",
+ "titleId": "ini / itu, N ini / N itu, betul / bukan",
+ "version": "2026-11-25a",
+ "grammar": [
+  {
+   "g": "2a",
+   "ja": "これ・それ・あれ",
+   "id": "ini / itu / itu (yang jauh)"
+  },
+  {
+   "g": "2b",
+   "ja": "この・その・あの＋N",
+   "id": "N ini / N itu / N itu (yang jauh)"
+  },
+  {
+   "g": "2c",
+   "ja": "そうです・ちがいます",
+   "id": "Betul / Bukan"
+  },
+  {
+   "g": "2d",
+   "ja": "〜ですか、〜ですか（どちら？）",
+   "id": "Pertanyaan pilihan: A atau B?"
+  },
+  {
+   "g": "2e",
+   "ja": "N1のN2（内容・持ち主）、Nの（だれの）",
+   "id": "N2 tentang / milik N1; punya N (contoh: punya Sari)"
+  },
+  {
+   "g": "2f",
+   "ja": "なん・なんの",
+   "id": "Apa / N tentang apa"
+  }
+ ],
+ "slots": [
+  [
+   {
+    "sec": "vocab",
+    "fmt": "絵を見て",
+    "stem": "これは なんですか。",
+    "ch": [
+     "かぎ",
+     "かさ",
+     "かばん",
+     "カード"
+    ],
+    "ja": "🔑 は「かぎ」です。「かさ」「かばん」と にて いるので ちゅうい。",
+    "idn": "🔑 adalah 「kagi」 (kunci). Hati-hati, mirip 「kasa」 dan 「kaban」.",
+    "pic": "🔑",
+    "a": 1
+   },
+   {
+    "sec": "vocab",
+    "fmt": "絵を見て",
+    "stem": "これは なんですか。",
+    "ch": [
+     "テレビ",
+     "ラジオ",
+     "カメラ",
+     "とけい"
+    ],
+    "ja": "📺 は「テレビ」です。",
+    "idn": "📺 adalah 「terebi」 (televisi).",
+    "pic": "📺",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "vocab",
+    "fmt": "絵を見て",
+    "stem": "これは なんですか。",
+    "ch": [
+     "かさ",
+     "かぎ",
+     "かばん",
+     "いす"
+    ],
+    "ja": "☂️ は「かさ」です。",
+    "idn": "☂️ adalah 「kasa」 (payung).",
+    "pic": "☂️",
+    "a": 1
+   },
+   {
+    "sec": "vocab",
+    "fmt": "絵を見て",
+    "stem": "これは なんですか。",
+    "ch": [
+     "ラジオ",
+     "テレビ",
+     "カメラ",
+     "とけい"
+    ],
+    "ja": "📻 は「ラジオ」です。",
+    "idn": "📻 adalah 「rajio」 (radio).",
+    "pic": "📻",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "vocab",
+    "fmt": "絵を見て",
+    "stem": "これは なんですか。",
+    "ch": [
+     "えんぴつ",
+     "ボールペン",
+     "ノート",
+     "てちょう"
+    ],
+    "ja": "✏️ は「えんぴつ」です。「ボールペン」は インクの ペンです。",
+    "idn": "✏️ adalah 「enpitsu」 (pensil). 「Boorupen」 adalah pulpen.",
+    "pic": "✏️",
+    "a": 1
+   },
+   {
+    "sec": "vocab",
+    "fmt": "絵を見て",
+    "stem": "これは なんですか。",
+    "ch": [
+     "ボールペン",
+     "えんぴつ",
+     "ノート",
+     "かぎ"
+    ],
+    "ja": "🖊️ は「ボールペン」です。「えんぴつ」は きで できた ペンです。",
+    "idn": "🖊️ adalah 「boorupen」 (pulpen). 「Enpitsu」 adalah pensil kayu.",
+    "pic": "🖊️",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "vocab",
+    "fmt": "絵を見て",
+    "stem": "これは なんですか。",
+    "ch": [
+     "しんぶん",
+     "ざっし",
+     "じしょ",
+     "ほん"
+    ],
+    "ja": "📰 は「しんぶん」です。",
+    "idn": "📰 adalah 「shinbun」 (koran).",
+    "pic": "📰",
+    "a": 1
+   },
+   {
+    "sec": "vocab",
+    "fmt": "絵を見て",
+    "stem": "これは なんですか。",
+    "ch": [
+     "コンピューター",
+     "テレビ",
+     "ラジオ",
+     "カメラ"
+    ],
+    "ja": "💻 は「コンピューター」です。",
+    "idn": "💻 adalah 「konpyuutaa」 (komputer).",
+    "pic": "💻",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "vocab",
+    "fmt": "絵を見て",
+    "stem": "これは なんですか。",
+    "ch": [
+     "とけい",
+     "テレビ",
+     "カメラ",
+     "ラジオ"
+    ],
+    "ja": "⌚ は「とけい」です。",
+    "idn": "⌚ adalah 「tokei」 (jam).",
+    "pic": "⌚",
+    "a": 1
+   },
+   {
+    "sec": "vocab",
+    "fmt": "絵を見て",
+    "stem": "これは なんですか。",
+    "ch": [
+     "くるま",
+     "いす",
+     "つくえ",
+     "かばん"
+    ],
+    "ja": "🚗 は「くるま」です。",
+    "idn": "🚗 adalah 「kuruma」 (mobil).",
+    "pic": "🚗",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "vocab",
+    "fmt": "絵を見て",
+    "stem": "これは なんですか。",
+    "ch": [
+     "カメラ",
+     "ラジオ",
+     "テレビ",
+     "コンピューター"
+    ],
+    "ja": "📷 は「カメラ」です。",
+    "idn": "📷 adalah 「kamera」.",
+    "pic": "📷",
+    "a": 1
+   },
+   {
+    "sec": "vocab",
+    "fmt": "絵を見て",
+    "stem": "これは なんですか。",
+    "ch": [
+     "コーヒー",
+     "チョコレート",
+     "おみやげ",
+     "しんぶん"
+    ],
+    "ja": "☕ は「コーヒー」です。",
+    "idn": "☕ adalah 「koohii」 (kopi).",
+    "pic": "☕",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "vocab",
+    "fmt": "文脈規定",
+    "stem": "A「これ、[ ] 。どうぞ。」<br>B「どうも ありがとう ございます。」",
+    "ch": [
+     "ほんの きもちです",
+     "こちらこそ",
+     "ちがいます",
+     "そうですか"
+    ],
+    "ja": "プレゼントを あげる とき「ほんの きもちです」と いいます。",
+    "idn": "Saat memberi hadiah kecil, katakan 「hon no kimochi desu」 (sekadar tanda terima kasih).",
+    "a": 1
+   },
+   {
+    "sec": "vocab",
+    "fmt": "文脈規定",
+    "stem": "（プレゼントを わたして）<br>「これ、ほんの [ ] です。どうぞ。」",
+    "ch": [
+     "きもち",
+     "こちら",
+     "そう",
+     "どうも"
+    ],
+    "ja": "プレゼントを あげる とき「ほんの きもちです」と いいます。",
+    "idn": "Saat memberi hadiah kecil, katakan 「hon no kimochi desu」.",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "vocab",
+    "fmt": "文脈規定",
+    "stem": "A「これから おせわに なります。」<br>B「[ ] よろしく。」",
+    "ch": [
+     "こちらこそ",
+     "そうです",
+     "あのう",
+     "ちがいます"
+    ],
+    "ja": "あいさつを かえす とき「こちらこそ よろしく」と いいます。",
+    "idn": "Untuk membalas salam, katakan 「kochira koso yoroshiku」 (saya juga).",
+    "a": 1
+   },
+   {
+    "sec": "vocab",
+    "fmt": "文脈規定",
+    "stem": "A「どうぞ よろしく おねがいします。」<br>B「[ ] よろしく おねがいします。」",
+    "ch": [
+     "こちらこそ",
+     "ちがいます",
+     "そうですか",
+     "そうです"
+    ],
+    "ja": "あいさつを かえす とき「こちらこそ」と いいます。",
+    "idn": "Untuk membalas salam, katakan 「kochira koso」 (saya juga).",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "vocab",
+    "fmt": "文脈規定",
+    "stem": "A「それは ボールペンですか。」<br>B「いいえ、[ ] 。シャープペンシルです。」",
+    "ch": [
+     "ちがいます",
+     "そうです",
+     "どうぞ",
+     "そうですか"
+    ],
+    "ja": "「いいえ」の あとに「ちがいます」と いえます。",
+    "idn": "Setelah 「iie」 bisa ditambah 「chigaimasu」 (bukan).",
+    "a": 1
+   },
+   {
+    "sec": "vocab",
+    "fmt": "文脈規定",
+    "stem": "A「これは サリさんの かさですか。」<br>B「いいえ、[ ] 。」",
+    "ch": [
+     "ちがいます",
+     "そうです",
+     "こちらこそ",
+     "どうぞ"
+    ],
+    "ja": "「いいえ」の あとに「ちがいます」と いえます。",
+    "idn": "Setelah 「iie」 bisa ditambah 「chigaimasu」 (bukan).",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "vocab",
+    "fmt": "文脈規定",
+    "stem": "これは えいごの ほんじゃ ありません。インドネシア [ ] の ほんです。",
+    "ch": [
+     "ご",
+     "さい",
+     "さん",
+     "えん"
+    ],
+    "ja": "ことばは くに ＋「ご」です（インドネシアご）。ひとは「じん」です。",
+    "idn": "Bahasa = negara + 「go」 (Indonesia-go). Orang = 「jin」.",
+    "a": 1
+   },
+   {
+    "sec": "vocab",
+    "fmt": "文脈規定",
+    "stem": "これは にほん [ ] の じしょです。インドネシアごの じしょじゃ ありません。",
+    "ch": [
+     "ご",
+     "さい",
+     "さん",
+     "えん"
+    ],
+    "ja": "ことばは くに ＋「ご」です（にほんご）。",
+    "idn": "Bahasa = negara + 「go」 (nihon-go).",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "kanji",
+    "fmt": "漢字読み",
+    "stem": "これは <u>本</u>です。",
+    "ch": [
+     "ほん",
+     "ぼん",
+     "もと",
+     "ほう"
+    ],
+    "ja": "「本」だけの とき「ほん」と よみます。",
+    "idn": "「本」 sendirian dibaca 「hon」 (buku).",
+    "a": 1
+   },
+   {
+    "sec": "kanji",
+    "fmt": "漢字読み",
+    "stem": "これは <u>新聞</u>です。",
+    "ch": [
+     "しんぶん",
+     "しんもん",
+     "しんぶ",
+     "しぶん"
+    ],
+    "ja": "「新聞」は「しんぶん」です。",
+    "idn": "「新聞」 dibaca 「shinbun」.",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "kanji",
+    "fmt": "漢字読み",
+    "stem": "それは にほんの <u>車</u>です。",
+    "ch": [
+     "くるま",
+     "しゃ",
+     "くろま",
+     "くらま"
+    ],
+    "ja": "「車」だけの とき「くるま」と よみます。",
+    "idn": "「車」 sendirian dibaca 「kuruma」 (mobil).",
+    "a": 1
+   },
+   {
+    "sec": "kanji",
+    "fmt": "漢字読み",
+    "stem": "あれは わたしの <u>時計</u>です。",
+    "ch": [
+     "とけい",
+     "じけい",
+     "ときけい",
+     "とけ"
+    ],
+    "ja": "「時計」は「とけい」。さいごの「い」も よみます。",
+    "idn": "「時計」 dibaca 「tokei」 — 「i」 di akhir juga dibaca.",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "kanji",
+    "fmt": "漢字読み",
+    "stem": "これは <u>日本語</u>の ざっしです。",
+    "ch": [
+     "にほんご",
+     "にほんごう",
+     "にほうご",
+     "ひほんご"
+    ],
+    "ja": "「日本語」は「にほんご」。「ご」は みじかい おとです。",
+    "idn": "「日本語」 dibaca 「nihongo」. 「Go」 bunyinya pendek.",
+    "a": 1
+   },
+   {
+    "sec": "kanji",
+    "fmt": "漢字読み",
+    "stem": "これは <u>英語</u>の 本です。",
+    "ch": [
+     "えいご",
+     "えご",
+     "えいごう",
+     "えいこ"
+    ],
+    "ja": "「英語」は「えいご」。「え」の あとの「い」を わすれないで。",
+    "idn": "「英語」 dibaca 「eigo」. Jangan lupa 「i」 setelah 「e」.",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "kanji",
+    "fmt": "表記",
+    "stem": "あれは だれの <u>とけい</u>ですか。",
+    "ch": [
+     "時計",
+     "時言",
+     "寺計",
+     "時汁"
+    ],
+    "ja": "「とけい」は「時計」です。「時」の ひだりは「日」です。",
+    "idn": "「Tokei」 ditulis 「時計」. Bagian kiri 「時」 adalah 「日」.",
+    "a": 1
+   },
+   {
+    "sec": "kanji",
+    "fmt": "表記",
+    "stem": "これは <u>ほん</u>です。",
+    "ch": [
+     "本",
+     "木",
+     "末",
+     "未"
+    ],
+    "ja": "「ほん」は「本」。「木」の したに よこの せんが あります。",
+    "idn": "「Hon」 ditulis 「本」 — 「木」 dengan garis pendek di bawah.",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "kanji",
+    "fmt": "表記",
+    "stem": "これは きょうの <u>しんぶん</u>です。",
+    "ch": [
+     "新聞",
+     "新問",
+     "親聞",
+     "新間"
+    ],
+    "ja": "「聞」の なかは「耳」です。「問」「間」と まちがえやすいです。",
+    "idn": "Di dalam 「聞」 ada 「耳」 (telinga). Sering tertukar dengan 「問」 dan 「間」.",
+    "a": 1
+   },
+   {
+    "sec": "kanji",
+    "fmt": "表記",
+    "stem": "それは にほんの <u>くるま</u>です。",
+    "ch": [
+     "車",
+     "東",
+     "単",
+     "事"
+    ],
+    "ja": "「くるま」は「車」です。",
+    "idn": "「Kuruma」 ditulis 「車」.",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "A「[ ] は なんですか。」<br>B「それは めいしです。」",
+    "ch": [
+     "これ",
+     "それ",
+     "あれ",
+     "この"
+    ],
+    "ja": "Bが「それ」と いって いるので、Aの ちかくに あります。Aは「これ」です。",
+    "idn": "B bilang 「sore」, jadi bendanya dekat A. A memakai 「kore」.",
+    "g": "2a",
+    "a": 1
+   },
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "A「それは なんですか。」<br>B「[ ] は ノートです。」",
+    "ch": [
+     "これ",
+     "それ",
+     "あれ",
+     "この"
+    ],
+    "ja": "Aが「それ」と いって いるので、Bの ちかくに あります。Bは「これ」です。",
+    "idn": "A bilang 「sore」, jadi bendanya dekat B. B memakai 「kore」.",
+    "g": "2a",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "[ ] ほんは わたしのです。",
+    "ch": [
+     "この",
+     "これ",
+     "ここ",
+     "こちら"
+    ],
+    "ja": "なまえ（N）の まえは「この・その・あの」です。「これ」の あとに Nは つきません。",
+    "idn": "Sebelum kata benda (N) pakai 「kono/sono/ano」. 「Kore」 tidak diikuti kata benda.",
+    "g": "2b",
+    "a": 1
+   },
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "（とおくの かさを 見て）「[ ] かさは だれのですか。」",
+    "ch": [
+     "あの",
+     "あれ",
+     "あそこ",
+     "あちら"
+    ],
+    "ja": "なまえ（N）の まえは「この・その・あの」です。とおくの ものは「あの」。",
+    "idn": "Sebelum kata benda pakai 「kono/sono/ano」. Untuk benda yang jauh: 「ano」.",
+    "g": "2b",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "A「これは ボールペンですか、シャープペンシルですか。」<br>B「[ ] 。」",
+    "ch": [
+     "シャープペンシルです",
+     "はい、そうです",
+     "いいえ、ちがいます",
+     "そうですか"
+    ],
+    "ja": "「〜ですか、〜ですか」と きかれたら「はい・いいえ」で こたえません。",
+    "idn": "Untuk pertanyaan pilihan 「~desu ka, ~desu ka」, jangan jawab dengan 「hai/iie」.",
+    "g": "2d",
+    "a": 1
+   },
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "A「これは「9」ですか、「7」ですか。」<br>B「[ ] 。」",
+    "ch": [
+     "「9」です",
+     "はい、そうです",
+     "いいえ、ちがいます",
+     "そうですか"
+    ],
+    "ja": "「〜ですか、〜ですか」と きかれたら「はい・いいえ」で こたえません。",
+    "idn": "Untuk pertanyaan pilihan, jangan jawab dengan 「hai/iie」.",
+    "g": "2d",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "A「これは なん [ ] ほんですか。」<br>B「コンピューターの ほんです。」",
+    "ch": [
+     "の",
+     "は",
+     "も",
+     "か"
+    ],
+    "ja": "「なんの ほん」で ほんの ないようを ききます。",
+    "idn": "「Nan no hon」 menanyakan isi/topik buku.",
+    "g": "2f",
+    "a": 1
+   },
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "A「それは [ ] ざっしですか。」<br>B「くるまの ざっしです。」",
+    "ch": [
+     "なんの",
+     "なん",
+     "だれ",
+     "どれ"
+    ],
+    "ja": "「なんの ざっし」で ざっしの ないようを ききます。",
+    "idn": "「Nan no zasshi」 menanyakan isi/topik majalah.",
+    "g": "2f",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "A「これは だれの かさですか。」<br>B「サリさん [ ] です。」",
+    "ch": [
+     "の",
+     "は",
+     "も",
+     "が"
+    ],
+    "ja": "「サリさんの かさです」の「かさ」を はぶいて「サリさんのです」。",
+    "idn": "「Sari-san no kasa desu」 → 「kasa」 dihilangkan → 「Sari-san no desu」.",
+    "g": "2e",
+    "a": 1
+   },
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "A「この かばんは だれのですか。」<br>B「わたし [ ] です。」",
+    "ch": [
+     "の",
+     "は",
+     "も",
+     "が"
+    ],
+    "ja": "「わたしの かばんです」の「かばん」を はぶいて「わたしのです」。",
+    "idn": "「Watashi no kaban desu」 → 「kaban」 dihilangkan → 「watashi no desu」.",
+    "g": "2e",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "A「それは あなたの とけいですか。」<br>B「はい、[ ] 。」",
+    "ch": [
+     "そうです",
+     "そうじゃ ありません",
+     "ちがいます",
+     "そうですか"
+    ],
+    "ja": "「はい」の あとは「そうです」です。",
+    "idn": "Setelah 「hai」, katakan 「sou desu」 (betul).",
+    "g": "2c",
+    "a": 1
+   },
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "A「あれは IJFAの くるまですか。」<br>B「いいえ、[ ] 。」",
+    "ch": [
+     "そうじゃ ありません",
+     "そうです",
+     "そうですか",
+     "こちらこそ"
+    ],
+    "ja": "「いいえ」の あとは「そうじゃ ありません」です。",
+    "idn": "Setelah 「iie」, katakan 「sou ja arimasen」 (bukan).",
+    "g": "2c",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "A「あれは [ ] ですか。」<br>B「あれは カメラです。」",
+    "ch": [
+     "なん",
+     "だれ",
+     "なんさい",
+     "どなた"
+    ],
+    "ja": "もの（benda）を きく ときは「なん」です。ひとは「だれ」です。",
+    "idn": "Untuk benda tanya 「nan」, untuk orang 「dare」.",
+    "g": "2f",
+    "a": 1
+   },
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "A「これは [ ] ですか。」<br>B「えんぴつです。」",
+    "ch": [
+     "なん",
+     "だれ",
+     "どなた",
+     "なんさい"
+    ],
+    "ja": "もの（benda）を きく ときは「なん」です。",
+    "idn": "Untuk benda tanya 「nan」.",
+    "g": "2f",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "A「これは にほんごの じしょですか。」<br>B「[ ] 、えいごの じしょです。」",
+    "ch": [
+     "いいえ",
+     "はい",
+     "そう",
+     "どうぞ"
+    ],
+    "ja": "にほんごの じしょ じゃ ないので「いいえ」です。",
+    "idn": "Bukan kamus bahasa Jepang, jadi jawabannya 「iie」.",
+    "g": "2c",
+    "a": 1
+   },
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "A「これは あなたの かさですか。」<br>B「[ ] 、わたしのじゃ ありません。」",
+    "ch": [
+     "いいえ",
+     "はい",
+     "そう",
+     "どうぞ"
+    ],
+    "ja": "わたしの かさ じゃ ないので「いいえ」です。",
+    "idn": "Bukan payung saya, jadi jawabannya 「iie」.",
+    "g": "2c",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "grammar",
+    "fmt": "文の組み立て",
+    "stem": "それは [ ] [ ] [★] [ ] か。",
+    "ch": [
+     "かさ",
+     "だれ",
+     "の",
+     "です"
+    ],
+    "ja": "ただしい じゅんばん：それは だれ の かさ です か。★は「かさ」です。",
+    "idn": "Urutan benar: sore wa dare no kasa desu ka. ★ = 「kasa」.",
+    "g": "2e",
+    "a": 1
+   },
+   {
+    "sec": "grammar",
+    "fmt": "文の組み立て",
+    "stem": "これは [ ] [ ] [★] [ ] か。",
+    "ch": [
+     "ざっし",
+     "なん",
+     "の",
+     "です"
+    ],
+    "ja": "ただしい じゅんばん：これは なん の ざっし です か。★は「ざっし」です。",
+    "idn": "Urutan benar: kore wa nan no zasshi desu ka. ★ = 「zasshi」.",
+    "g": "2f",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "grammar",
+    "fmt": "文の組み立て",
+    "stem": "これは [ ] [ ] [★] [ ] 。",
+    "ch": [
+     "ざっし",
+     "コンピューター",
+     "の",
+     "じゃ ありません"
+    ],
+    "ja": "ただしい じゅんばん：これは コンピューター の ざっし じゃ ありません。★は「ざっし」です。",
+    "idn": "Urutan benar: kore wa konpyuutaa no zasshi ja arimasen. ★ = 「zasshi」.",
+    "g": "2e",
+    "a": 1
+   },
+   {
+    "sec": "grammar",
+    "fmt": "文の組み立て",
+    "stem": "その [ ] [ ] [★] [ ] です。",
+    "ch": [
+     "わたし",
+     "かばん",
+     "は",
+     "の"
+    ],
+    "ja": "ただしい じゅんばん：その かばん は わたし の です。★は「わたし」です。",
+    "idn": "Urutan benar: sono kaban wa watashi no desu. ★ = 「watashi」.",
+    "g": "2e",
+    "a": 1
+   }
+  ]
+ ]
+}

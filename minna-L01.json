@@ -1,0 +1,811 @@
+{
+ "id": "L01",
+ "lesson": 1,
+ "title": "NはNです／じゃありません、〜か、も、NのN",
+ "titleId": "N adalah N / bukan N, kalimat tanya, juga, milik/dari",
+ "version": "2026-11-25a",
+ "grammar": [
+  {
+   "g": "1a",
+   "ja": "NはNです",
+   "id": "N adalah N"
+  },
+  {
+   "g": "1b",
+   "ja": "NはNじゃ ありません",
+   "id": "N bukan N"
+  },
+  {
+   "g": "1c",
+   "ja": "〜か（しつもん）",
+   "id": "Kalimat tanya (… ?)"
+  },
+  {
+   "g": "1d",
+   "ja": "Nも",
+   "id": "N juga"
+  },
+  {
+   "g": "1e",
+   "ja": "N1のN2",
+   "id": "N2 dari / milik N1 (contoh: mahasiswa Universitas Sakura)"
+  },
+  {
+   "g": "1f",
+   "ja": "〜から きました",
+   "id": "Datang dari ~ (asal)"
+  }
+ ],
+ "slots": [
+  [
+   {
+    "sec": "vocab",
+    "fmt": "文脈規定",
+    "stem": "ブディさんは [ ] です。ジャヤでんきの しゃいんです。",
+    "ch": [
+     "かいしゃいん",
+     "いしゃ",
+     "がくせい",
+     "きょうし"
+    ],
+    "ja": "かいしゃで はたらく ひとは「かいしゃいん」です。かいしゃの なまえと いっしょの ときは「〜の しゃいん」と いいます。",
+    "idn": "Orang yang bekerja di perusahaan = 「kaishain」. Kalau bersama nama perusahaan, pakai 「~no shain」.",
+    "a": 1
+   },
+   {
+    "sec": "vocab",
+    "fmt": "文脈規定",
+    "stem": "わたしは [ ] です。さくらだいがくの がくせいです。",
+    "ch": [
+     "がくせい",
+     "いしゃ",
+     "かいしゃいん",
+     "ぎんこういん"
+    ],
+    "ja": "だいがくで べんきょうする ひとは「がくせい」です。",
+    "idn": "Orang yang belajar di universitas = 「gakusei」 (pelajar/mahasiswa).",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "vocab",
+    "fmt": "文脈規定",
+    "stem": "ハサンさんは [ ] です。さくらぎんこうの しゃいんです。",
+    "ch": [
+     "ぎんこういん",
+     "いしゃ",
+     "がくせい",
+     "きょうし"
+    ],
+    "ja": "ぎんこう（bank）で はたらく ひとは「ぎんこういん」です。",
+    "idn": "Orang yang bekerja di ginkou (bank) adalah 「ginkouin」.",
+    "a": 1
+   },
+   {
+    "sec": "vocab",
+    "fmt": "文脈規定",
+    "stem": "やまださんは [ ] です。さくらだいがくの せんせいです。",
+    "ch": [
+     "きょうし",
+     "いしゃ",
+     "がくせい",
+     "ぎんこういん"
+    ],
+    "ja": "がっこうで おしえる ひとの しごとは「きょうし」です。",
+    "idn": "Pekerjaan orang yang mengajar di sekolah = 「kyoushi」 (guru).",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "vocab",
+    "fmt": "文脈規定",
+    "stem": "はじめまして。アグスです。どうぞ [ ] 。",
+    "ch": [
+     "よろしく おねがいします",
+     "ありがとう ございます",
+     "しつれいですが",
+     "おはよう ございます"
+    ],
+    "ja": "じこしょうかいの さいごは「どうぞ よろしく おねがいします」です。",
+    "idn": "Perkenalan diri ditutup dengan 「douzo yoroshiku onegaishimasu」.",
+    "a": 1
+   },
+   {
+    "sec": "vocab",
+    "fmt": "文脈規定",
+    "stem": "（はじめて あった ひとに さいしょに）<br>「[ ] 。アグスです。」",
+    "ch": [
+     "はじめまして",
+     "こちらこそ",
+     "ありがとう ございます",
+     "おやすみなさい"
+    ],
+    "ja": "はじめて あった ひとに さいしょに いう ことばは「はじめまして」です。",
+    "idn": "Kata pertama saat bertemu orang untuk pertama kali = 「hajimemashite」.",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "vocab",
+    "fmt": "文脈規定",
+    "stem": "A「あの ひとは [ ] ですか。」<br>B「リナさんです。」",
+    "ch": [
+     "だれ",
+     "なんさい",
+     "おいくつ",
+     "なに"
+    ],
+    "ja": "こたえが ひとの なまえです。ひとの なまえを きく ことばは「だれ」です。",
+    "idn": "Jawabannya nama orang. Untuk menanyakan siapa, pakai 「dare」.",
+    "a": 1
+   },
+   {
+    "sec": "vocab",
+    "fmt": "文脈規定",
+    "stem": "A「あの かたは [ ] ですか。」<br>B「やまだせんせいです。」",
+    "ch": [
+     "どなた",
+     "なんさい",
+     "おいくつ",
+     "なん"
+    ],
+    "ja": "ひとの なまえを ていねいに きく ことばは「どなた」です。",
+    "idn": "Untuk menanyakan siapa dengan sopan, pakai 「donata」.",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "vocab",
+    "fmt": "文脈規定",
+    "stem": "A「しつれいですが、[ ] ですか。」<br>B「30さいです。」",
+    "ch": [
+     "おいくつ",
+     "どなた",
+     "だれ",
+     "おなまえ"
+    ],
+    "ja": "こたえが ねんれい（umur）です。「おいくつ」は「なんさい」の ていねいな ことばです。",
+    "idn": "Jawabannya umur. 「Oikutsu」 adalah bentuk sopan dari 「nansai」.",
+    "a": 1
+   },
+   {
+    "sec": "vocab",
+    "fmt": "文脈規定",
+    "stem": "A「[ ] ですか。」<br>B「22さいです。」",
+    "ch": [
+     "なんさい",
+     "だれ",
+     "どなた",
+     "なん"
+    ],
+    "ja": "ねんれい（umur）を きく ことばは「なんさい」です。",
+    "idn": "Untuk menanyakan umur, pakai 「nansai」.",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "vocab",
+    "fmt": "文脈規定",
+    "stem": "A「[ ] は？」<br>B「サントスです。」",
+    "ch": [
+     "おなまえ",
+     "おいくつ",
+     "なんさい",
+     "だれ"
+    ],
+    "ja": "こたえが じぶんの なまえです。「おなまえは？」で なまえを ききます。",
+    "idn": "Jawabannya nama sendiri. Tanyakan nama dengan 「onamae wa?」.",
+    "a": 1
+   },
+   {
+    "sec": "vocab",
+    "fmt": "文脈規定",
+    "stem": "A「すみません、[ ] は？」<br>B「ブディです。」",
+    "ch": [
+     "おなまえ",
+     "おいくつ",
+     "なんさい",
+     "どなた"
+    ],
+    "ja": "こたえが なまえです。「おなまえは？」で なまえを ききます。",
+    "idn": "Jawabannya nama. Tanyakan nama dengan 「onamae wa?」.",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "vocab",
+    "fmt": "文脈規定",
+    "stem": "A「やまださん、[ ] は サリさんです。」<br>B「はじめまして。」",
+    "ch": [
+     "こちら",
+     "わたし",
+     "あなた",
+     "どなた"
+    ],
+    "ja": "ひとを しょうかいする とき「こちらは 〜さんです」と いいます。",
+    "idn": "Saat memperkenalkan orang lain, katakan 「kochira wa ~san desu」.",
+    "a": 1
+   },
+   {
+    "sec": "vocab",
+    "fmt": "文脈規定",
+    "stem": "（ひとを しょうかいして）<br>「[ ] は IJFAの サリさんです。」",
+    "ch": [
+     "こちら",
+     "わたし",
+     "あなた",
+     "あの"
+    ],
+    "ja": "ひとを しょうかいする とき「こちらは 〜さんです」と いいます。",
+    "idn": "Saat memperkenalkan orang lain, katakan 「kochira wa ~san desu」.",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "vocab",
+    "fmt": "文脈規定",
+    "stem": "わたしは インドネシア [ ] です。",
+    "ch": [
+     "じん",
+     "ご",
+     "さい",
+     "さん"
+    ],
+    "ja": "くに ＋「じん」で その くにの ひと です。じぶんには「さん」を つけません。",
+    "idn": "Negara + 「jin」 = orang dari negara itu. 「San」 tidak dipakai untuk diri sendiri.",
+    "a": 1
+   },
+   {
+    "sec": "vocab",
+    "fmt": "文脈規定",
+    "stem": "サリさんは にほん [ ] じゃ ありません。インドネシアじんです。",
+    "ch": [
+     "じん",
+     "ご",
+     "さい",
+     "さん"
+    ],
+    "ja": "くに ＋「じん」で その くにの ひと です。",
+    "idn": "Negara + 「jin」 = orang dari negara itu.",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "vocab",
+    "fmt": "言い換え類義",
+    "stem": "<u>あの かたは どなたですか。</u>",
+    "ch": [
+     "あの ひとは だれですか。",
+     "あの ひとは なんさいですか。",
+     "あの ひとは がくせいですか。",
+     "あの ひとは いしゃですか。"
+    ],
+    "ja": "「かた」は「ひと」、「どなた」は「だれ」の ていねいな ことばです。",
+    "idn": "「Kata」 = bentuk sopan 「hito」, 「donata」 = bentuk sopan 「dare」.",
+    "a": 1
+   },
+   {
+    "sec": "vocab",
+    "fmt": "言い換え類義",
+    "stem": "<u>あの ひとは だれですか。</u>",
+    "ch": [
+     "あの かたは どなたですか。",
+     "あの かたは おいくつですか。",
+     "あの かたは がくせいですか。",
+     "あの かたは いしゃですか。"
+    ],
+    "ja": "「かた」は「ひと」、「どなた」は「だれ」の ていねいな ことばです。",
+    "idn": "「Kata」 = bentuk sopan 「hito」, 「donata」 = bentuk sopan 「dare」.",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "vocab",
+    "fmt": "言い換え類義",
+    "stem": "<u>ハサンさんは おいくつですか。</u>",
+    "ch": [
+     "ハサンさんは なんさいですか。",
+     "ハサンさんは だれですか。",
+     "ハサンさんは どなたですか。",
+     "ハサンさんは しゃいんですか。"
+    ],
+    "ja": "「おいくつ」と「なんさい」は おなじ いみです（ねんれいを ききます）。",
+    "idn": "「Oikutsu」 dan 「nansai」 artinya sama (menanyakan umur).",
+    "a": 1
+   },
+   {
+    "sec": "vocab",
+    "fmt": "言い換え類義",
+    "stem": "<u>ブディさんは なんさいですか。</u>",
+    "ch": [
+     "ブディさんは おいくつですか。",
+     "ブディさんは どなたですか。",
+     "ブディさんは だれですか。",
+     "ブディさんは なんですか。"
+    ],
+    "ja": "「なんさい」と「おいくつ」は おなじ いみです（ねんれいを ききます）。",
+    "idn": "「Nansai」 dan 「oikutsu」 artinya sama (menanyakan umur).",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "kanji",
+    "fmt": "漢字読み",
+    "stem": "わたしは <u>学生</u>です。",
+    "ch": [
+     "がくせい",
+     "がくせ",
+     "がっせい",
+     "かくせい"
+    ],
+    "ja": "「学生」は「がくせい」。さいごの「い」を わすれないで ください（ながい おと）。",
+    "idn": "「学生」 dibaca 「gakusei」. Jangan lupa 「i」 di akhir (bunyi panjang).",
+    "a": 1
+   },
+   {
+    "sec": "kanji",
+    "fmt": "漢字読み",
+    "stem": "あの ひとは <u>大学</u>の せんせいです。",
+    "ch": [
+     "だいがく",
+     "たいがく",
+     "だいかく",
+     "おおがく"
+    ],
+    "ja": "「大学」は「だいがく」。「だ」も「が」も てんてん（゛）が あります。",
+    "idn": "「大学」 dibaca 「daigaku」 — 「da」 dan 「ga」 sama-sama bertanda ゛.",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "kanji",
+    "fmt": "漢字読み",
+    "stem": "やまださんは <u>先生</u>です。",
+    "ch": [
+     "せんせい",
+     "せんせ",
+     "せいせい",
+     "せんしょう"
+    ],
+    "ja": "「先生」は「せんせい」。「せ」の あとの「い」も よみます。",
+    "idn": "「先生」 dibaca 「sensei」 — 「i」 setelah 「se」 juga dibaca.",
+    "a": 1
+   },
+   {
+    "sec": "kanji",
+    "fmt": "漢字読み",
+    "stem": "わたしは <u>日本</u>から きました。",
+    "ch": [
+     "にほん",
+     "にぼん",
+     "ひほん",
+     "にもと"
+    ],
+    "ja": "「日本」は「にほん」と よみます。",
+    "idn": "「日本」 dibaca 「nihon」.",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "kanji",
+    "fmt": "漢字読み",
+    "stem": "あの ひとは <u>日本人</u>です。",
+    "ch": [
+     "にほんじん",
+     "にほんにん",
+     "ひほんじん",
+     "にもとじん"
+    ],
+    "ja": "くに ＋「人」は「じん」と よみます。",
+    "idn": "Negara + 「人」 dibaca 「jin」.",
+    "a": 1
+   },
+   {
+    "sec": "kanji",
+    "fmt": "漢字読み",
+    "stem": "アニさんは インドネシア<u>人</u>です。",
+    "ch": [
+     "じん",
+     "にん",
+     "ひと",
+     "しん"
+    ],
+    "ja": "くに ＋「人」は「じん」と よみます。",
+    "idn": "Negara + 「人」 dibaca 「jin」.",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "kanji",
+    "fmt": "表記",
+    "stem": "ブディさんは <u>だいがく</u>の せんせいです。",
+    "ch": [
+     "大学",
+     "太学",
+     "犬学",
+     "大字"
+    ],
+    "ja": "「大（だい）」と「太」「犬」は にて います。「学」と「字」も にて います。",
+    "idn": "「大」 mirip dengan 「太」 dan 「犬」. 「学」 juga mirip 「字」. Perhatikan titik dan garisnya.",
+    "a": 1
+   },
+   {
+    "sec": "kanji",
+    "fmt": "表記",
+    "stem": "わたしは <u>がくせい</u>です。",
+    "ch": [
+     "学生",
+     "字生",
+     "学主",
+     "学先"
+    ],
+    "ja": "「がくせい」は「学生」。「字」「主」「先」と にて います。",
+    "idn": "「Gakusei」 ditulis 「学生」. Mirip dengan 「字」, 「主」, 「先」.",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "kanji",
+    "fmt": "表記",
+    "stem": "アニさんは <u>いしゃ</u>です。",
+    "ch": [
+     "医者",
+     "医社",
+     "区者",
+     "医著"
+    ],
+    "ja": "「いしゃ」は「医者」。「社」は かいしゃの「しゃ」です。",
+    "idn": "「Isha」 ditulis 「医者」. 「社」 adalah 「sha」 dari kaisha (perusahaan).",
+    "a": 1
+   },
+   {
+    "sec": "kanji",
+    "fmt": "表記",
+    "stem": "やまださんは <u>せんせい</u>です。",
+    "ch": [
+     "先生",
+     "先主",
+     "光生",
+     "失生"
+    ],
+    "ja": "「せんせい」は「先生」。「光」「失」は「先」と にて います。",
+    "idn": "「Sensei」 ditulis 「先生」. 「光」 dan 「失」 mirip dengan 「先」.",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "わたし [ ] アグスです。",
+    "ch": [
+     "は",
+     "の",
+     "か",
+     "を"
+    ],
+    "ja": "「わたしは 〜です」。じぶんの ことを いう ときは「は」です。",
+    "idn": "「Watashi wa ~ desu」. Untuk memperkenalkan diri, pakai 「wa」.",
+    "g": "1a",
+    "a": 1
+   },
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "サリさん [ ] いしゃです。",
+    "ch": [
+     "は",
+     "へ",
+     "を",
+     "から"
+    ],
+    "ja": "「〜は 〜です」で その ひとの ことを いいます。",
+    "idn": "「~ wa ~ desu」 untuk menjelaskan tentang orang itu.",
+    "g": "1a",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "ブディさん [ ] ハサンさんも インドネシアじんです。",
+    "ch": [
+     "も",
+     "は",
+     "を",
+     "か"
+    ],
+    "ja": "「Aさんも Bさんも 〜です」で「ふたりとも おなじ」と いいます。",
+    "idn": "「A-san mo B-san mo ~desu」 = A dan B sama-sama ~.",
+    "g": "1d",
+    "a": 1
+   },
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "デウィさん [ ] アニさんも いしゃです。",
+    "ch": [
+     "も",
+     "は",
+     "を",
+     "か"
+    ],
+    "ja": "「Aさんも Bさんも 〜です」で「ふたりとも おなじ」と いいます。",
+    "idn": "「A-san mo B-san mo ~desu」 = A dan B sama-sama ~.",
+    "g": "1d",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "リナさんは さくらだいがく [ ] がくせいです。",
+    "ch": [
+     "の",
+     "は",
+     "も",
+     "か"
+    ],
+    "ja": "「さくらだいがくの がくせい」。N1の N2で「どこの」を いいます。",
+    "idn": "「Sakura daigaku no gakusei」 — N1 no N2 menunjukkan asal/tempat N2.",
+    "g": "1e",
+    "a": 1
+   },
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "アグスさんは IJFA [ ] せんせいです。",
+    "ch": [
+     "の",
+     "は",
+     "も",
+     "か"
+    ],
+    "ja": "「IJFAの せんせい」。N1の N2で「どこの」を いいます。",
+    "idn": "「IJFA no sensei」 — N1 no N2 menunjukkan asal/tempat N2.",
+    "g": "1e",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "A「サリさんは がくせいです [ ] 。」<br>B「はい、がくせいです。」",
+    "ch": [
+     "か",
+     "の",
+     "も",
+     "は"
+    ],
+    "ja": "しつもんの ぶんは さいごに「か」を つけます。",
+    "idn": "Kalimat tanya diakhiri dengan 「ka」.",
+    "g": "1c",
+    "a": 1
+   },
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "A「あなたは ブディさんです [ ] 。」<br>B「いいえ、ハサンです。」",
+    "ch": [
+     "か",
+     "の",
+     "も",
+     "は"
+    ],
+    "ja": "しつもんの ぶんは さいごに「か」を つけます。",
+    "idn": "Kalimat tanya diakhiri dengan 「ka」.",
+    "g": "1c",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "A「アグスさんは いしゃですか。」<br>B「いいえ、いしゃ [ ] 。」",
+    "ch": [
+     "じゃ ありません",
+     "です",
+     "ですか",
+     "も です"
+    ],
+    "ja": "「いいえ」の あとは「〜じゃ ありません」です。",
+    "idn": "Setelah 「iie」, pakai bentuk negatif 「~ja arimasen」.",
+    "g": "1b",
+    "a": 1
+   },
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "A「ハサンさんは せんせいですか。」<br>B「いいえ、せんせい [ ] 。がくせいです。」",
+    "ch": [
+     "じゃ ありません",
+     "です",
+     "ですか",
+     "も です"
+    ],
+    "ja": "「いいえ」の あとは「〜じゃ ありません」です。",
+    "idn": "Setelah 「iie」, pakai bentuk negatif 「~ja arimasen」.",
+    "g": "1b",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "A「デウィさんは かいしゃいんですか。」<br>B「はい、[ ] 。」",
+    "ch": [
+     "かいしゃいんです",
+     "かいしゃいんじゃ ありません",
+     "かいしゃいんですか",
+     "かいしゃいんも"
+    ],
+    "ja": "「はい」の あとは「〜です」です。",
+    "idn": "Setelah 「hai」, pakai 「~desu」.",
+    "g": "1a",
+    "a": 1
+   },
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "A「アニさんは 20さいですか。」<br>B「はい、[ ] 。」",
+    "ch": [
+     "20さいです",
+     "20さいじゃ ありません",
+     "20さいですか",
+     "20さいも"
+    ],
+    "ja": "「はい」の あとは「〜です」です。",
+    "idn": "Setelah 「hai」, pakai 「~desu」.",
+    "g": "1a",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "わたしは ジャカルタ [ ] きました。",
+    "ch": [
+     "から",
+     "の",
+     "も",
+     "は"
+    ],
+    "ja": "「〜から きました」で しゅっしん（どこの ひと）を いいます。",
+    "idn": "「~kara kimashita」 untuk menyebut asal (datang dari ~).",
+    "g": "1f",
+    "a": 1
+   },
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "サントスさんは ブラジル [ ] きました。",
+    "ch": [
+     "から",
+     "の",
+     "も",
+     "は"
+    ],
+    "ja": "「〜から きました」で しゅっしん（どこの ひと）を いいます。",
+    "idn": "「~kara kimashita」 untuk menyebut asal (datang dari ~).",
+    "g": "1f",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "アニさん [ ] リナさんも がくせいじゃ ありません。",
+    "ch": [
+     "も",
+     "は",
+     "を",
+     "か"
+    ],
+    "ja": "「Aさんも Bさんも 〜じゃ ありません」。「じゃ ありません」の ぶんでも「も」を つかえます。",
+    "idn": "「A-san mo B-san mo ~ja arimasen」 = A dan B sama-sama bukan ~.",
+    "g": "1d",
+    "a": 1
+   },
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "ブディさん [ ] ハサンさんも せんせいじゃ ありません。",
+    "ch": [
+     "も",
+     "は",
+     "を",
+     "か"
+    ],
+    "ja": "「Aさんも Bさんも 〜じゃ ありません」。「じゃ ありません」の ぶんでも「も」を つかえます。",
+    "idn": "「A-san mo B-san mo ~ja arimasen」 = A dan B sama-sama bukan ~.",
+    "g": "1d",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "grammar",
+    "fmt": "文の組み立て",
+    "stem": "あの [ ] [ ] [★] [ ] か。",
+    "ch": [
+     "だれ",
+     "ひと",
+     "は",
+     "です"
+    ],
+    "ja": "ただしい じゅんばん：あの ひと は だれ です か。★は「だれ」です。",
+    "idn": "Urutan benar: ano hito wa dare desu ka. ★ = 「dare」.",
+    "g": "1c",
+    "a": 1
+   },
+   {
+    "sec": "grammar",
+    "fmt": "文の組み立て",
+    "stem": "[ ] [ ] [★] [ ] か。",
+    "ch": [
+     "なんさい",
+     "アニさん",
+     "は",
+     "です"
+    ],
+    "ja": "ただしい じゅんばん：アニさん は なんさい です か。★は「なんさい」です。",
+    "idn": "Urutan benar: Ani-san wa nansai desu ka. ★ = 「nansai」.",
+    "g": "1c",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "grammar",
+    "fmt": "文の組み立て",
+    "stem": "わたしは [ ] [ ] [★] [ ] です。",
+    "ch": [
+     "の",
+     "さくら",
+     "だいがく",
+     "がくせい"
+    ],
+    "ja": "ただしい じゅんばん：わたしは さくら だいがく の がくせい です。★は「の」です。",
+    "idn": "Urutan benar: watashi wa sakura daigaku no gakusei desu. ★ = 「no」.",
+    "g": "1e",
+    "a": 1
+   },
+   {
+    "sec": "grammar",
+    "fmt": "文の組み立て",
+    "stem": "わたしは [ ] [ ] [★] [ ] きました。",
+    "ch": [
+     "ジャカルタ",
+     "インドネシア",
+     "の",
+     "から"
+    ],
+    "ja": "ただしい じゅんばん：わたしは インドネシア の ジャカルタ から きました。★は「ジャカルタ」です。",
+    "idn": "Urutan benar: watashi wa Indoneshia no Jakaruta kara kimashita. ★ = 「Jakaruta」.",
+    "g": "1f",
+    "a": 1
+   }
+  ]
+ ]
+}

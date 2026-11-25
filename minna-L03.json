@@ -1,0 +1,814 @@
+{
+ "id": "L03",
+ "lesson": 3,
+ "title": "ここ・そこ・あそこ、こちら、〜は どこですか、いくら",
+ "titleId": "di sini / di situ / di sana, di mana?, berapa harganya?",
+ "version": "2026-11-25a",
+ "grammar": [
+  {
+   "g": "3a",
+   "ja": "ここ・そこ・あそこ",
+   "id": "di sini / di situ / di sana"
+  },
+  {
+   "g": "3b",
+   "ja": "こちら・そちら・あちら・どちら",
+   "id": "sebelah sini / situ / sana / mana (lebih sopan)"
+  },
+  {
+   "g": "3c",
+   "ja": "Nは どこですか",
+   "id": "Di mana N?"
+  },
+  {
+   "g": "3d",
+   "ja": "N1のN2（どこの くにの もの）",
+   "id": "N2 buatan / dari N1 (negara, perusahaan)"
+  },
+  {
+   "g": "3e",
+   "ja": "いくら・〜でございます",
+   "id": "Berapa harganya? / ~desu (sangat sopan)"
+  }
+ ],
+ "slots": [
+  [
+   {
+    "sec": "vocab",
+    "fmt": "絵を見て",
+    "stem": "[ ] は あそこです。",
+    "ch": [
+     "トイレ",
+     "ロビー",
+     "へや",
+     "うけつけ"
+    ],
+    "ja": "🚻 は「トイレ」です。「おてあらい」とも いいます。",
+    "idn": "🚻 adalah 「toire」 (toilet), juga disebut 「otearai」.",
+    "pic": "🚻",
+    "a": 1
+   },
+   {
+    "sec": "vocab",
+    "fmt": "絵を見て",
+    "stem": "これは なんですか。",
+    "ch": [
+     "かいしゃ",
+     "うち",
+     "くに",
+     "へや"
+    ],
+    "ja": "🏢 は「かいしゃ」です。",
+    "idn": "🏢 adalah 「kaisha」 (kantor/perusahaan).",
+    "pic": "🏢",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "vocab",
+    "fmt": "絵を見て",
+    "stem": "これは なんですか。",
+    "ch": [
+     "くつ",
+     "くに",
+     "くるま",
+     "かぎ"
+    ],
+    "ja": "👟 は「くつ」です。",
+    "idn": "👟 adalah 「kutsu」 (sepatu).",
+    "pic": "👟",
+    "a": 1
+   },
+   {
+    "sec": "vocab",
+    "fmt": "絵を見て",
+    "stem": "これは なんですか。",
+    "ch": [
+     "うち",
+     "かいしゃ",
+     "へや",
+     "くに"
+    ],
+    "ja": "🏠 は「うち」です。",
+    "idn": "🏠 adalah 「uchi」 (rumah).",
+    "pic": "🏠",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "vocab",
+    "fmt": "絵を見て",
+    "stem": "これは なんですか。",
+    "ch": [
+     "ネクタイ",
+     "ワイン",
+     "かばん",
+     "くつ"
+    ],
+    "ja": "👔 は「ネクタイ」です。",
+    "idn": "👔 adalah 「nekutai」 (dasi).",
+    "pic": "👔",
+    "a": 1
+   },
+   {
+    "sec": "vocab",
+    "fmt": "絵を見て",
+    "stem": "[ ] は どこですか。",
+    "ch": [
+     "しょくどう",
+     "きょうしつ",
+     "じむしょ",
+     "トイレ"
+    ],
+    "ja": "🍽️ は ごはんを たべる ところ、「しょくどう」です。",
+    "idn": "🍽️ = tempat makan, 「shokudou」 (kantin).",
+    "pic": "🍽️",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "vocab",
+    "fmt": "絵を見て",
+    "stem": "これは なんですか。",
+    "ch": [
+     "でんわ",
+     "テレビ",
+     "ラジオ",
+     "カメラ"
+    ],
+    "ja": "☎️ は「でんわ」です。",
+    "idn": "☎️ adalah 「denwa」 (telepon).",
+    "pic": "☎️",
+    "a": 1
+   },
+   {
+    "sec": "vocab",
+    "fmt": "絵を見て",
+    "stem": "これは なんですか。",
+    "ch": [
+     "ワイン",
+     "コーヒー",
+     "ネクタイ",
+     "とけい"
+    ],
+    "ja": "🍷 は「ワイン」です。",
+    "idn": "🍷 adalah 「wain」 (anggur).",
+    "pic": "🍷",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "vocab",
+    "fmt": "文脈規定",
+    "stem": "A「すみません。ネクタイ [ ] は どこですか。」<br>B「2かいです。」",
+    "ch": [
+     "うりば",
+     "うけつけ",
+     "かいぎしつ",
+     "きょうしつ"
+    ],
+    "ja": "デパートで ものを うる ところは「〜うりば」です。",
+    "idn": "Tempat menjual barang di department store disebut 「~uriba」.",
+    "a": 1
+   },
+   {
+    "sec": "vocab",
+    "fmt": "文脈規定",
+    "stem": "A「すみません。くつ [ ] は どこですか。」<br>B「3がいです。」",
+    "ch": [
+     "うりば",
+     "うけつけ",
+     "かいぎしつ",
+     "じむしょ"
+    ],
+    "ja": "デパートで ものを うる ところは「〜うりば」です。",
+    "idn": "Tempat menjual barang di department store disebut 「~uriba」.",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "vocab",
+    "fmt": "文脈規定",
+    "stem": "A「この ワインは [ ] ですか。」<br>B「1,500えんです。」",
+    "ch": [
+     "いくら",
+     "どこ",
+     "なんがい",
+     "なん"
+    ],
+    "ja": "こたえが ねだん（harga）です。ねだんを きく ことばは「いくら」です。",
+    "idn": "Jawabannya harga. Untuk menanyakan harga, pakai 「ikura」.",
+    "a": 1
+   },
+   {
+    "sec": "vocab",
+    "fmt": "文脈規定",
+    "stem": "A「この ネクタイは [ ] ですか。」<br>B「2,000えんです。」",
+    "ch": [
+     "いくら",
+     "どこ",
+     "なんがい",
+     "どちら"
+    ],
+    "ja": "こたえが ねだん（harga）です。ねだんを きく ことばは「いくら」です。",
+    "idn": "Jawabannya harga. Untuk menanyakan harga, pakai 「ikura」.",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "vocab",
+    "fmt": "文脈規定",
+    "stem": "A「しょくどうは なんがいですか。」<br>B「[ ] です。」",
+    "ch": [
+     "ちか",
+     "うけつけ",
+     "トイレ",
+     "へや"
+    ],
+    "ja": "「なんがい」は かい（lantai）を ききます。「ちか」は じめんの したの かいです。",
+    "idn": "「Nangai」 menanyakan lantai. 「Chika」 = lantai bawah tanah (basement).",
+    "a": 1
+   },
+   {
+    "sec": "vocab",
+    "fmt": "文脈規定",
+    "stem": "A「ワインうりばは なんがいですか。」<br>B「[ ] 1かいです。」",
+    "ch": [
+     "ちか",
+     "うけつけ",
+     "へや",
+     "トイレ"
+    ],
+    "ja": "「ちか」は じめんの したの かいです。",
+    "idn": "「Chika」 = lantai bawah tanah (basement).",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "vocab",
+    "fmt": "文脈規定",
+    "stem": "A「いらっしゃいませ。」<br>B「すみません。この くつを [ ] 。」",
+    "ch": [
+     "みせて ください",
+     "ちがいます",
+     "こちらこそ",
+     "どうぞ"
+    ],
+    "ja": "みせの ひとに「みせて ください」と いって、ものを みます。",
+    "idn": "Kepada pegawai toko, katakan 「misete kudasai」 untuk melihat barang.",
+    "a": 1
+   },
+   {
+    "sec": "vocab",
+    "fmt": "文脈規定",
+    "stem": "（みせで）「すみません。あの とけいを [ ] 。」",
+    "ch": [
+     "みせて ください",
+     "ちがいます",
+     "こちらこそ",
+     "どうぞ"
+    ],
+    "ja": "みせの ひとに「みせて ください」と いって、ものを みます。",
+    "idn": "Kepada pegawai toko, katakan 「misete kudasai」 untuk melihat barang.",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "vocab",
+    "fmt": "言い換え類義",
+    "stem": "<u>おてあらいは どこですか。</u>",
+    "ch": [
+     "トイレは どこですか。",
+     "じむしょは どこですか。",
+     "へやは どこですか。",
+     "うけつけは どこですか。"
+    ],
+    "ja": "「おてあらい」と「トイレ」は おなじ いみです。",
+    "idn": "「Otearai」 dan 「toire」 artinya sama (toilet).",
+    "a": 1
+   },
+   {
+    "sec": "vocab",
+    "fmt": "言い換え類義",
+    "stem": "<u>トイレは あちらです。</u>",
+    "ch": [
+     "おてあらいは あそこです。",
+     "じむしょは あそこです。",
+     "うけつけは あそこです。",
+     "へやは あそこです。"
+    ],
+    "ja": "「トイレ」＝「おてあらい」、「あちら」＝「あそこ」（ていねい）です。",
+    "idn": "「Toire」 = 「otearai」, 「achira」 = 「asoko」 (lebih sopan).",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "vocab",
+    "fmt": "言い換え類義",
+    "stem": "<u>おくには どちらですか。</u>",
+    "ch": [
+     "くには どこですか。",
+     "かいしゃは どこですか。",
+     "へやは どこですか。",
+     "うちは どこですか。"
+    ],
+    "ja": "「どちら」は「どこ」の ていねいな ことばです。",
+    "idn": "「Dochira」 adalah bentuk sopan dari 「doko」.",
+    "a": 1
+   },
+   {
+    "sec": "vocab",
+    "fmt": "言い換え類義",
+    "stem": "<u>かいしゃは どちらですか。</u>",
+    "ch": [
+     "かいしゃの なまえは なんですか。",
+     "かいしゃは なんがいですか。",
+     "かいしゃは いくらですか。",
+     "かいしゃは だれですか。"
+    ],
+    "ja": "「かいしゃは どちらですか」は かいしゃの なまえを ききます。",
+    "idn": "「Kaisha wa dochira desu ka」 menanyakan nama perusahaan.",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "kanji",
+    "fmt": "漢字読み",
+    "stem": "この かばんは <u>三千</u>円です。",
+    "ch": [
+     "さんぜん",
+     "さんせん",
+     "さんちぇん",
+     "みせん"
+    ],
+    "ja": "3,000は「さんぜん」。「せ」が「ぜ」に なります。",
+    "idn": "3.000 dibaca 「sanzen」 — 「se」 berubah jadi 「ze」.",
+    "a": 1
+   },
+   {
+    "sec": "kanji",
+    "fmt": "漢字読み",
+    "stem": "この 本は <u>三百</u>円です。",
+    "ch": [
+     "さんびゃく",
+     "さんひゃく",
+     "さんぴゃく",
+     "みひゃく"
+    ],
+    "ja": "300は「さんびゃく」。「ひゃ」が「びゃ」に なります。",
+    "idn": "300 dibaca 「sanbyaku」 — 「hya」 berubah jadi 「bya」.",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "kanji",
+    "fmt": "漢字読み",
+    "stem": "その とけいは <u>八百</u>円です。",
+    "ch": [
+     "はっぴゃく",
+     "はちひゃく",
+     "はちびゃく",
+     "はっひゃく"
+    ],
+    "ja": "800は「はっぴゃく」。「っ」と「ぴ」に ちゅうい。",
+    "idn": "800 dibaca 「happyaku」. Perhatikan 「っ」 dan 「pi」.",
+    "a": 1
+   },
+   {
+    "sec": "kanji",
+    "fmt": "漢字読み",
+    "stem": "この ワインは <u>六百</u>円です。",
+    "ch": [
+     "ろっぴゃく",
+     "ろくひゃく",
+     "ろくびゃく",
+     "ろっひゃく"
+    ],
+    "ja": "600は「ろっぴゃく」。「っ」と「ぴ」に ちゅうい。",
+    "idn": "600 dibaca 「roppyaku」. Perhatikan 「っ」 dan 「pi」.",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "kanji",
+    "fmt": "漢字読み",
+    "stem": "わたしの <u>国</u>は インドネシアです。",
+    "ch": [
+     "くに",
+     "こく",
+     "ごく",
+     "くね"
+    ],
+    "ja": "「国」だけの とき「くに」と よみます。",
+    "idn": "「国」 sendirian dibaca 「kuni」 (negara).",
+    "a": 1
+   },
+   {
+    "sec": "kanji",
+    "fmt": "漢字読み",
+    "stem": "その とけいは <u>一万</u>円です。",
+    "ch": [
+     "いちまん",
+     "いちばん",
+     "ひとまん",
+     "いっまん"
+    ],
+    "ja": "10,000は「いちまん」です。",
+    "idn": "10.000 dibaca 「ichiman」.",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "kanji",
+    "fmt": "表記",
+    "stem": "<u>でんわ</u>は どこですか。",
+    "ch": [
+     "電話",
+     "雷話",
+     "電語",
+     "電活"
+    ],
+    "ja": "「でんわ」は「電話」。「電」と「雷」、「話」と「語」は にて います。",
+    "idn": "「Denwa」 ditulis 「電話」. 「電」 mirip 「雷」, 「話」 mirip 「語」.",
+    "a": 1
+   },
+   {
+    "sec": "kanji",
+    "fmt": "表記",
+    "stem": "この くつは <u>せん</u>円です。",
+    "ch": [
+     "千",
+     "干",
+     "午",
+     "牛"
+    ],
+    "ja": "「せん（1,000）」は「千」。「干」「午」「牛」と にて います。",
+    "idn": "「Sen」 (1.000) ditulis 「千」. Mirip dengan 「干」, 「午」, 「牛」.",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "kanji",
+    "fmt": "表記",
+    "stem": "それは 3,000<u>えん</u>です。",
+    "ch": [
+     "円",
+     "内",
+     "肉",
+     "用"
+    ],
+    "ja": "おかねの「えん」は「円」です。",
+    "idn": "「En」 (yen) ditulis 「円」.",
+    "a": 1
+   },
+   {
+    "sec": "kanji",
+    "fmt": "表記",
+    "stem": "<u>くに</u>は どちらですか。",
+    "ch": [
+     "国",
+     "困",
+     "図",
+     "回"
+    ],
+    "ja": "「くに」は「国」。なかは「玉」です。",
+    "idn": "「Kuni」 ditulis 「国」 — di dalamnya 「玉」.",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "A「トイレは [ ] ですか。」<br>B「あそこです。」",
+    "ch": [
+     "どこ",
+     "どれ",
+     "どの",
+     "だれ"
+    ],
+    "ja": "ばしょを きく ときは「どこ」です。「どれ」は もの、「だれ」は ひとです。",
+    "idn": "Untuk menanyakan tempat pakai 「doko」. 「Dore」 untuk benda, 「dare」 untuk orang.",
+    "g": "3c",
+    "a": 1
+   },
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "A「エレベーターは [ ] ですか。」<br>B「あそこです。」",
+    "ch": [
+     "どこ",
+     "どれ",
+     "どの",
+     "なん"
+    ],
+    "ja": "ばしょを きく ときは「どこ」です。",
+    "idn": "Untuk menanyakan tempat pakai 「doko」.",
+    "g": "3c",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "A「エレベーターは どちらですか。」<br>B「[ ] です。」",
+    "ch": [
+     "あちら",
+     "あの",
+     "どちら",
+     "あちらの"
+    ],
+    "ja": "「どちら」で きかれたら「こちら・そちら・あちら」で こたえます。",
+    "idn": "Kalau ditanya 「dochira」, jawab dengan 「kochira/sochira/achira」.",
+    "g": "3b",
+    "a": 1
+   },
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "A「かいだんは どちらですか。」<br>B「[ ] です。」",
+    "ch": [
+     "そちら",
+     "その",
+     "どちら",
+     "そちらの"
+    ],
+    "ja": "「どちら」で きかれたら「こちら・そちら・あちら」で こたえます。",
+    "idn": "Kalau ditanya 「dochira」, jawab dengan 「kochira/sochira/achira」.",
+    "g": "3b",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "A「これは どこの ワインですか。」<br>B「イタリア [ ] ワインです。」",
+    "ch": [
+     "の",
+     "は",
+     "も",
+     "で"
+    ],
+    "ja": "「イタリアの ワイン」。N1の N2で どこの くにの ものか いいます。",
+    "idn": "「Itaria no wain」 — N1 no N2 menunjukkan asal negara barang.",
+    "g": "3d",
+    "a": 1
+   },
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "A「その くるまは どこの くるまですか。」<br>B「にほん [ ] くるまです。」",
+    "ch": [
+     "の",
+     "は",
+     "も",
+     "で"
+    ],
+    "ja": "「にほんの くるま」。N1の N2で どこの くにの ものか いいます。",
+    "idn": "「Nihon no kuruma」 — N1 no N2 menunjukkan asal negara barang.",
+    "g": "3d",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "A「すみません。ワインうりばは どこですか。」<br>B（みせの ひと）「ちか1かい [ ] 。」",
+    "ch": [
+     "で ございます",
+     "ですか",
+     "じゃ ありません",
+     "ください"
+    ],
+    "ja": "みせの ひとは「です」の かわりに ていねいな「で ございます」を つかいます。",
+    "idn": "Pegawai toko memakai 「de gozaimasu」 sebagai bentuk sangat sopan dari 「desu」.",
+    "g": "3e",
+    "a": 1
+   },
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "（デパートの うけつけで）「エレベーターは あちら [ ] 。」",
+    "ch": [
+     "で ございます",
+     "ですか",
+     "じゃ ありません",
+     "ください"
+    ],
+    "ja": "みせの ひとは「です」の かわりに ていねいな「で ございます」を つかいます。",
+    "idn": "Pegawai toko memakai 「de gozaimasu」 sebagai bentuk sangat sopan dari 「desu」.",
+    "g": "3e",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "A「かいしゃは [ ] ですか。」<br>B「IJFAです。」",
+    "ch": [
+     "どちら",
+     "どれ",
+     "どの",
+     "だれ"
+    ],
+    "ja": "かいしゃや がっこうの なまえを きく とき「どちら」を つかいます。",
+    "idn": "Untuk menanyakan nama perusahaan/sekolah, pakai 「dochira」.",
+    "g": "3b",
+    "a": 1
+   },
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "A「おくには [ ] ですか。」<br>B「インドネシアです。」",
+    "ch": [
+     "どちら",
+     "どれ",
+     "どの",
+     "だれ"
+    ],
+    "ja": "くにや かいしゃを ていねいに きく とき「どちら」を つかいます。",
+    "idn": "Untuk menanyakan negara/perusahaan dengan sopan, pakai 「dochira」.",
+    "g": "3b",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "A「すみません、ここは うけつけですか。」<br>B「いいえ、うけつけは [ ] です。」",
+    "ch": [
+     "あそこ",
+     "あの",
+     "あちらの",
+     "どこ"
+    ],
+    "ja": "ばしょは「ここ・そこ・あそこ」です。「あれ」は ものです。",
+    "idn": "Untuk tempat pakai 「koko/soko/asoko」. 「Are」 untuk benda.",
+    "g": "3a",
+    "a": 1
+   },
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "A「すみません、しょくどうは どこですか。」<br>B（とおくを 見て）「しょくどうは [ ] です。」",
+    "ch": [
+     "あそこ",
+     "あの",
+     "あちらの",
+     "どこ"
+    ],
+    "ja": "とおくの ばしょは「あそこ」です。",
+    "idn": "Tempat yang jauh = 「asoko」.",
+    "g": "3a",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "（じぶんが いる へやで）「[ ] は わたしの へやです。」",
+    "ch": [
+     "ここ",
+     "そこ",
+     "この",
+     "こちらの"
+    ],
+    "ja": "じぶんが いる ばしょは「ここ」です。",
+    "idn": "Tempat di mana kita berada = 「koko」.",
+    "g": "3a",
+    "a": 1
+   },
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "（ふたりは おなじ へやに います）<br>A「ここは どこですか。」<br>B「[ ] は きょうしつです。」",
+    "ch": [
+     "ここ",
+     "そこ",
+     "この",
+     "こちらの"
+    ],
+    "ja": "ふたりが いる ばしょは「ここ」です。",
+    "idn": "Tempat di mana kita berdua berada = 「koko」.",
+    "g": "3a",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "A「くつうりばは 1かいですか。」<br>B「いいえ、1かい [ ] ありません。2かいです。」",
+    "ch": [
+     "じゃ",
+     "を",
+     "の",
+     "か"
+    ],
+    "ja": "「〜じゃ ありません」で「ちがう」と いいます。",
+    "idn": "「~ja arimasen」 untuk menyangkal.",
+    "g": "3c",
+    "a": 1
+   },
+   {
+    "sec": "grammar",
+    "fmt": "文法形式の判断",
+    "stem": "A「ここは しょくどうですか。」<br>B「いいえ、しょくどう [ ] ありません。じむしょです。」",
+    "ch": [
+     "じゃ",
+     "を",
+     "の",
+     "か"
+    ],
+    "ja": "「〜じゃ ありません」で「ちがう」と いいます。",
+    "idn": "「~ja arimasen」 untuk menyangkal.",
+    "g": "3c",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "grammar",
+    "fmt": "文の組み立て",
+    "stem": "A「[ ] [ ] [★] [ ] か。」<br>B「2かいです。」",
+    "ch": [
+     "なんがい",
+     "かいぎしつ",
+     "は",
+     "です"
+    ],
+    "ja": "ただしい じゅんばん：かいぎしつ は なんがい です か。★は「なんがい」です。",
+    "idn": "Urutan benar: kaigishitsu wa nangai desu ka. ★ = 「nangai」.",
+    "g": "3c",
+    "a": 1
+   },
+   {
+    "sec": "grammar",
+    "fmt": "文の組み立て",
+    "stem": "A「[ ] [ ] [★] [ ] か。」<br>B「あそこです。」",
+    "ch": [
+     "どこ",
+     "トイレ",
+     "は",
+     "です"
+    ],
+    "ja": "ただしい じゅんばん：トイレ は どこ です か。★は「どこ」です。",
+    "idn": "Urutan benar: toire wa doko desu ka. ★ = 「doko」.",
+    "g": "3c",
+    "a": 1
+   }
+  ],
+  [
+   {
+    "sec": "grammar",
+    "fmt": "文の組み立て",
+    "stem": "A「これは [ ] [ ] [★] [ ] か。」<br>B「フランスの ワインです。」",
+    "ch": [
+     "ワイン",
+     "どこ",
+     "の",
+     "です"
+    ],
+    "ja": "ただしい じゅんばん：これは どこ の ワイン です か。★は「ワイン」です。",
+    "idn": "Urutan benar: kore wa doko no wain desu ka. ★ = 「wain」.",
+    "g": "3d",
+    "a": 1
+   },
+   {
+    "sec": "grammar",
+    "fmt": "文の組み立て",
+    "stem": "A「その [ ] [ ] [★] [ ] か。」<br>B「8,000えんです。」",
+    "ch": [
+     "いくら",
+     "くつ",
+     "は",
+     "です"
+    ],
+    "ja": "ただしい じゅんばん：その くつ は いくら です か。★は「いくら」です。",
+    "idn": "Urutan benar: sono kutsu wa ikura desu ka. ★ = 「ikura」.",
+    "g": "3e",
+    "a": 1
+   }
+  ]
+ ]
+}
