@@ -3,7 +3,7 @@
  "lesson": 3,
  "title": "ここ・そこ・あそこ、こちら、〜は どこですか、いくら",
  "titleId": "di sini / di situ / di sana, di mana?, berapa harganya?",
- "version": "2026-11-25a",
+ "version": "2026-11-25i",
  "grammar": [
   {
    "g": "3a",
@@ -441,8 +441,8 @@
      "電語",
      "電活"
     ],
-    "ja": "「でんわ」は「電話」。「電」と「雷」、「話」と「語」は にて います。",
-    "idn": "「Denwa」 ditulis 「電話」. 「電」 mirip 「雷」, 「話」 mirip 「語」.",
+    "ja": "「でんわ」は「電話」。「電」と「雷（かみなり）」、「話」と「語（ご）」は にて います。",
+    "idn": "「Denwa」 ditulis 「電話」. 「電」 mirip 「雷」 (kaminari, petir), 「話」 mirip 「語」 (go, bahasa).",
     "a": 1
    },
    {
@@ -455,8 +455,8 @@
      "午",
      "牛"
     ],
-    "ja": "「せん（1,000）」は「千」。「干」「午」「牛」と にて います。",
-    "idn": "「Sen」 (1.000) ditulis 「千」. Mirip dengan 「干」, 「午」, 「牛」.",
+    "ja": "「せん（1,000）」は「千」。「干（ほす）」「午（ご）」「牛（うし）」と にて います。",
+    "idn": "「Sen」 (1.000) ditulis 「千」. Mirip dengan 「干」 (hosu, menjemur), 「午」 (go, siang (jam 12)), 「牛」 (ushi, sapi).",
     "a": 1
    }
   ],

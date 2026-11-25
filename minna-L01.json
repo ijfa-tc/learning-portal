@@ -3,7 +3,7 @@
  "lesson": 1,
  "title": "NはNです／じゃありません、〜か、も、NのN",
  "titleId": "N adalah N / bukan N, kalimat tanya, juga, milik/dari",
- "version": "2026-11-25a",
+ "version": "2026-11-25i",
  "grammar": [
   {
    "g": "1a",
@@ -438,8 +438,8 @@
      "犬学",
      "大字"
     ],
-    "ja": "「大（だい）」と「太」「犬」は にて います。「学」と「字」も にて います。",
-    "idn": "「大」 mirip dengan 「太」 dan 「犬」. 「学」 juga mirip 「字」. Perhatikan titik dan garisnya.",
+    "ja": "「大（だい）」と「太（ふとい）」「犬（いぬ）」は にて います。「学」と「字（じ）」も にて います。",
+    "idn": "「大」 mirip dengan 「太」 (futoi, gemuk/tebal) dan 「犬」 (inu, anjing). 「学」 juga mirip 「字」 (ji, huruf). Perhatikan titik dan garisnya.",
     "a": 1
    },
    {
@@ -452,8 +452,8 @@
      "学主",
      "学先"
     ],
-    "ja": "「がくせい」は「学生」。「字」「主」「先」と にて います。",
-    "idn": "「Gakusei」 ditulis 「学生」. Mirip dengan 「字」, 「主」, 「先」.",
+    "ja": "「がくせい」は「学生」。「字（じ）」「主（しゅ）」「先（せん）」と にて います。",
+    "idn": "「Gakusei」 ditulis 「学生」. Mirip dengan 「字」 (ji, huruf), 「主」 (shu, utama), 「先」 (sen, dulu/depan).",
     "a": 1
    }
   ],
@@ -482,8 +482,8 @@
      "光生",
      "失生"
     ],
-    "ja": "「せんせい」は「先生」。「光」「失」は「先」と にて います。",
-    "idn": "「Sensei」 ditulis 「先生」. 「光」 dan 「失」 mirip dengan 「先」.",
+    "ja": "「せんせい」は「先生」。「光（ひかり）」「失（しつ）」は「先」と にて います。",
+    "idn": "「Sensei」 ditulis 「先生」. 「光」 (hikari, cahaya) dan 「失」 (shitsu, hilang) mirip dengan 「先」.",
     "a": 1
    }
   ],

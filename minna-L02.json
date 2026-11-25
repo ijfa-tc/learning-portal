@@ -3,7 +3,7 @@
  "lesson": 2,
  "title": "これ・それ・あれ、この・その・あのN、そうです",
  "titleId": "ini / itu, N ini / N itu, betul / bukan",
- "version": "2026-11-25a",
+ "version": "2026-11-25i",
  "grammar": [
   {
    "g": "2a",
@@ -450,8 +450,8 @@
      "寺計",
      "時汁"
     ],
-    "ja": "「とけい」は「時計」です。「時」の ひだりは「日」です。",
-    "idn": "「Tokei」 ditulis 「時計」. Bagian kiri 「時」 adalah 「日」.",
+    "ja": "「とけい」は「時計」です。「時」の ひだりは「日（ひ）」です。",
+    "idn": "「Tokei」 ditulis 「時計」. Bagian kiri 「時」 adalah 「日」 (hi, hari/matahari).",
     "a": 1
    },
    {
@@ -464,8 +464,8 @@
      "末",
      "未"
     ],
-    "ja": "「ほん」は「本」。「木」の したに よこの せんが あります。",
-    "idn": "「Hon」 ditulis 「本」 — 「木」 dengan garis pendek di bawah.",
+    "ja": "「ほん」は「本」。「木（き）」の したに よこの せんが あります。",
+    "idn": "「Hon」 ditulis 「本」 — 「木」 (ki, pohon) dengan garis pendek di bawah.",
     "a": 1
    }
   ],
@@ -480,8 +480,8 @@
      "親聞",
      "新間"
     ],
-    "ja": "「聞」の なかは「耳」です。「問」「間」と まちがえやすいです。",
-    "idn": "Di dalam 「聞」 ada 「耳」 (telinga). Sering tertukar dengan 「問」 dan 「間」.",
+    "ja": "「聞」の なかは「耳（みみ）」です。「問（もん）」「間（あいだ）」と まちがえやすいです。",
+    "idn": "Di dalam 「聞」 ada 「耳」 (telinga). Sering tertukar dengan 「問」 (mon, soal/pertanyaan) dan 「間」 (aida, antara).",
     "a": 1
    },
    {

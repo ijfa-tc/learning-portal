@@ -1,5 +1,5 @@
 {
- "version": "2026-11-25a",
+ "version": "2026-11-25i",
  "lessons": [
   {
    "no": 1,
@@ -26,154 +26,154 @@
    "no": 4,
    "ja": "時刻・曜日、〜ます／ました、に（時）、から・まで",
    "id": "jam & hari, kata kerja sopan (sekarang/lampau), pada (waktu), dari ~ sampai ~",
-   "ready": false,
+   "ready": true,
    "stage": "N5"
   },
   {
    "no": 5,
    "ja": "へ 行きます、で（乗り物）、と（人）、日付",
    "id": "pergi ke ~, naik (kendaraan), bersama (orang), tanggal",
-   "ready": false,
+   "ready": true,
    "stage": "N5"
   },
   {
    "no": 6,
    "ja": "を（目的語）、で（場所）、〜ませんか、〜ましょう",
    "id": "melakukan sesuatu (objek), di (tempat kegiatan), mau ~?, ayo ~",
-   "ready": false,
+   "ready": true,
    "stage": "N5"
   },
   {
    "no": 7,
    "ja": "で（道具・ことば）、あげます・もらいます、もう〜ました",
    "id": "dengan (alat/bahasa), memberi & menerima, sudah ~",
-   "ready": false,
+   "ready": true,
    "stage": "N5"
   },
   {
    "no": 8,
    "ja": "い形容詞・な形容詞（肯定・否定・名詞修飾）",
    "id": "kata sifat (positif, negatif, menerangkan benda)",
-   "ready": false,
+   "ready": true,
    "stage": "N5"
   },
   {
    "no": 9,
    "ja": "好き・上手・わかります・あります、〜から（理由）",
    "id": "suka, pandai, mengerti, punya, karena ~",
-   "ready": false,
+   "ready": true,
    "stage": "N5"
   },
   {
    "no": 10,
    "ja": "あります・います、Nの 上・下・中",
    "id": "ada (benda / orang hidup), posisi: atas, bawah, dalam",
-   "ready": false,
+   "ready": true,
    "stage": "N5"
   },
   {
    "no": 11,
    "ja": "数え方（〜つ・〜人・〜枚…）、期間・回数",
    "id": "cara menghitung benda & orang, lamanya, berapa kali",
-   "ready": false,
+   "ready": true,
    "stage": "N5"
   },
   {
    "no": 12,
    "ja": "過去（名詞・形容詞）、より・どちら・いちばん",
    "id": "bentuk lampau (kata benda & sifat), lebih ~ daripada, yang mana, paling",
-   "ready": false,
+   "ready": true,
    "stage": "N5"
   },
   {
    "no": 13,
    "ja": "ほしい、〜たい、〜に 行きます（目的）",
    "id": "ingin (benda), ingin (melakukan), pergi untuk ~",
-   "ready": false,
+   "ready": true,
    "stage": "N5"
   },
   {
    "no": 14,
    "ja": "て形、〜てください、〜ています（進行）、〜ましょうか",
    "id": "bentuk -te, tolong ~, sedang ~, boleh saya ~?",
-   "ready": false,
+   "ready": true,
    "stage": "N5"
   },
   {
    "no": 15,
    "ja": "〜てもいいです、〜てはいけません、〜ています（状態）",
    "id": "boleh ~, tidak boleh ~, keadaan (tinggal, bekerja, dll.)",
-   "ready": false,
+   "ready": true,
    "stage": "N5"
   },
   {
    "no": 16,
    "ja": "〜て、〜て（つなぐ）、〜てから、NはNが〜",
    "id": "menyambung kalimat (lalu ~), setelah ~",
-   "ready": false,
+   "ready": true,
    "stage": "N5"
   },
   {
    "no": 17,
    "ja": "ない形、〜ないでください、〜なければなりません、〜なくてもいいです",
    "id": "bentuk -nai, tolong jangan ~, harus ~, tidak perlu ~",
-   "ready": false,
+   "ready": true,
    "stage": "N5"
   },
   {
    "no": 18,
    "ja": "辞書形、〜ことができます、趣味は〜ことです、〜まえに",
    "id": "bentuk kamus, bisa ~, hobi saya ~, sebelum ~",
-   "ready": false,
+   "ready": true,
    "stage": "N5"
   },
   {
    "no": 19,
    "ja": "た形、〜たことがあります、〜たり〜たり、〜くなります",
    "id": "bentuk -ta, pernah ~, ~ dan ~ (contoh kegiatan), menjadi ~",
-   "ready": false,
+   "ready": true,
    "stage": "N5"
   },
   {
    "no": 20,
    "ja": "普通形・普通体（ていねいじゃない 話し方）",
    "id": "bentuk biasa (gaya bicara akrab)",
-   "ready": false,
+   "ready": true,
    "stage": "N5"
   },
   {
    "no": 21,
    "ja": "〜と思います、〜と言いました、〜でしょう？",
    "id": "saya pikir ~, berkata ~, ~ kan?",
-   "ready": false,
+   "ready": true,
    "stage": "N5"
   },
   {
    "no": 22,
    "ja": "名詞修飾（〜ている人、〜た所 など）",
    "id": "kalimat yang menerangkan kata benda (orang yang ~, tempat yang ~)",
-   "ready": false,
+   "ready": true,
    "stage": "N5"
   },
   {
    "no": 23,
    "ja": "〜とき、〜と（いつも そうなる）",
    "id": "ketika ~, kalau ~ pasti ~",
-   "ready": false,
+   "ready": true,
    "stage": "N5"
   },
   {
    "no": 24,
    "ja": "くれます、〜てあげます・〜てもらいます・〜てくれます",
    "id": "(orang lain) memberi saya, melakukan sesuatu untuk orang lain",
-   "ready": false,
+   "ready": true,
    "stage": "N5"
   },
   {
    "no": 25,
    "ja": "〜たら、〜ても",
    "id": "kalau ~ / setelah ~, walaupun ~",
-   "ready": false,
+   "ready": true,
    "stage": "N5"
   },
   {
