@@ -420,6 +420,7 @@ function testFeedback() {
 // 生徒ID欄が埋まった「事前入力URL」を作る。公開ONで追加し、グループ・表示順・インドネシア語名も自動で入れる
 // =====================================================================
 function syncForms() {
+  try { syncMinna(); } catch (e) { console.error('みんなの日本語の取り込み: ' + e); }   // 課ごとのテストも毎日いっしょに確かめる
   const sh = sheet_(SHEET.mat);
   const known = new Set(values_(SHEET.mat).map(r => str_(r[0])));
   const files = listForms_(DriveApp.getFolderById(FORM_FOLDER_ID), []);
@@ -436,6 +437,39 @@ function syncForms() {
   if (add.length === 0) return;
   add.sort((a, b) => a[2].localeCompare(b[2], 'ja'));
   sh.getRange(lastRow_(sh) + 1, 1, add.length, add[0].length).setValues(add);
+}
+
+// =====================================================================
+// みんなの日本語テストを「課ごと」に教材リストへ足す（先生が課ごとに指定できるように）
+// ポータルの minna-course.json を見て、できている課・まとめテストのうち、まだない行だけ足す。
+// 公開OFFで足す（生徒の一覧には今までどおり「みんなの日本語 テスト」1つだけが出る。指定したときだけホームに出る）
+// 手で実行してもよい（何回実行しても同じ行は増えない）
+// =====================================================================
+function syncMinna() {
+  const res = UrlFetchApp.fetch(PORTAL_URL + 'minna-course.json?t=' + Date.now(), { muteHttpExceptions: true });
+  if (res.getResponseCode() !== 200) throw new Error('minna-course.json が読めません（' + res.getResponseCode() + '）');
+  const course = JSON.parse(res.getContentText());
+  const sh = sheet_(SHEET.mat);
+  const known = new Set(values_(SHEET.mat).map(r => str_(r[0])));
+  const group = 'みんなの日本語 / Minna no Nihongo';
+  const add = [];
+  (course.lessons || []).filter(l => l.ready).forEach(l => {
+    const id = 'minna-L' + ('0' + l.no).slice(-2);
+    if (known.has(id)) return;
+    add.push([id, 'nihongo', 'みんなの日本語 ' + l.no + '課 テスト', 'Tes Minna no Nihongo Bab ' + l.no, 'site',
+              'minna.html?id={ID}&L=' + l.no, false, l.no * 10, '自動追加（みんなの日本語）', group]);
+  });
+  (course.matome || []).filter(m => m.ready).forEach(m => {
+    const id = 'minna-' + m.id;
+    if (known.has(id)) return;
+    const r = m.range || [0, 0];
+    add.push([id, 'nihongo', 'みんなの日本語 ' + m.title + '（まとめテスト）', 'Tes Rangkuman Minna no Nihongo Bab ' + r[0] + '-' + r[1], 'site',
+              'minna.html?id={ID}&M=' + m.id, false, r[1] * 10 + 5, '自動追加（みんなの日本語）', group]);
+  });
+  if (add.length === 0) { console.log('みんなの日本語：足す行はありません'); return; }
+  add.sort((a, b) => a[7] - b[7]);
+  sh.getRange(lastRow_(sh) + 1, 1, add.length, add[0].length).setValues(add);
+  console.log('みんなの日本語：' + add.length + '行を足しました');
 }
 
 // フォルダの中（入門・初級1などのサブフォルダも含む）のフォームを全部集める

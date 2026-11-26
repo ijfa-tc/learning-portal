@@ -187,7 +187,10 @@ main { max-width: 520px; margin: 0 auto; padding: 24px 18px 48px; }
 .ta-btn:disabled { opacity: 0.3; cursor: default; }
 .ta-btn:focus-visible { outline: 3px solid var(--main); outline-offset: 1px; }
 .ta-search { font-size: 17px; letter-spacing: 0; text-transform: none; padding: 10px 14px; margin-bottom: 10px; }
-.ta-sub { margin: 6px 4px 0; font-size: 14px; font-weight: bold; color: var(--muted); }
+.ta-group { border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg); }
+.ta-sub { padding: 12px 14px; min-height: 48px; font-weight: bold; cursor: pointer; }
+.ta-group[open] .ta-sub { border-bottom: 1px solid var(--line); }
+.ta-group .list { padding: 8px; }
 .ta-add { width: 100%; text-align: left; font-family: inherit; font-size: 16px; cursor: pointer; position: relative; padding-right: 92px; }
 .ta-add::after { content: "＋ 足す"; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 14px; font-weight: bold; color: var(--main); }
 .ta-add:disabled { cursor: default; opacity: 0.55; }

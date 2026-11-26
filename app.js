@@ -485,7 +485,7 @@
       const row = el("div", "ta-row" + (m ? "" : " ta-row-bad"));
       row.append(el("span", "ta-no", String(i + 1)));
       const nm = el("span", "ta-name", name);
-      if (m && !m.public) nm.append(el("span", "ta-tag", "非公開"));
+      if (m && !m.public) nm.append(el("span", "ta-tag", "指定のみ"));
       nm.append(el("span", "id-text", m ? [taCatName(m.categoryId), (m.group || "").split(" / ")[0]].filter(Boolean).join("・")
                                          : "教材リストにありません。はずしてください"));
       row.append(nm);
@@ -536,20 +536,29 @@
       const groups = [""];
       items.forEach(m => { if (m.group && !groups.includes(m.group)) groups.push(m.group); });
       groups.forEach(g => {
-        const gi = items.filter(m => (m.group || "") === g);
-        if (g) inner.append(el("p", "ta-sub", g.split(" / ")[0]));
-        gi.forEach(m => {
+        // グループ（例 いろどり入門・みんなの日本語）は、さらに押して開く箱にする
+        let target = inner;
+        if (g) {
+          const sub = el("details", "ta-group");
+          const [ja, idn] = g.split(" / ");
+          const ss = el("summary", "ta-sub");
+          twoLang(ss, ja + "（" + items.filter(m => m.group === g).length + "）", idn ? " " + idn : "");
+          sub.append(ss);
+          target = el("div", "list");
+          sub.append(target);
+          inner.append(sub);
+        }
+        items.filter(m => (m.group || "") === g).forEach(m => {
           const b = el("button", "item ta-add", m.nameJa);
           b.type = "button";
           b.dataset.name = m.nameJa;
           b.dataset.search = (m.nameJa + " " + (m.nameId || "") + " " + g).normalize("NFKC").toLowerCase();
-          if (!m.public) b.append(el("span", "ta-tag", "非公開"));
           b.addEventListener("click", () => {
             if (asg.list.includes(m.nameJa)) return;
             asg.list.push(m.nameJa);
             taChanged();
           });
-          inner.append(b);
+          target.append(b);
         });
       });
       box.append(inner);
@@ -563,10 +572,10 @@
     $("ta-pool").querySelectorAll("details").forEach(box => {
       let hit = 0;
       box.querySelectorAll("[data-name]").forEach(b => { const on = !q || b.dataset.search.includes(q); b.hidden = !on; if (on) hit++; });
-      box.querySelectorAll(".ta-sub").forEach(h => {
-        let n = h.nextElementSibling, any = false;
-        while (n && !n.classList.contains("ta-sub")) { if (!n.hidden) any = true; n = n.nextElementSibling; }
-        h.hidden = !any;
+      box.querySelectorAll(".ta-group").forEach(sub => {
+        const any = [...sub.querySelectorAll("[data-name]")].some(b => !b.hidden);
+        sub.hidden = !any;
+        if (q) sub.open = any;
       });
       box.hidden = hit === 0;
       if (q) box.open = hit > 0;
