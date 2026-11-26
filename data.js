@@ -62,16 +62,35 @@ window.PortalData = (function () {
     return callApi({ action: "cohorts" });
   }
 
-  // ホームの意見フォーム：GASの「報告・要望」シートへ送る。返り値 { ok } / { ok: false, reason }
-  async function sendFeedback(params) {
-    if (useSample) return { ok: true, sample: true };
-    const res = await fetch(API_URL, {
-      method: "POST",
-      body: new URLSearchParams(Object.assign({ action: "feedback" }, params))
-    });
+  // GASへPOSTで送る（先生キーなど、URLに出したくないものはこちら）
+  async function post(params) {
+    const res = await fetch(API_URL, { method: "POST", body: new URLSearchParams(params) });
     if (!res.ok) throw new Error("API error " + res.status);
     return res.json();
   }
 
-  return { getStudent, getPortal, teacherSession, getCohorts, sendFeedback, useSample };
+  // ホームの意見フォーム：GASの「報告・要望」シートへ送る。返り値 { ok } / { ok: false, reason }
+  async function sendFeedback(params) {
+    if (useSample) return { ok: true, sample: true };
+    return post(Object.assign({ action: "feedback" }, params));
+  }
+
+  // 先生の「指定テストを選ぶ」画面：いまの指定と教材の一覧
+  // 返り値 { ok, cohort, categories, materials, assigned: ["教材名", ...], ver } / { ok: false, reason }
+  async function getAssign(key, cohortKey) {
+    if (useSample) return { ok: false, reason: "sample" };
+    return post({ action: "tassign", k: key, cohort: cohortKey });
+  }
+  // 指定テストを保存（names は上から順の教材名）。返り値 { ok, ver } / { ok: false, reason }
+  async function saveAssign(key, cohortKey, names, ver) {
+    if (useSample) return { ok: false, reason: "sample" };
+    return post({ action: "tsave", k: key, cohort: cohortKey, names: JSON.stringify(names), ver: ver });
+  }
+  // 先生のログアウト：先生キーを使えなくする
+  async function teacherLogout(key) {
+    if (useSample || !key) return { ok: true };
+    return post({ action: "tlogout", k: key });
+  }
+
+  return { getStudent, getPortal, teacherSession, getCohorts, sendFeedback, getAssign, saveAssign, teacherLogout, useSample };
 })();

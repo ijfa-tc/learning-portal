@@ -19,7 +19,7 @@
   function show(viewId) {
     document.querySelectorAll(".view").forEach(v => (v.hidden = v.id !== viewId));
     // 上のバー（名前・ログアウト）はホームとカテゴリーの画面だけに出す
-    $("topbar").hidden = !["view-home", "view-category", "view-teacher"].includes(viewId);
+    $("topbar").hidden = !["view-home", "view-category", "view-teacher", "view-teacher-assign"].includes(viewId);
     $("preview-banner").hidden = !(current && current.preview && viewId !== "view-teacher");
     // 意見フォームは生徒・ゲストのホームと先生のホームだけ（先生の確認用の画面では出さない）
     $("feedback").hidden = !((viewId === "view-home" && !(current && current.preview)) || viewId === "view-teacher");
@@ -223,7 +223,9 @@
     current = null;
     $("login-id").value = "";
     $("login-error").textContent = "";
-    if (loadTeacher()) {   // 先生
+    const lt = loadTeacher();
+    if (lt) {   // 先生：先生キーも使えなくしておく（つながらなくても、ログアウトはそのまま進める）
+      PortalData.teacherLogout(lt.key).catch(() => {});
       forgetTeacher();
       try { if (window.google && google.accounts) google.accounts.id.disableAutoSelect(); } catch (e) {}
       showLogin(true);
@@ -363,7 +365,7 @@
     try {
       const r = await PortalData.teacherSession(t);
       if (!r.ok) { openTeacherLogin("時間切れです。もう一度ログインしてください / Waktu habis. Silakan masuk lagi"); return; }
-      saveTeacher({ name: r.teacher.name, email: r.teacher.email, cohorts: r.cohorts || [],
+      saveTeacher({ name: r.teacher.name, email: r.teacher.email, cohorts: r.cohorts || [], key: r.key || "",
                     until: Date.now() + TEACHER_DAYS * 86400000 });
       openTeacherHome();
     } catch (e) {
@@ -413,6 +415,233 @@
     openHome(s);
   });
   $("teacher-link").addEventListener("click", () => openTeacherLogin());
+
+  // ---- 5b. 指定テストを選ぶ（先生用） ----
+  // いまの指定を上に出し、下の一覧から足す。「保存する」を押すまでシートは変わらない
+  let asg = null;   // { cohort, data, list: [教材名], saved: [教材名], ver, leave }
+  function taMsg(text, ok) { $("ta-msg").textContent = text || ""; $("ta-msg").classList.toggle("ta-msg-ok", !!ok); }
+  function taDirty() { return !!asg && !!asg.data && JSON.stringify(asg.list) !== JSON.stringify(asg.saved); }
+  function taNeedLogin(text) {
+    taMsg(text);
+    $("ta-relogin").hidden = false;
+    $("ta-body").hidden = true;
+  }
+
+  function openAssign(cohortKey) {
+    const t = loadTeacher();
+    if (!t) { showLogin(false); return; }
+    const sel = $("ta-cohort");
+    sel.replaceChildren();
+    t.cohorts.forEach(k => { const o = el("option", "", k + "（" + parseInt(k.slice(3), 10) + "期）"); o.value = k; sel.append(o); });
+    const k = t.cohorts.includes(cohortKey) ? cohortKey : t.cohorts[0];
+    if (k) sel.value = k;
+    $("ta-search").value = "";
+    show("view-teacher-assign");
+    loadAssign(k);
+  }
+
+  async function loadAssign(cohortKey, note) {
+    const t = loadTeacher();
+    asg = { cohort: cohortKey, data: null, list: [], saved: [], ver: "", leave: false };
+    $("ta-relogin").hidden = true;
+    $("ta-body").hidden = true;
+    taMsg(note || "");
+    if (!cohortKey) { taMsg("期生がありません / Belum ada angkatan"); return; }
+    // 先生キーは、この機能を入れる前にログインした人は持っていない → 1回だけログインしなおしてもらう
+    if (!t || !t.key) { taNeedLogin("この機能を使うには、もう一度Googleでログインしてください / Silakan masuk lagi dengan Google"); return; }
+    loading(true);
+    try {
+      const r = await PortalData.getAssign(t.key, cohortKey);
+      if (!asg || asg.cohort !== cohortKey) return;   // 待っているあいだに別の期を選んだ
+      if (!r || !r.ok) {
+        if (r && r.reason === "auth") taNeedLogin("ログインの期限が切れたか、先生の登録が外れています。もう一度ログインしてください / Silakan masuk lagi");
+        else taMsg("よみこめませんでした / Gagal memuat");
+        return;
+      }
+      asg.data = r;
+      asg.list = r.assigned.slice();
+      asg.saved = r.assigned.slice();
+      asg.ver = r.ver;
+      $("ta-body").hidden = false;
+      renderPool();
+      renderAssign();
+    } catch (e) {
+      taMsg("つながりません。電波を確認してください / Gagal terhubung. Cek sinyal.");
+    } finally {
+      loading(false);
+    }
+  }
+
+  function taMaterial(name) { return asg.data.materials.find(m => m.nameJa === name) || null; }
+  function taCatName(id) { const c = asg.data.categories.find(x => x.id === id); return c ? c.nameJa : ""; }
+
+  // いまの指定（上）
+  function renderAssign() {
+    const list = $("ta-list");
+    list.replaceChildren();
+    if (asg.list.length === 0) list.append(el("p", "empty", "まだ指定がありません。下から足してください / Belum ada. Tambahkan dari bawah."));
+    asg.list.forEach((name, i) => {
+      const m = taMaterial(name);
+      const row = el("div", "ta-row" + (m ? "" : " ta-row-bad"));
+      row.append(el("span", "ta-no", String(i + 1)));
+      const nm = el("span", "ta-name", name);
+      if (m && !m.public) nm.append(el("span", "ta-tag", "非公開"));
+      nm.append(el("span", "id-text", m ? [taCatName(m.categoryId), (m.group || "").split(" / ")[0]].filter(Boolean).join("・")
+                                         : "教材リストにありません。はずしてください"));
+      row.append(nm);
+      const btns = el("span", "ta-btns");
+      const mk = (label, aria, disabled, fn) => {
+        const b = el("button", "ta-btn", label);
+        b.type = "button"; b.disabled = disabled; b.setAttribute("aria-label", aria);
+        b.addEventListener("click", fn);
+        btns.append(b);
+      };
+      mk("↑", "上へ", i === 0, () => taMove(i, -1));
+      mk("↓", "下へ", i === asg.list.length - 1, () => taMove(i, 1));
+      mk("✕", "はずす", false, () => { asg.list.splice(i, 1); taChanged(); });
+      row.append(btns);
+      list.append(row);
+    });
+    // 下の一覧の「指定ずみ」をそろえる
+    $("ta-pool").querySelectorAll("[data-name]").forEach(b => { b.disabled = asg.list.includes(b.dataset.name); });
+    taState();
+  }
+  function taMove(i, d) {
+    const [x] = asg.list.splice(i, 1);
+    asg.list.splice(i + d, 0, x);
+    taChanged();
+  }
+  function taChanged() { asg.leave = false; taMsg(""); renderAssign(); }
+  function taState() {
+    const dirty = taDirty();
+    $("ta-state").textContent = dirty ? "保存していない変更があります / Belum disimpan" : "保存ずみ / Sudah disimpan";
+    $("ta-state").classList.toggle("ta-state-dirty", dirty);
+    $("ta-save").disabled = !dirty;
+    $("ta-undo").hidden = !dirty;
+  }
+
+  // テストを足す（下）：カテゴリーごとに開く。グループ（例 いろどり入門）は見出しにする
+  function renderPool() {
+    const pool = $("ta-pool");
+    pool.replaceChildren();
+    asg.data.categories.forEach(c => {
+      const items = asg.data.materials.filter(m => m.categoryId === c.id).sort(byOrderThenName);
+      if (items.length === 0) return;
+      const box = el("details", "group");
+      box.dataset.cat = c.id;
+      const sum = el("summary", "group-title");
+      twoLang(sum, c.nameJa + "（" + items.length + "）", c.nameId);
+      box.append(sum);
+      const inner = el("div", "list");
+      const groups = [""];
+      items.forEach(m => { if (m.group && !groups.includes(m.group)) groups.push(m.group); });
+      groups.forEach(g => {
+        const gi = items.filter(m => (m.group || "") === g);
+        if (g) inner.append(el("p", "ta-sub", g.split(" / ")[0]));
+        gi.forEach(m => {
+          const b = el("button", "item ta-add", m.nameJa);
+          b.type = "button";
+          b.dataset.name = m.nameJa;
+          b.dataset.search = (m.nameJa + " " + (m.nameId || "") + " " + g).normalize("NFKC").toLowerCase();
+          if (!m.public) b.append(el("span", "ta-tag", "非公開"));
+          b.addEventListener("click", () => {
+            if (asg.list.includes(m.nameJa)) return;
+            asg.list.push(m.nameJa);
+            taChanged();
+          });
+          inner.append(b);
+        });
+      });
+      box.append(inner);
+      pool.append(box);
+    });
+    taFilter();
+  }
+  // さがす：入れた文字をふくむテストだけ出し、カテゴリーを開く
+  function taFilter() {
+    const q = $("ta-search").value.normalize("NFKC").toLowerCase().trim();
+    $("ta-pool").querySelectorAll("details").forEach(box => {
+      let hit = 0;
+      box.querySelectorAll("[data-name]").forEach(b => { const on = !q || b.dataset.search.includes(q); b.hidden = !on; if (on) hit++; });
+      box.querySelectorAll(".ta-sub").forEach(h => {
+        let n = h.nextElementSibling, any = false;
+        while (n && !n.classList.contains("ta-sub")) { if (!n.hidden) any = true; n = n.nextElementSibling; }
+        h.hidden = !any;
+      });
+      box.hidden = hit === 0;
+      if (q) box.open = hit > 0;
+    });
+  }
+  $("ta-search").addEventListener("input", taFilter);
+  // 保存しないままページを閉じようとしたら、ブラウザの確認を出す
+  window.addEventListener("beforeunload", e => { if (taDirty()) { e.preventDefault(); e.returnValue = ""; } });
+
+  $("ta-undo").addEventListener("click", () => { asg.list = asg.saved.slice(); taChanged(); });
+
+  $("ta-save").addEventListener("click", async () => {
+    const t = loadTeacher();
+    if (!t || !t.key || !taDirty()) return;
+    const save = $("ta-save");
+    save.disabled = true;
+    taMsg("");
+    $("ta-state").textContent = "保存中… / Menyimpan…";
+    try {
+      const r = await PortalData.saveAssign(t.key, asg.cohort, asg.list, asg.ver);
+      if (r && r.ok) {
+        asg.saved = asg.list.slice();
+        asg.ver = r.ver;
+        try { localStorage.removeItem(CACHE_PREFIX + asg.cohort); } catch (e) {}   // 確認用の画面で古い表示を出さない
+        taMsg("保存しました。生徒の画面に反映されました / Tersimpan", true);
+        taState();
+        return;
+      }
+      const why = r && r.reason;
+      if (why === "auth") { taNeedLogin("ログインの期限が切れたか、先生の登録が外れています。もう一度ログインしてください / Silakan masuk lagi"); return; }
+      if (why === "changed") { loadAssign(asg.cohort, "ほかの先生が先に変更していました。最新を読みこんだので、もう一度選んでください / Sudah diubah guru lain. Silakan pilih lagi."); return; }
+      if (why === "unknown") taMsg("教材リストにないテストがあります。赤いわくのテストをはずしてください：" + (r.names || []).join("、"));
+      else if (why === "too_many") taMsg("指定は50個までです / Maksimal 50 tes");
+      else taMsg("保存できませんでした。もう一度ためしてください / Gagal menyimpan. Coba lagi.");
+      taState();
+    } catch (e) {
+      taMsg("つながりません。電波を確認して、もう一度「保存する」を押してください / Gagal terhubung. Coba lagi.");
+      taState();
+    }
+  });
+
+  // 期生を変える：保存していない変更があるときは止める
+  $("ta-cohort").addEventListener("change", () => {
+    const k = $("ta-cohort").value;
+    if (taDirty()) {
+      $("ta-cohort").value = asg.cohort;
+      taMsg("先に「保存する」か「元にもどす」を押してください / Simpan atau batalkan dulu");
+      return;
+    }
+    $("ta-search").value = "";
+    loadAssign(k);
+  });
+
+  // 先生のホームへ：保存していない変更があれば、1回目は注意だけ出す
+  $("ta-back").addEventListener("click", () => {
+    if (taDirty() && !asg.leave) {
+      asg.leave = true;
+      taMsg("保存していない変更があります。もう一度「先生のホームへ」を押すと、変更をすてて戻ります / Perubahan belum disimpan");
+      return;
+    }
+    asg = null;
+    openTeacherHome();
+  });
+  $("ta-relogin").addEventListener("click", () => { forgetTeacher(); openTeacherLogin(); });
+  // この期の生徒の画面で確認（先生の確認用の画面。右上のボタンで先生のホームにもどる）
+  $("ta-preview").addEventListener("click", () => {
+    if (!asg || taDirty()) { taMsg("先に「保存する」か「元にもどす」を押してください / Simpan atau batalkan dulu"); return; }
+    const k = asg.cohort;
+    asg = null;
+    openHome({ id: "", name: "", cohort: String(parseInt(k.slice(3), 10)), cohortKey: k, preview: true });
+  });
+  $("t-assign").addEventListener("click", () => {
+    const k = $("t-cohort").value;
+    openAssign(k && k !== "GUEST" ? k : "");
+  });
   $("tl-back").addEventListener("click", () => showLogin(false));
 
   // ---- 意見・報告フォーム（ホームのいちばん下） ----

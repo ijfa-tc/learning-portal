@@ -13,6 +13,13 @@
  *   ?action=cohorts              → 期生の一覧（例 JKT16）だけを返す。先生のホームの選択肢を最新にする用
  *   POST action=feedback         → ホームの「ご意見をお聞かせください」の内容を「報告・要望」シートに1行足す
  *                                   （シートがなければ自動で作る。メールは送らない）
+ *   POST action=tassign  k=先生キー cohort=JKT16
+ *                                → 先生の「指定テストを選ぶ」画面用：いまの指定・教材の一覧（公開OFFもふくむ）を返す
+ *   POST action=tsave    k=先生キー cohort=JKT16 names=["教材名",…] ver=読みこんだときの印
+ *                                → 指定テストシートのその期生の行を、画面で選んだ内容に入れかえる
+ *   POST action=tlogout  k=先生キー → 先生キーを消す（ログアウト）
+ *   ※ 先生キー：先生がGoogleでログインしたときに1つ作る合鍵（1年有効）。スクリプト プロパティに「印（ハッシュ）」だけ保存。
+ *     使うたびに「先生」シートで、いまも有効な先生か確かめる（シートで有効を外せば、すぐ使えなくなる）
  *
  * 最初に1回だけ：setup を実行（シートの準備・フォーム一覧の取り込み・毎日の自動更新を設定）
  * 先生用ログインの準備：setupTeachers を1回実行（「先生」シートを作る＋外部への問い合わせを許可）
@@ -34,6 +41,8 @@ const TEACHER_SHEET = '先生';                                          // 許�
 const FEEDBACK_SHEET = '報告・要望';                                   // ホームの意見フォームの送り先
 const FEEDBACK_MAX = 1000;                                             // 内容は1000文字まで
 const FEEDBACK_LIMIT = 10;                                             // 同じ人から1時間に10件まで（いたずら・連打よけ。ゲストは全員で30件）
+const TEACHER_KEY_DAYS = 365;                                          // 先生キーの有効期間（ポータルのログインと同じ1年）
+const ASSIGN_MAX = 50;                                                 // 1つの期生に指定できるテストは50個まで
 
 // =====================================================================
 // ポータルからの問い合わせ
@@ -59,9 +68,11 @@ function doGet(e) {
 function doPost(e) {
   const p = (e && e.parameter) || {};
   // ホームの意見フォームから（ポータルが送ってくる）
-  if (p.action === 'feedback') {
+  // ホームの意見フォーム・先生の「指定テストを選ぶ」画面から（ポータルが送ってくる）
+  const api = { feedback: saveFeedback_, tassign: assignView_, tsave: assignSave_, tlogout: teacherLogout_ }[p.action];
+  if (api) {
     let out;
-    try { out = saveFeedback_(p); }
+    try { out = api(p); }
     catch (err) { console.error(err); out = { ok: false, reason: 'server' }; }
     return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON);
   }
@@ -111,18 +122,144 @@ function backPage_(url) {
 function teacherLogin_(credential) {
   const g = verifyGoogle_(credential);
   if (!g) return { ok: false, reason: 'bad_token' };
-  const rows = values_(TEACHER_SHEET).filter(r => r[2] === true);
-  const person = rows.find(r => str_(r[0]).toLowerCase() === g.email);
-  const domain = person ? null : rows.find(r => {
-    const a = str_(r[0]).toLowerCase();
-    return a.charAt(0) === '@' && g.hd && a === '@' + g.hd;
-  });
-  if (!person && !domain) {
+  const name = teacherName_(g.email, g.hd, g.name);
+  if (!name) {
     console.log('先生として未登録: ' + g.email);   // 実行ログで確認できる（シートに足すときの参考）
     return { ok: false, reason: 'not_allowed' };
   }
-  const name = person ? (str_(person[1]) || g.name || g.email) : (g.name || g.email);
-  return { ok: true, teacher: { name: name, email: g.email }, cohorts: cohorts_() };
+  const key = issueTeacherKey_(g.email, g.hd, name);   // 指定テストの変更などに使う合鍵
+  return { ok: true, teacher: { name: name, email: g.email }, cohorts: cohorts_(), key: key };
+}
+
+// 「先生」シートで、いまも有効な先生か確かめる。有効なら名前を返す（だめなら ''）
+function teacherName_(email, hd, googleName) {
+  const rows = values_(TEACHER_SHEET).filter(r => r[2] === true);
+  const person = rows.find(r => str_(r[0]).toLowerCase() === email);
+  if (person) return str_(person[1]) || googleName || email;
+  const domain = rows.find(r => {
+    const a = str_(r[0]).toLowerCase();
+    return a.charAt(0) === '@' && hd && a === '@' + hd;
+  });
+  return domain ? (googleName || email) : '';
+}
+
+// ---- 先生キー（合鍵） ----
+// キーそのものは先生のスマホにだけ置き、こちらには「印（ハッシュ）」だけ保存する
+function keyHash_(key) {
+  return Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, String(key)));
+}
+function issueTeacherKey_(email, hd, name) {
+  const props = PropertiesService.getScriptProperties();
+  // 期限切れのキーをそうじする
+  const all = props.getProperties();
+  Object.keys(all).filter(k => k.indexOf('tk_') === 0).forEach(k => {
+    try { if (JSON.parse(all[k]).until < Date.now()) props.deleteProperty(k); } catch (e) { props.deleteProperty(k); }
+  });
+  const key = (Utilities.getUuid() + Utilities.getUuid()).replace(/-/g, '');
+  props.setProperty('tk_' + keyHash_(key), JSON.stringify({ email: email, hd: hd || '', name: name || '', until: Date.now() + TEACHER_KEY_DAYS * 86400000 }));
+  return key;
+}
+// キーから先生を確かめる。OKなら { email, name }、だめなら null
+function teacherFromKey_(key) {
+  if (!/^[0-9a-f]{64}$/.test(String(key || ''))) return null;
+  const props = PropertiesService.getScriptProperties();
+  const raw = props.getProperty('tk_' + keyHash_(key));
+  if (!raw) return null;
+  const s = JSON.parse(raw);
+  if (s.until < Date.now()) { props.deleteProperty('tk_' + keyHash_(key)); return null; }
+  const name = teacherName_(s.email, s.hd, s.name || '');
+  return name ? { email: s.email, name: name } : null;
+}
+function teacherLogout_(p) {
+  if (/^[0-9a-f]{64}$/.test(String(p.k || ''))) PropertiesService.getScriptProperties().deleteProperty('tk_' + keyHash_(p.k));
+  return { ok: true };
+}
+
+// =====================================================================
+// 先生の「指定テストを選ぶ」画面
+// 「指定テスト」シート（A 期生 / B 教材（名前）/ C 指定 / D 表示順 / E メモ）を読み書きする。
+// シートを直接さわってもよい（画面とシートは同じものを見ている）
+// =====================================================================
+// その期生の、いま指定ONのテスト名（表示順）
+function assignedNames_(rows, cohortKey) {
+  return rows.map((r, i) => ({ r: r, i: i }))
+    .filter(x => str_(x.r[0]).toUpperCase() === cohortKey && x.r[2] === true && str_(x.r[1]))
+    .sort((a, b) => (num_(a.r[3]) - num_(b.r[3])) || (a.i - b.i))
+    .map(x => str_(x.r[1]));
+}
+// 読みこんだあとに、ほかの先生が変えていないかを見るための印
+function assignVer_(names) {
+  return Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, JSON.stringify(names)));
+}
+
+function assignView_(p) {
+  const t = teacherFromKey_(p.k);
+  if (!t) return { ok: false, reason: 'auth' };
+  const cohortKey = str_(p.cohort).toUpperCase();
+  if (!/^[A-Z]{3}[0-9]{2}$/.test(cohortKey)) return { ok: false, reason: 'cohort' };
+  const categories = values_(SHEET.cat)
+    .filter(r => str_(r[0]))
+    .map(r => ({ id: str_(r[0]), nameJa: str_(r[1]), nameId: str_(r[2]), order: num_(r[3]) }))
+    .sort(byOrder_);
+  // 公開OFFの教材も選べる（ただし「じゅんびちゅう」は除く）
+  const materials = values_(SHEET.mat)
+    .filter(r => str_(r[2]) && str_(r[5]) && str_(r[4]) !== 'soon')
+    .map(r => ({ categoryId: str_(r[1]), nameJa: str_(r[2]), nameId: str_(r[3]), type: str_(r[4]),
+                 public: r[6] === true, order: num_(r[7]), group: str_(r[9]) }));
+  const names = assignedNames_(values_(SHEET.asg), cohortKey);
+  return { ok: true, cohort: cohortKey, categories: categories, materials: materials, assigned: names, ver: assignVer_(names) };
+}
+
+function assignSave_(p) {
+  const t = teacherFromKey_(p.k);
+  if (!t) return { ok: false, reason: 'auth' };
+  const cohortKey = str_(p.cohort).toUpperCase();
+  if (!/^[A-Z]{3}[0-9]{2}$/.test(cohortKey)) return { ok: false, reason: 'cohort' };
+  let names;
+  try { names = JSON.parse(String(p.names || '[]')); } catch (e) { return { ok: false, reason: 'names' }; }
+  if (!Array.isArray(names)) return { ok: false, reason: 'names' };
+  names = names.map(str_).filter((n, i, a) => n && a.indexOf(n) === i);   // 空・重なりを消す
+  if (names.length > ASSIGN_MAX) return { ok: false, reason: 'too_many' };
+  const known = {};
+  values_(SHEET.mat).forEach(r => { if (str_(r[2])) known[str_(r[2])] = true; });
+  const unknown = names.filter(n => !known[n]);
+  if (unknown.length) return { ok: false, reason: 'unknown', names: unknown };
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const sh = sheet_(SHEET.asg);
+    const rows = values_(SHEET.asg);
+    if (assignVer_(assignedNames_(rows, cohortKey)) !== str_(p.ver)) return { ok: false, reason: 'changed' };
+    const width = Math.max(5, sh.getLastColumn());
+    const mine = r => str_(r[0]).toUpperCase() === cohortKey;
+    // 前からある行は、メモなどをそのまま使う
+    const old = {};
+    rows.filter(mine).forEach(r => { const n = str_(r[1]); if (n && !old[n]) old[n] = r; });
+    const stamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy/MM/dd HH:mm');
+    const fresh = names.map((n, i) => {
+      const r = old[n] ? old[n].slice() : new Array(width).fill('');
+      while (r.length < width) r.push('');
+      r[0] = cohortKey; r[1] = n; r[2] = true; r[3] = i + 1;
+      if (!old[n]) r[4] = '画面で追加：' + safeCell_(t.name) + ' ' + stamp;
+      return r;
+    });
+    // その期生の行は、最初に出てきた場所にまとめて入れかえる（ほかの期生の行はそのまま）
+    const out = [];
+    let placed = false;
+    rows.forEach(r => {
+      if (!mine(r)) { const c = r.slice(); while (c.length < width) c.push(''); out.push(c); return; }
+      if (!placed) { fresh.forEach(f => out.push(f)); placed = true; }
+    });
+    if (!placed) fresh.forEach(f => out.push(f));
+    if (out.length) sh.getRange(2, 1, out.length, width).setValues(out);
+    if (rows.length > out.length) sh.getRange(2 + out.length, 1, rows.length - out.length, width).clearContent();
+    CacheService.getScriptCache().remove('portal_' + cohortKey);   // 生徒の画面にすぐ出るように
+    console.log('指定テスト変更: ' + cohortKey + ' ' + t.email + ' ' + JSON.stringify(names));
+    return { ok: true, ver: assignVer_(names) };
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 // Googleの証明（IDトークン）が本物か、Googleに問い合わせて確かめる。
