@@ -42,7 +42,12 @@
 
   // 教材のリンク。URL内の {ID} は生徒IDに置きかえる（Googleフォームの事前入力用）
   function linkFor(material, student) {
-    return material.url.split("{ID}").join(encodeURIComponent(student.id || ""));
+    const url = material.url.split("{ID}").join(encodeURIComponent(student.id || ""));
+    // 先生の確認用：みんなの日本語には期生を渡して、その期で受けられる課を見せる
+    if (student.preview && !student.guest && /minna\.html/.test(url)) {
+      return url + (url.includes("?") ? "&" : "?") + "c=" + encodeURIComponent(student.cohortKey);
+    }
+    return url;
   }
 
   function el(tag, cls, text) {

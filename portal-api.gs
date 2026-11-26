@@ -12,6 +12,7 @@
  *   ?action=tsession&t=合言葉     → 先生の名前と期生の一覧を返す（合言葉は5分・1回だけ有効）
  *   ?action=cohorts              → 期生の一覧（例 JKT16）だけを返す。先生のホームの選択肢を最新にする用
  *   ?action=minna&id=JKT14001    → みんなの日本語で、その生徒の期に先生が指定している課（例 ["L03","M01"]）だけを返す
+ *   ?action=minna&cohort=JKT14   → 同じものを期生で（先生の確認用の画面から）
  *   POST action=feedback         → ホームの「ご意見をお聞かせください」の内容を「報告・要望」シートに1行足す
  *                                   （シートがなければ自動で作る。メールは送らない）
  *   POST action=tassign  k=先生キー cohort=JKT16
@@ -56,7 +57,7 @@ function doGet(e) {
     else if (p.action === 'portal') out = getPortal_(String(p.cohort || '').trim().toUpperCase());
     else if (p.action === 'tsession') out = teacherSession_(String(p.t || ''));
     else if (p.action === 'cohorts') out = { cohorts: cohorts_() };
-    else if (p.action === 'minna') out = minnaOpen_(String(p.id || '').trim().toUpperCase());
+    else if (p.action === 'minna') out = minnaOpen_(String(p.id || '').trim().toUpperCase(), String(p.cohort || '').trim().toUpperCase());
     else out = { error: 'unknown action' };
   } catch (err) {
     console.error(err);
@@ -348,7 +349,8 @@ function getPortal_(cohortKey) {
 }
 
 // みんなの日本語のページ用：その生徒の期に指定されている課（名前や成績は返さない）
-function minnaOpen_(id) {
+function minnaOpen_(id, cohortKey) {
+  if (!id && /^[A-Z]{3}[0-9]{2}$/.test(cohortKey)) return { ok: true, open: getPortal_(cohortKey).minna || [] };
   const s = getStudent_(id);
   if (!s.found) return { ok: false };
   return { ok: true, open: getPortal_(s.student.cohortKey).minna || [] };
