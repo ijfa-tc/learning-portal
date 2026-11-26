@@ -442,7 +442,7 @@ function syncForms() {
 // =====================================================================
 // みんなの日本語テストを「課ごと」に教材リストへ足す（先生が課ごとに指定できるように）
 // ポータルの minna-course.json を見て、できている課・まとめテストのうち、まだない行だけ足す。
-// 公開OFFで足す（生徒の一覧には今までどおり「みんなの日本語 テスト」1つだけが出る。指定したときだけホームに出る）
+// カテゴリー「みんなの日本語」に、公開OFFで足す（生徒の一覧には今までどおり「みんなの日本語 テスト」1つだけが出る。指定したときだけホームに出る）
 // 手で実行してもよい（何回実行しても同じ行は増えない）
 // =====================================================================
 function syncMinna() {
@@ -450,26 +450,44 @@ function syncMinna() {
   if (res.getResponseCode() !== 200) throw new Error('minna-course.json が読めません（' + res.getResponseCode() + '）');
   const course = JSON.parse(res.getContentText());
   const sh = sheet_(SHEET.mat);
-  const known = new Set(values_(SHEET.mat).map(r => str_(r[0])));
-  const group = 'みんなの日本語 / Minna no Nihongo';
+  const rows = values_(SHEET.mat);
+  // カテゴリー「みんなの日本語」（ID minna）に入れる。なければ nihongo
+  const cat = values_(SHEET.cat).some(r => str_(r[0]) === 'minna') ? 'minna' : 'nihongo';
+  // 先生の画面で開く箱：N5段階（1〜25課）／N4段階（26〜50課）
+  const groupOf = lastNo => lastNo <= 25 ? 'N5段階（1〜25課） / Tahap N5' : 'N4段階（26〜50課） / Tahap N4';
+
+  // すでにある自動の行は、カテゴリーと箱だけそろえる（前の版で「いろどり」に入った行を直す）
+  const want = {};
+  (course.lessons || []).forEach(l => { want['minna-L' + ('0' + l.no).slice(-2)] = groupOf(l.no); });
+  (course.matome || []).forEach(m => { want['minna-' + m.id] = groupOf((m.range || [0, 0])[1]); });
+  let fixed = 0;
+  rows.forEach((r, i) => {
+    const g = want[str_(r[0])];
+    if (!g) return;
+    if (str_(r[1]) !== cat) { sh.getRange(i + 2, 2).setValue(cat); fixed++; }
+    if (str_(r[9]) !== g) sh.getRange(i + 2, 10).setValue(g);
+  });
+
+  const known = new Set(rows.map(r => str_(r[0])));
   const add = [];
   (course.lessons || []).filter(l => l.ready).forEach(l => {
     const id = 'minna-L' + ('0' + l.no).slice(-2);
     if (known.has(id)) return;
-    add.push([id, 'nihongo', 'みんなの日本語 ' + l.no + '課 テスト', 'Tes Minna no Nihongo Bab ' + l.no, 'site',
-              'minna.html?id={ID}&L=' + l.no, false, l.no * 10, '自動追加（みんなの日本語）', group]);
+    add.push([id, cat, 'みんなの日本語 ' + l.no + '課 テスト', 'Tes Minna no Nihongo Bab ' + l.no, 'site',
+              'minna.html?id={ID}&L=' + l.no, false, l.no * 10, '自動追加（みんなの日本語）', groupOf(l.no)]);
   });
   (course.matome || []).filter(m => m.ready).forEach(m => {
     const id = 'minna-' + m.id;
     if (known.has(id)) return;
     const r = m.range || [0, 0];
-    add.push([id, 'nihongo', 'みんなの日本語 ' + m.title + '（まとめテスト）', 'Tes Rangkuman Minna no Nihongo Bab ' + r[0] + '-' + r[1], 'site',
-              'minna.html?id={ID}&M=' + m.id, false, r[1] * 10 + 5, '自動追加（みんなの日本語）', group]);
+    add.push([id, cat, 'みんなの日本語 ' + m.title + '（まとめテスト）', 'Tes Rangkuman Minna no Nihongo Bab ' + r[0] + '-' + r[1], 'site',
+              'minna.html?id={ID}&M=' + m.id, false, r[1] * 10 + 5, '自動追加（みんなの日本語）', groupOf(r[1])]);
   });
-  if (add.length === 0) { console.log('みんなの日本語：足す行はありません'); return; }
-  add.sort((a, b) => a[7] - b[7]);
-  sh.getRange(lastRow_(sh) + 1, 1, add.length, add[0].length).setValues(add);
-  console.log('みんなの日本語：' + add.length + '行を足しました');
+  if (add.length) {
+    add.sort((a, b) => a[7] - b[7]);
+    sh.getRange(lastRow_(sh) + 1, 1, add.length, add[0].length).setValues(add);
+  }
+  console.log('みんなの日本語：' + add.length + '行を足しました／カテゴリーを直した行 ' + fixed);
 }
 
 // フォルダの中（入門・初級1などのサブフォルダも含む）のフォームを全部集める
