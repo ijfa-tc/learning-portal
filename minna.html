@@ -55,6 +55,8 @@ button .idt{color:inherit;opacity:.85;font-size:11px}
 .lrow .st{font-size:12.5px;font-variant-numeric:tabular-nums;color:var(--muted);text-align:right;white-space:nowrap}
 .lrow .st b{font-size:16px;color:var(--ink)}
 .lrow.off{opacity:.55}
+.lrow.lock{background:var(--paper,#f4f4f4)}
+.gate{border-left:4px solid var(--accent);padding:10px 12px;margin:0 0 14px;background:var(--warn-soft);font-size:14px;border-radius:6px}
 .lrow.mt{border-style:dashed}
 .lrow.mt .no{border-style:dashed;font-size:12px}
 /* 問題 */
@@ -128,6 +130,8 @@ details.more summary{cursor:pointer;font-size:13px;color:var(--muted)}
 <main class="wrap" id="app"></main>
 <div class="nav" id="nav" hidden><div class="in" id="navIn"></div></div>
 
+<!-- ポータルの中で使うときだけ：GASのURL（ほかのサイトに置いたときは、このファイルがなくても動く） -->
+<script src="config.js"></script>
 <script>
 /* ====================================================================
    みんなの日本語 1〜50課 テスト（IJFA）
@@ -206,14 +210,56 @@ async function getJSON(path){
   const d = JSON.parse(raw.replace(/\{([^{}|"\\]+)\|([^{}|"\\]+)\}/g, "<ruby>$1<rt>$2</rt></ruby>"));
   return CACHE[path] = d;
 }
+/* ---------- 受けられる 課（ポータルの 中だけ） ----------
+   ポータル（learning-portal）の 中では、先生が 指定した 課・まとめテストだけ 受けられる。
+   ほかは 🔒。生徒IDが ない（ゲスト）ときは ぜんぶ 🔒。
+   ポータルの 外に 置いた 独立版では、いままで どおり ぜんぶ 受けられる。
+   ※ 画面の 上での しくみ。成績証明に つかう 回は「先生の 前で 受ける」ルール */
+const GATED = /learning-portal/.test(location.pathname);
+let OPEN = null;          /* null = ぜんぶ OK ／ Set("L03","M01",…) = この 課だけ */
+let GATE_MSG = "";        /* 一覧の 上に 出す ひとこと */
+const allowed = n => !OPEN || OPEN.has(lid(n));
+async function fetchOpen(id){
+  const api = (window.PORTAL_CONFIG || {}).API_URL;
+  if(!api) throw new Error("no api");
+  const r = await (await fetch(api + "?action=minna&id=" + encodeURIComponent(id))).json();
+  if(!r || !r.ok || !Array.isArray(r.open)) throw new Error("bad");
+  return r.open;
+}
+async function setupGate(){
+  if(!GATED) return;
+  const id = SID();
+  if(!id){ OPEN = new Set(); GATE_MSG = "ポータルに 生徒IDで 入ると、先生が えらんだ 課を 受けられます。" + ID("Masuk ke portal dengan ID siswa untuk mengerjakan bab yang dipilih guru."); return; }
+  const key = "minnaOpen:" + id;
+  const cached = store.get(key, null);
+  const apply = list => { OPEN = new Set(list); GATE_MSG = list.length ? "先生が えらんだ 課だけ 受けられます（🔒は まだ 受けられません）。" + ID("Hanya bab yang dipilih guru yang bisa dikerjakan (🔒 belum bisa).") : "いま 受けられる 課は ありません。先生の 指定を まって ください。" + ID("Belum ada bab yang bisa dikerjakan. Tunggu pilihan dari guru."); };
+  const fresh = fetchOpen(id).then(list => { store.set(key, list); return list; });
+  if(cached){
+    apply(cached);
+    /* 裏で 最新に する。かわって いて、いま 一覧を 見て いれば 出しなおす */
+    fresh.then(list => {
+      if(JSON.stringify(list) === JSON.stringify(cached)) return;
+      apply(list);
+      const P = new URLSearchParams(location.search);
+      if(!P.get("L") && !P.get("M") && !P.get("note") && $("list")) topPage();
+    }).catch(() => {});
+    return;
+  }
+  try{ apply(await fresh); }
+  catch(e){ OPEN = new Set(); GATE_MSG = "受けられる 課を 読みこめませんでした。インターネットを たしかめて、ページを 読みこみなおして ください。" + ID("Gagal memuat. Periksa internet lalu muat ulang halaman."); }
+}
+
 async function boot(){
   try{ COURSE = await (await fetch("minna-course.json?t=" + Date.now())).json(); }
   catch(e){ $("app").innerHTML = `<p class="lead" style="margin-top:24px">読みこめませんでした。インターネットを たしかめて、ページを 読みこみなおして ください。${ID("Gagal memuat. Periksa internet lalu muat ulang halaman.")}</p>`; return; }
   const P = new URLSearchParams(location.search);
   if(P.get("name")) store.set("minnaName", P.get("name"));
-  /* ポータルから ?id=JKT16001 で 来たら、生徒IDを おぼえて 画像に 出す */
+  /* ポータルから ?id=JKT16001 で 来たら、生徒IDを おぼえて 画像に 出す。
+     ?id= が 空（ゲスト・先生の 確認用）なら、前の 生徒IDは つかわない */
   const pid = String(P.get("id") || "").trim().toUpperCase();
   if(/^[A-Z]{3}[0-9]{5}$/.test(pid)) store.set("minnaId", pid);
+  else if(P.has("id")) store.del("minnaId");
+  await setupGate();
   route();
 }
 window.addEventListener("popstate", route);
@@ -240,7 +286,7 @@ function statusHTML(n){
   return `<b>${r.ok}</b>/${r.n}<br><span style="color:var(--${passOf(r.ok,r.n)?"ok":"ng"});font-weight:700">${passOf(r.ok,r.n)?"合格":"不合格"}</span>`;
 }
 /* 記録を 見る 単位：課（1〜50）と、できて いる まとめテスト */
-const units = () => [...COURSE.lessons.map(l=>l.no), ...COURSE.matome.filter(m=>m.ready).map(m=>m.id)];
+const units = () => [...COURSE.lessons.map(l=>l.no), ...COURSE.matome.filter(m=>m.ready).map(m=>m.id)].filter(allowed);
 function noteCount(){
   let c = 0;
   units().forEach(u => { c += wrongOf(recOf(u)).length; });
@@ -261,6 +307,7 @@ function topPage(){
       <p>${nc ? `いま ${nc}問 あります。もう一度 といて、ぜんぶ 正解に しましょう。` : "まだ ありません。"}${ID(nc ? `Ada ${nc} soal. Kerjakan lagi sampai semuanya benar.` : "Belum ada.")}</p>
       <div><button class="btn${nc?"":" ghost"}" id="goNote" ${nc?"":"disabled"}>ノートを ひらく${ID("Buka catatan")}</button></div>
     </div>
+    ${GATE_MSG ? `<p class="gate">${GATE_MSG}</p>` : ""}
     <div id="list"></div>
     <p class="foot">試験運用版です。問題は IJFA トレーニングセンターの オリジナルです（教科書・問題集の 問題では ありません）。「N5段階・N4段階」は IJFAの めやすです。記録は この スマホの ブラウザに のこります。同じ 課を もう一度 すると、新しい 結果に かわります。</p>`;
   $("nm").onchange = () => store.set("minnaName", $("nm").value.trim());
@@ -272,11 +319,12 @@ function topPage(){
 }
 function lessonRow(l){
   const st = statusHTML(l.no);
-  const tag = l.ready ? "button" : "div";
-  return `<${tag} class="lrow${l.ready?"":" off"}" ${l.ready?`data-l="${l.no}" type="button"`:""}>
+  const ok = l.ready && allowed(l.no);
+  const tag = ok ? "button" : "div";
+  return `<${tag} class="lrow${ok?"":" off"}${l.ready && !ok?" lock":""}" ${ok?`data-l="${l.no}" type="button"`:""}>
     <span class="no">${l.no}</span>
     <span class="g">${l.ja}${ID(l.id)}</span>
-    <span class="st">${l.ready ? (st || "まだ") : "じゅんびちゅう"}</span></${tag}>`;
+    <span class="st">${!l.ready ? "じゅんびちゅう" : ok ? (st || "まだ") : "🔒"}</span></${tag}>`;
 }
 function lessonList(){
   let h = "";
@@ -287,8 +335,9 @@ function lessonList(){
     COURSE.lessons.filter(l=>l.no>=b.range[0] && l.no<=b.range[1]).forEach(l => h += lessonRow(l));
     [b.matome, b.total].filter(Boolean).forEach(mid => {
       const m = COURSE.matome.find(x=>x.id===mid);
-      const tag = m.ready ? "button" : "div";
-      h += `<${tag} class="lrow mt${m.ready?"":" off"}" ${m.ready?`data-m="${m.id}" type="button"`:""}><span class="no">まとめ</span><span class="g">${m.title}（JLPT形式）${ID("Tes rangkuman (format JLPT)")}</span><span class="st">${m.ready ? (statusHTML(m.id) || "まだ") : "じゅんびちゅう"}</span></${tag}>`;
+      const ok = m.ready && allowed(m.id);
+      const tag = ok ? "button" : "div";
+      h += `<${tag} class="lrow mt${ok?"":" off"}${m.ready && !ok?" lock":""}" ${ok?`data-m="${m.id}" type="button"`:""}><span class="no">まとめ</span><span class="g">${m.title}（JLPT形式）${ID("Tes rangkuman (format JLPT)")}</span><span class="st">${!m.ready ? "じゅんびちゅう" : ok ? (statusHTML(m.id) || "まだ") : "🔒"}</span></${tag}>`;
     });
   });
   return h;
@@ -297,7 +346,7 @@ function lessonList(){
 /* ---------- 課の ページ ---------- */
 async function lessonPage(n){
   const meta = isM(n) ? COURSE.matome.find(m=>m.id===n) : COURSE.lessons.find(l=>l.no===n);
-  if(!meta || !meta.ready){ go(""); return; }
+  if(!meta || !meta.ready || !allowed(n)){ go(""); return; }   /* 🔒の 課は 一覧に もどす */
   try{ DATA = await getJSON("minna-" + lid(n) + ".json"); }catch(e){ $("app").innerHTML = `<p class="lead" style="margin-top:24px">問題を 読みこめませんでした。${ID("Gagal memuat soal.")}</p>`; return; }
   const r = recOf(n);
   $("ttl").textContent = unitName(n);

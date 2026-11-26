@@ -485,7 +485,7 @@
       const row = el("div", "ta-row" + (m ? "" : " ta-row-bad"));
       row.append(el("span", "ta-no", String(i + 1)));
       const nm = el("span", "ta-name", name);
-      if (m && !m.public) nm.append(el("span", "ta-tag", "指定のみ"));
+      if (m && !m.public) nm.append(el("span", "ta-tag", m.categoryId === "minna" ? "🔓 ページで解放" : "指定のみ"));
       nm.append(el("span", "id-text", m ? [taCatName(m.categoryId), (m.group || "").split(" / ")[0]].filter(Boolean).join("・")
                                          : "教材リストにありません。はずしてください"));
       row.append(nm);
