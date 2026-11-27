@@ -467,6 +467,7 @@ function studentLogout_(p) {
 // =====================================================================
 // いろどり課テスト（ウェブ版）
 // 問題は「いろどりテスト 問題データ」（フォームから書き出したもの）。正解はページに出さず、ここで採点する
+// 画面では聴解をいちばん最後に出す。課ごとのテストは【X05-01】、まとめテストは「1番」から音声をつなぐ
 // =====================================================================
 // 教材リストに irodori.html?f=フォームID の行があるテストだけ使える（公開ON/OFFは問わない）
 function irodoriAllowed_(formId) {
@@ -490,6 +491,11 @@ function irodoriRows_(formId) {
 function irodoriBuild_(rows) {
   const sections = [], key = {}, max = {};
   let cur = null;
+  // まとめテスト（例 入門1-6課 テスト）の聴解は、問題文の「1番」から音声 KT01-06_L01 につなぐ（KT＝入門、SK＝初級1）
+  const mt = str_(rows.length ? rows[0][0] : '').match(/^(入門|初級1)\s*(\d+)-(\d+)課 テスト$/);
+  const two = n => ('0' + n).slice(-2);
+  const matome = mt ? (mt[1] === '入門' ? 'KT' : 'SK') + two(mt[2]) + '-' + two(mt[3]) + '_L' : '';
+  let lastAudio = '';
   rows.forEach(r => {
     const kind = str_(r[4]);
     if (kind.indexOf('other') === 0) return;   // 生徒ID・名前の欄は使わない
@@ -498,6 +504,12 @@ function irodoriBuild_(rows) {
     let text = str_(r[5]), help = str_(r[6]), audio = '';
     const m = (text + ' ' + help).match(AUDIO_TAG_RE);
     if (m) { audio = m[1] + m[2] + '-' + m[3]; text = text.replace(AUDIO_TAG_RE, '').trim(); help = help.replace(AUDIO_TAG_RE, '').trim(); }
+    else if (matome && str_(r[3]) === '聴解') {
+      const b = text.match(/^(\d+)番/);
+      if (b) audio = matome + two(b[1]);
+    }
+    if (audio && audio === lastAudio) audio = '';   // 同じ音声の2問目からはボタンを出さない
+    else if (audio) lastAudio = audio;
     const item = { k: kind, n: Number(r[2]), text: text, help: help };
     if (audio) item.audio = audio;
     if (kind === 'image') item.img = str_(r[10]);
@@ -513,7 +525,9 @@ function irodoriBuild_(rows) {
     }
     cur.items.push(item);
   });
-  return { sections: sections, key: key, max: max };
+  // 聴解はいちばん最後に出す（採点・成績には関係ない）
+  const ordered = sections.filter(x => x.name.indexOf('聴解') < 0).concat(sections.filter(x => x.name.indexOf('聴解') >= 0));
+  return { sections: ordered, key: key, max: max };
 }
 function irodoriTest_(formId) {
   if (!irodoriAllowed_(formId)) return { ok: false, reason: 'not_web' };
