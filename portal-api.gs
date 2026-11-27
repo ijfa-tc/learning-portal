@@ -17,6 +17,7 @@
  *     パスワードを忘れた生徒は、その行の B列・C列（印・ソルト）を消せば生年月日にもどる
  *   ?action=student              → 使わなくなった（IDだけで名前が出ないように、名前はログインのあとだけ返す）
  *   ?action=portal&cohort=JKT14  → カテゴリー・公開中の教材・その期生への指定テストを返す
+ *                                   （フォームのテストは出さない。いろどりのウェブ版は、その期に指定されていないものに lock を付ける）
  *   POST（Googleから）credential  → 先生か確かめ、ポータルへもどるボタンの画面を出す（合言葉 t つき）
  *   ?action=tsession&t=合言葉     → 先生の名前と期生の一覧を返す（合言葉は5分・1回だけ有効）
  *   ?action=cohorts              → 期生の一覧（例 JKT16）だけを返す。先生のホームの選択肢を最新にする用
@@ -33,7 +34,9 @@
  *                                → 先生の「パスワードを生年月日に戻す」画面用：生徒の名前・期生・パスワードを変えているか・ロック中か
  *   POST action=tpwreset k=先生キー id=JKT14001
  *                                → その生徒のパスワードを生年月日にもどす（ロック解除・ほかのスマホもログアウト・メモに記録）
- *   ?action=itest&f=フォームID    → いろどり課テスト（ウェブ版）の問題（正解はふくまない）。教材リストに irodori.html?f=フォームID の行があるテストだけ
+ *   POST action=itest  k=生徒キー（または先生キー） f=フォームID
+ *                                → いろどり課テスト（ウェブ版）の問題（正解はふくまない）。教材リストに irodori.html?f=フォームID の行があるテストだけ。
+ *                                   生徒は、その期に先生が指定しているテストだけ（指定がなければ not_assigned）。先生は確認用に全部見られる
  *   POST action=isubmit k=生徒キー f=フォームID ans={"順番":["選んだ答え"]} aid=受験の番号（二重送信よけ） sec=かかった秒
  *                                → 採点して結果（点数・○×・正解）を返す。「受験ログ」に毎回1行。
  *                                   その生徒のそのテストが「IJFA テスト結果DB」の「結果」シートにまだなければ1行足す（＝1回目だけ成績）
@@ -87,7 +90,7 @@ function doGet(e) {
     else if (p.action === 'portal') out = getPortal_(String(p.cohort || '').trim().toUpperCase());
     else if (p.action === 'tsession') out = teacherSession_(String(p.t || ''));
     else if (p.action === 'cohorts') out = { cohorts: cohorts_() };
-    else if (p.action === 'itest') out = irodoriTest_(String(p.f || ''));
+    else if (p.action === 'itest') out = { ok: false, reason: 'auth' };   // 問題はログインした人だけ（POST action=itest）
     else if (p.action === 'minna') out = minnaOpen_(String(p.id || '').trim().toUpperCase(), String(p.cohort || '').trim().toUpperCase());
     else out = { error: 'unknown action' };
   } catch (err) {
@@ -105,7 +108,7 @@ function doPost(e) {
   // ホームの意見フォーム・先生の「指定テストを選ぶ」画面から（ポータルが送ってくる）
   const api = { feedback: saveFeedback_, tassign: assignView_, tsave: assignSave_, tlogout: teacherLogout_,
                 slogin: studentLogin_, scheck: studentCheck_, spw: studentPassword_, slogout: studentLogout_,
-                tpwlook: teacherPwLook_, tpwreset: teacherPwReset_, isubmit: irodoriSubmit_ }[p.action];
+                tpwlook: teacherPwLook_, tpwreset: teacherPwReset_, isubmit: irodoriSubmit_, itest: irodoriTestApi_ }[p.action];
   if (api) {
     let out;
     try { out = api(p); }
@@ -237,11 +240,12 @@ function assignView_(p) {
     .filter(r => str_(r[0]))
     .map(r => ({ id: str_(r[0]), nameJa: str_(r[1]), nameId: str_(r[2]), order: num_(r[3]) }))
     .sort(byOrder_);
-  // 公開OFFの教材も選べる（ただし「じゅんびちゅう」は除く）
+  // 公開OFFの教材も選べる（ただし「じゅんびちゅう」と、フォームのテストは除く）
+  // lockable：いろどりのウェブ版（指定したときだけ生徒が受けられる）
   const materials = values_(SHEET.mat)
-    .filter(r => str_(r[2]) && str_(r[5]) && str_(r[4]) !== 'soon')
+    .filter(r => str_(r[2]) && str_(r[5]) && str_(r[4]) !== 'soon' && str_(r[4]) !== 'form')
     .map(r => ({ categoryId: str_(r[1]), nameJa: str_(r[2]), nameId: str_(r[3]), type: str_(r[4]),
-                 public: r[6] === true, order: num_(r[7]), group: str_(r[9]) }));
+                 public: r[6] === true, order: num_(r[7]), group: str_(r[9]), lockable: !!irodoriFormId_(str_(r[5])) }));
   const names = assignedNames_(values_(SHEET.asg), cohortKey);
   return { ok: true, cohort: cohortKey, categories: categories, materials: materials, assigned: names, ver: assignVer_(names) };
 }
@@ -341,7 +345,7 @@ function getStudent_(id) {
 
 // 期生ごとのホーム表示データ
 function getPortal_(cohortKey) {
-  const guest = cohortKey === 'GUEST';   // ゲスト（IDがまだない人）：フォームのテストは出さず、指定もなし
+  const guest = cohortKey === 'GUEST';   // ゲスト（IDがまだない人）：指定なし（いろどりは全部🔒）
   if (!guest && !/^[A-Z]{3}[0-9]{2}$/.test(cohortKey)) return { error: 'bad cohort' };
   const cache = CacheService.getScriptCache();
   const hit = cache.get('portal_' + cohortKey);
@@ -359,11 +363,13 @@ function getPortal_(cohortKey) {
       type: str_(r[4]), url: str_(r[5]), public: r[6] === true, order: num_(r[7]),
       group: str_(r[9])   // J列「グループ」：カテゴリーの中のまとまり（例 いろどり入門）
     }));
-  const materials = all.filter(m => m.public && !(guest && m.type === 'form')).sort(byOrder_);
+  // フォームのテストはポータルから出さない（2026-11-27〜。フォームは先生がリンクを送って使う。
+  // フォームの回答は今までどおり「IJFAテスト自動取り込み」がクラス管理に書く）
+  const usable = all.filter(m => m.type !== 'form');
 
   // 指定テストは「教材の名前」で選ぶ（先生がプルダウンで選びやすいように）。公開OFFでも指定はできる
   const byName = {};
-  all.forEach(m => { byName[m.nameJa] = m; });
+  usable.forEach(m => { byName[m.nameJa] = m; });
   const picked = guest ? [] : values_(SHEET.asg)
     .filter(r => str_(r[0]).toUpperCase() === cohortKey && r[2] === true)
     .map(r => ({ m: byName[str_(r[1])], order: num_(r[3]) }))
@@ -375,8 +381,14 @@ function getPortal_(cohortKey) {
   const MINNA_RE = /^minna-((?:L|M)\d{2})$/;
   const assigned = picked.filter(m => !MINNA_RE.test(m.id));
   const minna = picked.filter(m => MINNA_RE.test(m.id)).map(m => m.id.match(MINNA_RE)[1]);
+  // いろどり（ウェブ版）は、その期に指定されているテストだけ受けられる。ほかは一覧に🔒（lock）で出す
+  const irodori = picked.map(m => irodoriFormId_(m.url)).filter(Boolean);
+  const materials = usable.filter(m => m.public).map(m => {
+    const f = irodoriFormId_(m.url);
+    return (f && irodori.indexOf(f) < 0) ? Object.assign({}, m, { lock: true }) : m;
+  }).sort(byOrder_);
 
-  const out = { categories, materials, assigned, minna };
+  const out = { categories, materials, assigned, minna, irodori };
   cache.put('portal_' + cohortKey, JSON.stringify(out), CACHE_SEC);
   return out;
 }
@@ -469,6 +481,26 @@ function studentLogout_(p) {
 // 問題は「いろどりテスト 問題データ」（フォームから書き出したもの）。正解はページに出さず、ここで採点する
 // 画面では聴解をいちばん最後に出す。課ごとのテストは【X05-01】、まとめテストは「1番」から音声をつなぐ
 // =====================================================================
+// URL「irodori.html?f=フォームID」からフォームIDを取り出す（いろどりのウェブ版でなければ空）
+function irodoriFormId_(url) {
+  const m = String(url || '').match(/irodori\.html\?f=([A-Za-z0-9_-]{20,})/);
+  return m ? m[1] : '';
+}
+// その期に、そのテストが指定されているか（指定は「指定テスト」シート。先生の画面で選ぶ）
+function irodoriAssigned_(cohortKey, formId) {
+  return (getPortal_(cohortKey).irodori || []).indexOf(formId) >= 0;
+}
+// 問題を見られるのは：その期に指定されている生徒、または先生（確認用に全部）
+function irodoriTestApi_(p) {
+  const formId = str_(p.f);
+  const st = studentFromKey_(p.k);
+  if (st) {
+    if (!irodoriAssigned_(st.student.cohortKey, formId)) return { ok: false, reason: 'not_assigned' };
+  } else if (!teacherFromKey_(p.k)) {
+    return { ok: false, reason: 'auth' };
+  }
+  return irodoriTest_(formId);
+}
 // 教材リストに irodori.html?f=フォームID の行があるテストだけ使える（公開ON/OFFは問わない）
 function irodoriAllowed_(formId) {
   if (!/^[A-Za-z0-9_-]{20,}$/.test(formId)) return false;
@@ -546,6 +578,7 @@ function irodoriSubmit_(p) {
   const again = cache.get('isub_' + aid);
   if (again) return JSON.parse(again);   // 同じ受験を2回送った（電波が悪くて送りなおした）→ 前の結果を返す
   if (!irodoriAllowed_(formId)) return { ok: false, reason: 'not_web' };
+  if (!irodoriAssigned_(st.student.cohortKey, formId)) return { ok: false, reason: 'not_assigned' };   // 先生が指定をはずした
   const rows = irodoriRows_(formId);
   if (!rows.length) return { ok: false, reason: 'no_data' };
   const title = str_(rows[0][0]);

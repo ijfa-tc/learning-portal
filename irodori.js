@@ -5,6 +5,7 @@
   const ASSET = "https://ijfa-tc.github.io/irodori-test/";   // 音声・画像の置き場（別リポジトリ）
   const MAX_PLAYS = 2;                                        // 聴解の音声は1問2回まで
   const STUDENT_KEY = "ijfa_portal_student";                  // ポータルでログインした生徒（app.js と同じ）
+  const TEACHER_KEY = "ijfa_portal_teacher";                  // ポータルでログインした先生（確認用に全部見られる）
   const $ = id => document.getElementById(id);
 
   const formId = new URLSearchParams(location.search).get("f") || "";
@@ -37,13 +38,26 @@
   // ---- はじめ ----
   async function start() {
     try { const s = JSON.parse(localStorage.getItem(STUDENT_KEY)); if (s && s.id && s.key && s.until > Date.now()) student = s; } catch (e) {}
+    let teacherKey = "";
+    try { const t = JSON.parse(localStorage.getItem(TEACHER_KEY)); if (t && t.key && t.until > Date.now()) teacherKey = t.key; } catch (e) {}
     if (!formId || !API_URL) { msg("テストが見つかりません / Tes tidak ditemukan"); return; }
+    // 問題は、ログインした生徒（先生が指定したテストだけ）か先生だけが見られる
+    if (!student && !teacherKey) { msg("ポータルでログインしてから、もう一度このテストを開いてください / Masuk dulu di portal, lalu buka tes ini lagi."); return; }
     $("preview-banner").hidden = !!student;
     $("it-who").textContent = student ? student.name + " さん（" + student.id + "）" : "";
     loading(true);
     try {
-      const r = await (await fetch(API_URL + "?action=itest&f=" + encodeURIComponent(formId))).json();
-      if (!r || !r.ok) { msg(r && r.reason === "not_web" ? "このテストはまだウェブ版がありません / Tes ini belum tersedia" : "テストを読みこめませんでした / Gagal memuat tes"); return; }
+      const res = await fetch(API_URL, { method: "POST", body: new URLSearchParams({
+        action: "itest", k: student ? student.key : teacherKey, f: formId }) });
+      const r = await res.json();
+      if (!r || !r.ok) {
+        const why = r && r.reason;
+        msg(why === "not_assigned" ? "🔒 このテストは、先生が指定したときだけ受けられます / Tes ini hanya bisa dikerjakan jika ditugaskan guru."
+          : why === "auth" ? "ログインの期限が切れました。ポータルでログインしてから、もう一度このテストを開いてください / Sesi habis. Masuk lagi di portal, lalu buka tes ini lagi."
+          : why === "not_web" ? "このテストはまだウェブ版がありません / Tes ini belum tersedia"
+          : "テストを読みこめませんでした / Gagal memuat tes");
+        return;
+      }
       test = r;
     } catch (e) {
       msg("つながりません。電波を確認して、ページを読みこみなおしてください / Gagal terhubung. Cek sinyal lalu muat ulang.");
@@ -222,6 +236,8 @@
       if (!r || !r.ok) {
         $("it-send-msg").textContent = (r && r.reason === "auth")
           ? "ログインの期限が切れました。答えはこのスマホに残っています。ポータルでログインしてから、もう一度このテストを開いてください / Sesi habis. Masuk lagi di portal, lalu buka tes ini lagi."
+          : (r && r.reason === "not_assigned")
+          ? "🔒 このテストの指定がはずれたので、送れませんでした。先生に聞いてください / Tugas tes ini sudah dibatalkan guru. Tanyakan ke guru."
           : "送れませんでした。もう一度「このまま送る」を押してください / Gagal mengirim. Tekan lagi.";
         return;
       }

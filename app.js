@@ -73,6 +73,11 @@
       twoLang(d, m.nameJa + "（じゅんびちゅう）", m.nameId ? m.nameId + " (Segera hadir)" : "Segera hadir");
       return d;
     }
+    if (m.lock) {   // いろどり：先生がまだ指定していないテスト（押せない）
+      const d = el("div", "item item-soon");
+      twoLang(d, "🔒 " + m.nameJa, m.nameId);
+      return d;
+    }
     const a = el("a", "item" + (assigned ? " item-assigned" : ""));
     a.href = linkFor(m, student);
     a.target = "_blank";
@@ -218,7 +223,7 @@
     portal.categories.forEach(c => {
       const items = itemsOf(c);
       let tile;
-      if (items.length === 1 && !items[0].group && items[0].type !== "soon") {
+      if (items.length === 1 && !items[0].group && items[0].type !== "soon" && !items[0].lock) {
         tile = el("a", "cat");
         tile.href = linkFor(items[0], student);
         tile.target = "_blank";
@@ -366,7 +371,13 @@
     if (group) {   // グループの中の一覧
       const [ja, idn] = group.split(" / ");
       twoLang(title, ja, " " + (idn || ""));
-      items.filter(m => m.group === group).forEach(m => list.append(materialItem(m, student, false)));
+      const inGroup = items.filter(m => m.group === group);
+      if (inGroup.some(m => m.lock)) {   // 🔒の説明
+        const note = el("p", "empty");
+        twoLang(note, "🔒 のテストは、先生が指定すると受けられます", " Tes 🔒 bisa dikerjakan setelah ditugaskan guru");
+        list.append(note);
+      }
+      inGroup.forEach(m => list.append(materialItem(m, student, false)));
     } else {
       twoLang(title, cat.nameJa, " " + cat.nameId);
       if (items.length === 0) list.append(el("p", "empty", "じゅんびちゅう / Segera hadir"));
@@ -574,7 +585,8 @@
       const row = el("div", "ta-row" + (m ? "" : " ta-row-bad"));
       row.append(el("span", "ta-no", String(i + 1)));
       const nm = el("span", "ta-name", name);
-      if (m && !m.public) nm.append(el("span", "ta-tag", m.categoryId === "minna" ? "🔓 ページで解放" : "指定のみ"));
+      if (m && m.lockable) nm.append(el("span", "ta-tag", "🔓 指定で解放"));
+      else if (m && !m.public) nm.append(el("span", "ta-tag", m.categoryId === "minna" ? "🔓 ページで解放" : "指定のみ"));
       nm.append(el("span", "id-text", m ? [taCatName(m.categoryId), (m.group || "").split(" / ")[0]].filter(Boolean).join("・")
                                          : "教材リストにありません。はずしてください"));
       row.append(nm);
