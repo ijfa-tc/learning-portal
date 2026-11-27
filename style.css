@@ -314,7 +314,8 @@ a.btn { text-decoration: none; }
 .pw-hint { color: var(--muted); font-size: 14px; margin: 6px 0 0; }
 .pw-show { display: flex; align-items: center; gap: 8px; min-height: 44px; font-size: 15px; color: var(--muted); }
 .pw-show input { width: 20px; height: 20px; }
-.pw-open { display: block; margin: 32px auto 0; font-size: 15px; }
+.pw-open { margin-top: 32px; }   /* ほかのボタンと同じ、わくのあるボタン */
+.pw-open .id-text { display: block; }
 .tp-who { font-size: 22px; font-weight: bold; }
 .tp-q { margin-top: 16px; }
 
