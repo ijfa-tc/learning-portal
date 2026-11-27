@@ -33,6 +33,11 @@
  *                                → 先生の「パスワードを生年月日に戻す」画面用：生徒の名前・期生・パスワードを変えているか・ロック中か
  *   POST action=tpwreset k=先生キー id=JKT14001
  *                                → その生徒のパスワードを生年月日にもどす（ロック解除・ほかのスマホもログアウト・メモに記録）
+ *   ?action=itest&f=フォームID    → いろどり課テスト（ウェブ版）の問題（正解はふくまない）。教材リストに irodori.html?f=フォームID の行があるテストだけ
+ *   POST action=isubmit k=生徒キー f=フォームID ans={"順番":["選んだ答え"]} aid=受験の番号（二重送信よけ） sec=かかった秒
+ *                                → 採点して結果（点数・○×・正解）を返す。「受験ログ」に毎回1行。
+ *                                   その生徒のそのテストが「IJFA テスト結果DB」の「結果」シートにまだなければ1行足す（＝1回目だけ成績）
+ *                                   → 「IJFAテスト自動取り込み」がフォームの行と同じようにクラス管理へ書き込む
  *   ※ 先生キー：先生がGoogleでログインしたときに1つ作る合鍵（1年有効）。スクリプト プロパティに「印（ハッシュ）」だけ保存。
  *     使うたびに「先生」シートで、いまも有効な先生か確かめる（シートで有効を外せば、すぐ使えなくなる）
  *
@@ -66,6 +71,10 @@ const LOGIN_MAX_FAIL = 5;                                              // 5回�
 const LOGIN_LOCK_SEC = 900;                                            // …15分入れない
 const PW_RE = /^[0-9]{4,20}$/;                                         // パスワードは4けた以上の数字（生年月日・かんたんな並びもOK）
 const PW_ROUNDS = 100;                                                 // 印（ハッシュ）を作るときにくり返す回数
+const QDATA_ID = '1yd1WPsB17XoIr5z0f5xypd-ccPvmg8eMsFLADFLVclc';        // いろどりテスト 問題データ（正解はここだけ）
+const RESULT_DB_ID = '115cIwtL4yXfvWLrOEmkSYqREWFKExcSLkvw1uf-kclg';    // IJFA テスト結果DB（「結果」シートに1回目だけ足す）
+const ITEST_LOG = '受験ログ';                                           // ウェブ版テストの受験の記録（毎回1行）
+const AUDIO_TAG_RE = /【([XY])(\d{2})-(\d{2})】/;                       // 問題文の【X05-01】＝音声 X05-01.mp3
 
 // =====================================================================
 // ポータルからの問い合わせ
@@ -78,6 +87,7 @@ function doGet(e) {
     else if (p.action === 'portal') out = getPortal_(String(p.cohort || '').trim().toUpperCase());
     else if (p.action === 'tsession') out = teacherSession_(String(p.t || ''));
     else if (p.action === 'cohorts') out = { cohorts: cohorts_() };
+    else if (p.action === 'itest') out = irodoriTest_(String(p.f || ''));
     else if (p.action === 'minna') out = minnaOpen_(String(p.id || '').trim().toUpperCase(), String(p.cohort || '').trim().toUpperCase());
     else out = { error: 'unknown action' };
   } catch (err) {
@@ -95,7 +105,7 @@ function doPost(e) {
   // ホームの意見フォーム・先生の「指定テストを選ぶ」画面から（ポータルが送ってくる）
   const api = { feedback: saveFeedback_, tassign: assignView_, tsave: assignSave_, tlogout: teacherLogout_,
                 slogin: studentLogin_, scheck: studentCheck_, spw: studentPassword_, slogout: studentLogout_,
-                tpwlook: teacherPwLook_, tpwreset: teacherPwReset_ }[p.action];
+                tpwlook: teacherPwLook_, tpwreset: teacherPwReset_, isubmit: irodoriSubmit_ }[p.action];
   if (api) {
     let out;
     try { out = api(p); }
@@ -452,6 +462,133 @@ function studentPassword_(p) {
 function studentLogout_(p) {
   if (/^[0-9a-f]{64}$/.test(String(p.k || ''))) PropertiesService.getScriptProperties().deleteProperty('sk_' + keyHash_(p.k));
   return { ok: true };
+}
+
+// =====================================================================
+// いろどり課テスト（ウェブ版）
+// 問題は「いろどりテスト 問題データ」（フォームから書き出したもの）。正解はページに出さず、ここで採点する
+// =====================================================================
+// 教材リストに irodori.html?f=フォームID の行があるテストだけ使える（公開ON/OFFは問わない）
+function irodoriAllowed_(formId) {
+  if (!/^[A-Za-z0-9_-]{20,}$/.test(formId)) return false;
+  return values_(SHEET.mat).some(r => str_(r[5]).indexOf('irodori.html?f=' + formId) >= 0);
+}
+// そのテストの行（順番どおり）。10分だけ覚えておく
+function irodoriRows_(formId) {
+  const cache = CacheService.getScriptCache();
+  const hit = cache.get('iq_' + formId);
+  if (hit) return JSON.parse(hit);
+  const sh = SpreadsheetApp.openById(QDATA_ID).getSheetByName('問題');
+  const rows = sh.getRange(2, 1, Math.max(sh.getLastRow() - 1, 1), 13).getValues()
+    .filter(r => str_(r[1]) === formId)
+    .map(r => r.map(v => v instanceof Date ? String(v) : v))
+    .sort((a, b) => Number(a[2]) - Number(b[2]));
+  try { cache.put('iq_' + formId, JSON.stringify(rows), 600); } catch (e) {}
+  return rows;
+}
+// 行 → 画面用のテスト（sections）と、採点用の正解表（key）。分類ごとの満点はフォームと同じ数え方
+function irodoriBuild_(rows) {
+  const sections = [], key = {}, max = {};
+  let cur = null;
+  rows.forEach(r => {
+    const kind = str_(r[4]);
+    if (kind.indexOf('other') === 0) return;   // 生徒ID・名前の欄は使わない
+    if (kind === 'section') { cur = { name: str_(r[3]) || str_(r[5]), help: str_(r[6]), items: [] }; sections.push(cur); return; }
+    if (!cur) { cur = { name: '', help: '', items: [] }; sections.push(cur); }
+    let text = str_(r[5]), help = str_(r[6]), audio = '';
+    const m = (text + ' ' + help).match(AUDIO_TAG_RE);
+    if (m) { audio = m[1] + m[2] + '-' + m[3]; text = text.replace(AUDIO_TAG_RE, '').trim(); help = help.replace(AUDIO_TAG_RE, '').trim(); }
+    const item = { k: kind, n: Number(r[2]), text: text, help: help };
+    if (audio) item.audio = audio;
+    if (kind === 'image') item.img = str_(r[10]);
+    if (kind === 'choice' || kind === 'checkbox') {
+      let choices = [], correct = [];
+      try { choices = JSON.parse(r[7] || '[]'); correct = JSON.parse(r[8] || '[]'); } catch (e) {}
+      const pts = Number(r[9]) || 0, sec = str_(r[3]);
+      item.choices = choices; item.multi = kind === 'checkbox'; item.pts = pts;
+      if (sec && pts) {
+        key[item.n] = { correct: correct, pts: pts, sec: sec };
+        max[sec] = (max[sec] || 0) + pts;
+      }
+    }
+    cur.items.push(item);
+  });
+  return { sections: sections, key: key, max: max };
+}
+function irodoriTest_(formId) {
+  if (!irodoriAllowed_(formId)) return { ok: false, reason: 'not_web' };
+  const rows = irodoriRows_(formId);
+  if (!rows.length) return { ok: false, reason: 'no_data' };
+  const t = irodoriBuild_(rows);
+  return { ok: true, formId: formId, title: str_(rows[0][0]), sections: t.sections, max: t.max,
+           ver: assignVer_(rows.map(r => r.slice(2, 11))) };
+}
+function irodoriSubmit_(p) {
+  const st = studentFromKey_(p.k);
+  if (!st) return { ok: false, reason: 'auth' };
+  const formId = str_(p.f), aid = str_(p.aid);
+  if (!/^[0-9a-f-]{36}$/i.test(aid)) return { ok: false, reason: 'aid' };
+  const cache = CacheService.getScriptCache();
+  const again = cache.get('isub_' + aid);
+  if (again) return JSON.parse(again);   // 同じ受験を2回送った（電波が悪くて送りなおした）→ 前の結果を返す
+  if (!irodoriAllowed_(formId)) return { ok: false, reason: 'not_web' };
+  const rows = irodoriRows_(formId);
+  if (!rows.length) return { ok: false, reason: 'no_data' };
+  const title = str_(rows[0][0]);
+  const t = irodoriBuild_(rows);
+  let ans = {};
+  try { ans = JSON.parse(str_(p.ans) || '{}'); } catch (e) { return { ok: false, reason: 'ans' }; }
+
+  // 採点（チェックボックスは、正解を全部えらび、まちがいをえらんでいないときだけ点）
+  const score = {}, items = [];
+  Object.keys(t.max).forEach(s => { score[s] = 0; });
+  Object.keys(t.key).forEach(n => {
+    const k = t.key[n];
+    const given = (Array.isArray(ans[n]) ? ans[n] : []).map(String);
+    const ok = given.length === k.correct.length && given.every(g => k.correct.indexOf(g) >= 0);
+    if (ok) score[k.sec] += k.pts;
+    items.push({ n: Number(n), ok: ok, correct: k.correct });
+  });
+  let total = 0, maxTotal = 0;
+  const detail = Object.keys(t.max).map(s => { total += score[s]; maxTotal += t.max[s]; return s + ' ' + score[s] + '/' + t.max[s]; });
+  const s = st.student;
+  const receipt = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'MMdd-HHmm') + '-' + Utilities.getUuid().slice(0, 4).toUpperCase();
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  let first = false, attempt = 1;
+  try {
+    // 1回目だけ「結果」シートへ（取り込みがクラス管理に書く）
+    const res = SpreadsheetApp.openById(RESULT_DB_ID).getSheetByName('結果');
+    const done = res.getLastRow() > 1 && res.getRange(2, 3, res.getLastRow() - 1, 2).getValues()
+      .some(r => str_(r[0]) === title && str_(r[1]).toUpperCase() === s.id);
+    first = !done;
+    if (first) {
+      res.appendRow([new Date(), 'WEB:' + formId, title, s.id, s.name, total, maxTotal, detail.join('、'),
+                     JSON.stringify({ score: score, max: t.max }), 'WEB_' + Utilities.getUuid()]);
+    }
+    // 受験ログ（毎回）
+    const ss = SpreadsheetApp.getActive();
+    const log = ss.getSheetByName(ITEST_LOG) || ensure_(ss, ITEST_LOG,
+      ['受験日時', '生徒ID', '期生', '名前', 'テスト名', 'フォームID', '問題の版', '合計', '満点', '内訳', '何回目', '成績/練習', 'かかった秒', '受付番号', '解答']);
+    attempt = 1 + (log.getLastRow() > 1 ? log.getRange(2, 2, log.getLastRow() - 1, 5).getValues()
+      .filter(r => str_(r[0]) === s.id && str_(r[4]) === formId).length : 0);
+    log.appendRow([new Date(), s.id, s.cohortKey, s.name, title, formId, assignVer_(rows.map(r => r.slice(2, 11))),
+                   total, maxTotal, detail.join('、'), attempt, first ? '成績' : '練習',
+                   Math.max(0, Math.round(Number(p.sec) || 0)), receipt, JSON.stringify(ans).slice(0, 40000)]);
+  } finally {
+    lock.releaseLock();
+  }
+  const out = { ok: true, receipt: receipt, total: total, max: maxTotal, first: first, attempt: attempt,
+                detail: Object.keys(t.max).map(x => ({ sec: x, score: score[x], max: t.max[x] })), items: items };
+  try { cache.put('isub_' + aid, JSON.stringify(out), 21600); } catch (e) {}
+  console.log('ウェブ版テスト: ' + s.id + ' ' + title + ' ' + total + '/' + maxTotal + (first ? '（成績）' : '（練習）'));
+  return out;
+}
+// 動作確認用：入門5課の問題が読めるか（教材リストに行がないと not_web になる）
+function testIrodori() {
+  const r = irodoriTest_('1-opn4dX_tkp9xXuUrTNBNbaGrLAffj-tSIfiXRDpk-g');
+  console.log(r.ok ? r.title + ' 満点 ' + JSON.stringify(r.max) : JSON.stringify(r));
 }
 
 // ---- 先生の「パスワードを生年月日に戻す」 ----
