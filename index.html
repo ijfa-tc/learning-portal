@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex, nofollow">
   <title>IJFA Learning Portal</title>
-  <link rel="stylesheet" href="style.css?v=20261126d">
+  <link rel="stylesheet" href="style.css?v=20261127a">
 </head>
 <body>
   <!-- サンプルデータで動いているときだけ表示 -->
@@ -28,10 +28,16 @@
     <section id="view-login" class="view">
       <p id="logout-done" class="done" hidden>ログアウトしました / Anda sudah keluar</p>
       <h1 class="title">IJFA Learning Portal</h1>
-      <p class="sub">生徒IDを入れてください<br><span class="id-text">Masukkan ID siswa Anda</span></p>
+      <p class="sub">生徒IDとパスワードを入れてください<br><span class="id-text">Masukkan ID siswa dan kata sandi</span></p>
       <form id="login-form" novalidate>
-        <input id="login-id" class="input" type="text" inputmode="text" autocomplete="off"
-               autocapitalize="characters" placeholder="JKT16001" aria-label="生徒ID">
+        <label class="field-label" for="login-id">生徒ID <span class="id-text">ID siswa</span></label>
+        <input id="login-id" class="input" type="text" inputmode="text" autocomplete="username"
+               autocapitalize="characters" placeholder="JKT16001">
+        <label class="field-label" for="login-pw">パスワード <span class="id-text">Kata sandi</span></label>
+        <input id="login-pw" class="input pw" type="password" inputmode="numeric" autocomplete="current-password"
+               maxlength="20" placeholder="20070415">
+        <p class="pw-hint">はじめは生年月日8けた（年・月・日）<span class="id-text">Awalnya: tanggal lahir 8 angka (tahun-bulan-tanggal). Contoh: 15 April 2007 → 20070415</span></p>
+        <label class="pw-show"><input id="login-show" type="checkbox"> 数字を見せる <span class="id-text">Tampilkan angka</span></label>
         <p id="login-error" class="error" role="alert"></p>
         <button class="btn btn-main" type="submit">つぎへ <span class="id-text">Lanjut</span></button>
       </form>
@@ -111,6 +117,31 @@
 
       <h2 class="h2">べんきょうする <span class="id-text">Belajar</span></h2>
       <div id="category-list" class="grid"></div>
+
+      <!-- パスワード変更（生徒だけ。うながしはしない） -->
+      <button id="pw-open" class="btn btn-quiet pw-open" type="button" hidden>パスワードを変更できます <span class="id-text">Anda bisa mengganti kata sandi</span></button>
+    </section>
+
+    <!-- 3b. パスワード変更（生徒） -->
+    <section id="view-password" class="view" hidden>
+      <button id="pw-back" class="btn btn-quiet back" type="button">← もどる <span class="id-text">Kembali</span></button>
+      <h2 class="h2">パスワードを変更する <span class="id-text">Ganti kata sandi</span></h2>
+      <form id="pw-form" novalidate>
+        <label class="field-label" for="pw-old">いまのパスワード <span class="id-text">Kata sandi sekarang</span></label>
+        <input id="pw-old" class="input pw" type="password" inputmode="numeric" autocomplete="current-password" maxlength="20">
+        <label class="field-label" for="pw-new">新しいパスワード（4けた以上の数字） <span class="id-text">Kata sandi baru (angka, minimal 4 digit)</span></label>
+        <input id="pw-new" class="input pw" type="password" inputmode="numeric" autocomplete="new-password" maxlength="20">
+        <label class="field-label" for="pw-new2">もう一度 <span class="id-text">Ulangi kata sandi baru</span></label>
+        <input id="pw-new2" class="input pw" type="password" inputmode="numeric" autocomplete="new-password" maxlength="20">
+        <label class="pw-show"><input id="pw-show" type="checkbox"> 数字を見せる <span class="id-text">Tampilkan angka</span></label>
+        <p class="pw-hint">変更すると、ほかのスマホではログアウトされます<span class="id-text">Setelah diganti, HP lain akan keluar otomatis.</span></p>
+        <p id="pw-error" class="error" role="alert"></p>
+        <button id="pw-save" class="btn btn-main" type="submit">変更する <span class="id-text">Ganti</span></button>
+      </form>
+      <div id="pw-done" hidden>
+        <p class="done">パスワードを変更しました / Kata sandi sudah diganti</p>
+        <button id="pw-home" class="btn btn-main" type="button">ホームへ <span class="id-text">Ke beranda</span></button>
+      </div>
     </section>
 
     <!-- 4. カテゴリーの中の教材一覧 -->
@@ -173,7 +204,7 @@
 
   <!-- ?v= は、古い画面が残らないようにするための日付。js を直したら変える -->
   <script src="config.js"></script>
-  <script src="data.js?v=20261126d"></script>
-  <script src="app.js?v=20261126d"></script>
+  <script src="data.js?v=20261127a"></script>
+  <script src="app.js?v=20261127a"></script>
 </body>
 </html>

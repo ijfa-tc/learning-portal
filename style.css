@@ -306,3 +306,12 @@ a.btn { text-decoration: none; }
 /* 部首から考える：問いは ことば（小さめ）、選択肢は 漢字（大きく） */
 .q-number.q-word { font-size: 30px; }
 .choices-kanji .choice-text { font-size: 30px; }
+
+/* 生徒ログインのパスワード（2026-11-27） */
+.field-label { display: block; font-size: 15px; margin: 14px 0 6px; color: var(--text); }
+.field-label .id-text { display: inline; }
+.pw { letter-spacing: 0.15em; }
+.pw-hint { color: var(--muted); font-size: 14px; margin: 6px 0 0; }
+.pw-show { display: flex; align-items: center; gap: 8px; min-height: 44px; font-size: 15px; color: var(--muted); }
+.pw-show input { width: 20px; height: 20px; }
+.pw-open { display: block; margin: 32px auto 0; font-size: 15px; }

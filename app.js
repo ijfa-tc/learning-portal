@@ -1,6 +1,6 @@
 // 画面の切り替えと表示。データの取得は data.js に任せる。
 (function () {
-  const STORE_KEY = "ijfa_portal_student"; // このスマホで確認済みの生徒
+  const STORE_KEY = "ijfa_portal_student"; // このスマホでログイン中の生徒（名前・期生・生徒キー・期限。パスワードは入れない）
   const LAST_ID_KEY = "ijfa_portal_last_id"; // ログアウトした人のIDだけ（「もう一度入る」ボタン用。名前は残さない）
   const TEACHER_KEY = "ijfa_portal_teacher"; // ログイン中の先生（名前・メール・期生の一覧・期限）
   const TEACHER_DAYS = 365;                  // 先生のログインは「ログアウト」を押すまで続く（念のため1年で切れる）
@@ -19,7 +19,7 @@
   function show(viewId) {
     document.querySelectorAll(".view").forEach(v => (v.hidden = v.id !== viewId));
     // 上のバー（名前・ログアウト）はホームとカテゴリーの画面だけに出す
-    $("topbar").hidden = !["view-home", "view-category", "view-teacher", "view-teacher-assign"].includes(viewId);
+    $("topbar").hidden = !["view-home", "view-category", "view-password", "view-teacher", "view-teacher-assign"].includes(viewId);
     $("preview-banner").hidden = !(current && current.preview && viewId !== "view-teacher");
     // 意見フォームは生徒・ゲストのホームと先生のホームだけ（先生の確認用の画面では出さない）
     $("feedback").hidden = !((viewId === "view-home" && !(current && current.preview)) || viewId === "view-teacher");
@@ -81,24 +81,37 @@
     return a;
   }
 
-  // ---- 1. ID入力 ----
+  // ---- 1. ID・パスワード入力 ----
+  // パスワードのはじめは生年月日8けた。確かめるのはGAS（このページには生年月日もパスワードも置かない）
   $("login-form").addEventListener("submit", async e => {
     e.preventDefault();
     const id = normalizeId($("login-id").value);
+    const pw = toDigits($("login-pw").value);
     $("login-id").value = id;
+    $("login-pw").value = pw;
     $("login-error").textContent = "";
     if (!ID_PATTERN.test(id)) {
       $("login-error").textContent = "IDの形がちがいます（例：JKT16001） / Format ID salah";
       return;
     }
+    if (!/^[0-9]{4,20}$/.test(pw)) {
+      $("login-error").textContent = "パスワードを数字で入れてください / Masukkan kata sandi (angka)";
+      $("login-pw").focus();
+      return;
+    }
     loading(true);
     try {
-      const s = await PortalData.getStudent(id);
-      if (!s) {
-        $("login-error").textContent = "このIDは見つかりません。先生に聞いてください / ID tidak ditemukan. Tanya guru.";
+      const r = await PortalData.studentLogin(id, pw);
+      if (!r || !r.ok) {
+        $("login-error").textContent = (r && r.reason === "locked")
+          ? "5回まちがえたので、15分まってください / Salah 5 kali. Tunggu 15 menit."
+          : "IDかパスワードがちがいます。わからないときは先生に聞いてください / ID atau kata sandi salah. Tanya guru jika lupa.";
+        $("login-pw").value = "";
         return;
       }
-      pending = s;
+      const s = r.student;
+      pending = Object.assign({}, s, { key: r.key, until: r.until });
+      $("login-pw").value = "";
       $("logout-done").hidden = true;
       // 先読み：「はい」を押す前に、裏でホームのデータを取りに行く
       prefetch = { cohortKey: s.cohortKey, promise: PortalData.getPortal(s.cohortKey) };
@@ -111,6 +124,15 @@
       loading(false);
     }
   });
+  // 全角の数字・空白をなおす（例 "２００７ ０４１５" → "20070415"）
+  function toDigits(text) {
+    return (text || "").replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)).replace(/[\s\-\/ー－]/g, "");
+  }
+  // 「数字を見せる」
+  function pwToggle(boxId, inputIds) {
+    $(boxId).addEventListener("change", () => inputIds.forEach(i => { $(i).type = $(boxId).checked ? "text" : "password"; }));
+  }
+  pwToggle("login-show", ["login-pw"]);
 
   // ---- 1b. ゲスト（IDがまだない人）：フォームのテストは出さず、練習サイトだけ使える ----
   const GUEST = { id: "", name: "ゲスト", guest: true, cohort: "", cohortKey: "GUEST" };
@@ -122,9 +144,11 @@
   // ---- 2. 本人確認 ----
   $("confirm-yes").addEventListener("click", () => { save(pending); openHome(pending); });
   $("confirm-no").addEventListener("click", () => {
+    if (pending) PortalData.studentLogout(pending.key).catch(() => {});   // 作った生徒キーは使えなくする
     pending = null;
     prefetch = null;
     $("login-id").value = "";
+    $("login-pw").value = "";
     $("login-error").textContent = "IDを確認して、もう一度入れてください。わからないときは先生に聞いてください / Cek ID Anda atau tanya guru.";
     show("view-login");
   });
@@ -143,6 +167,7 @@
       $("top-cohort").textContent = guest ? "" : student.cohort + "期 / Angkatan " + student.cohort;
     }
     $("guest-note").hidden = !guest;
+    $("pw-open").hidden = guest || !!student.preview;   // パスワード変更は生徒だけ
     $("assigned-title").hidden = guest;
     $("assigned-list").hidden = guest;
     // 右上のボタン：ゲストは「IDを入れる」、先生の確認用は「先生の画面へ」、ほかは「ログアウト」
@@ -227,6 +252,7 @@
     openCat = null;
     current = null;
     $("login-id").value = "";
+    $("login-pw").value = "";
     $("login-error").textContent = "";
     const lt = loadTeacher();
     if (lt) {   // 先生：先生キーも使えなくしておく（つながらなくても、ログアウトはそのまま進める）
@@ -237,6 +263,7 @@
       return;
     }
     const s = load();
+    if (s && s.key) PortalData.studentLogout(s.key).catch(() => {});   // 生徒キーも使えなくする
     forget();
     try { if (s && s.id) localStorage.setItem(LAST_ID_KEY, s.id); } catch (e) {}
     showLogin(!!(s && s.id));
@@ -265,9 +292,66 @@
     if (last) {
       again.replaceChildren();
       twoLang(again, last + " でもう一度入る ", "Masuk lagi");
-      again.onclick = () => { $("login-id").value = last; $("login-form").dispatchEvent(new Event("submit", { cancelable: true })); };
+      again.onclick = () => { $("login-id").value = last; $("login-pw").focus(); };
     }
     show("view-login");
+  }
+
+  // ---- 3b. パスワード変更（生徒） ----
+  function resetPwForm() {
+    ["pw-old", "pw-new", "pw-new2"].forEach(i => { $(i).value = ""; $(i).type = "password"; });
+    $("pw-show").checked = false;
+    $("pw-error").textContent = "";
+    $("pw-form").hidden = false;
+    $("pw-done").hidden = true;
+  }
+  pwToggle("pw-show", ["pw-old", "pw-new", "pw-new2"]);
+  $("pw-open").addEventListener("click", () => { resetPwForm(); show("view-password"); });
+  $("pw-back").addEventListener("click", () => show("view-home"));
+  $("pw-home").addEventListener("click", () => show("view-home"));
+  $("pw-form").addEventListener("submit", async e => {
+    e.preventDefault();
+    const oldPw = toDigits($("pw-old").value), newPw = toDigits($("pw-new").value), newPw2 = toDigits($("pw-new2").value);
+    const err = $("pw-error");
+    err.textContent = "";
+    if (!oldPw) { err.textContent = "いまのパスワードを入れてください / Masukkan kata sandi sekarang"; return; }
+    if (!/^[0-9]{4,20}$/.test(newPw)) { err.textContent = "新しいパスワードは4けた以上の数字です / Kata sandi baru: angka, minimal 4 digit"; return; }
+    if (newPw !== newPw2) { err.textContent = "新しいパスワードが2つでちがいます / Kata sandi baru tidak sama"; return; }
+    const s = load();
+    if (!s || !s.key) { needLogin(s && s.id); return; }
+    $("pw-save").disabled = true;
+    loading(true);
+    try {
+      const r = await PortalData.changePassword(s.key, oldPw, newPw);
+      if (r && r.ok) {
+        save(Object.assign({}, s, { key: r.key, until: r.until }));   // このスマホは新しいキーでそのまま使える
+        current = load();
+        $("pw-form").hidden = true;
+        $("pw-done").hidden = false;
+      } else if (r && r.reason === "auth") {
+        needLogin(s.id);
+      } else {
+        err.textContent = (r && r.reason === "old") ? "いまのパスワードがちがいます / Kata sandi sekarang salah"
+          : (r && r.reason === "locked") ? "5回まちがえたので、15分まってください / Salah 5 kali. Tunggu 15 menit."
+          : (r && r.reason === "format") ? "新しいパスワードは4けた以上の数字です / Kata sandi baru: angka, minimal 4 digit"
+          : "変更できませんでした / Gagal mengganti";
+      }
+    } catch (e2) {
+      err.textContent = "つながりません。あとでもう一度 / Gagal terhubung. Coba lagi nanti.";
+    } finally {
+      $("pw-save").disabled = false;
+      loading(false);
+    }
+  });
+
+  // もう一度ログインしてもらう（10日たった・ほかのスマホでパスワードが変わった・前の版でログインしていた）
+  function needLogin(id) {
+    forget();
+    current = null;
+    try { if (id) localStorage.setItem(LAST_ID_KEY, id); } catch (e) {}
+    showLogin(false);
+    if (id) $("login-id").value = id;
+    $("login-error").textContent = "もう一度パスワードを入れてください / Silakan masuk lagi dengan kata sandi";
   }
 
   // ---- 4. カテゴリー（例 いろどり → 入門／初級1 を選ぶ → テスト一覧） ----
@@ -724,6 +808,14 @@
   const q = new URLSearchParams(location.search);
   if (q.get("t") || q.get("tlerr")) finishTeacherLogin(q.get("t"), q.get("tlerr"));
   else if (loadTeacher()) openTeacherHome();
-  else if (saved && (saved.id || saved.guest) && saved.cohortKey) openHome(saved);
+  else if (saved && saved.guest && saved.cohortKey) openHome(saved);
+  else if (saved && saved.id && saved.key && saved.until > Date.now() && saved.cohortKey) {
+    openHome(saved);
+    // 裏で生徒キーがまだ使えるか確かめる（つながらないときはそのまま使う）
+    PortalData.studentCheck(saved.key).then(r => {
+      if (r && r.ok === false && r.reason === "auth" && current && current.id === saved.id) needLogin(saved.id);
+    }).catch(() => {});
+  }
+  else if (saved && saved.id) needLogin(saved.id);   // 期限切れ、またはパスワードの仕組みより前にログインした人
   else showLogin(false);
 })();

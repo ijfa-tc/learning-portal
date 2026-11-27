@@ -20,14 +20,30 @@ window.PortalData = (function () {
     return res.json();
   }
 
-  // 生徒IDから { id, name, cohort, cohortKey } を返す。見つからなければ null。
-  async function getStudent(id) {
-    if (useSample) {
+  // 生徒のログイン（生徒ID＋パスワード）。パスワードはURLに出さないようPOSTで送る
+  // 返り値 { ok, student: { id, name, cohort, cohortKey }, key, until } / { ok: false, reason: "bad" | "locked" }
+  async function studentLogin(id, pw) {
+    if (useSample) {   // サンプル：数字なら何でも入れる
       const data = await loadSample();
-      return data.students.find(s => s.id === id) || null;
+      const s = data.students.find(x => x.id === id);
+      return s && /^[0-9]+$/.test(pw) ? { ok: true, student: s, key: "sample", until: Date.now() + 10 * 86400000 } : { ok: false, reason: "bad" };
     }
-    const r = await callApi({ action: "student", id: id });
-    return r.found ? r.student : null;
+    return post({ action: "slogin", id: id, pw: pw });
+  }
+  // 生徒キーがいまも使えるか。返り値 { ok, student, until } / { ok: false, reason: "auth" }
+  async function studentCheck(key) {
+    if (useSample) return { ok: true };
+    return post({ action: "scheck", k: key });
+  }
+  // パスワードを変える。返り値 { ok, key, until } / { ok: false, reason: "auth" | "format" | "old" | "locked" }
+  async function changePassword(key, oldPw, newPw) {
+    if (useSample) return { ok: true, key: "sample", until: Date.now() + 10 * 86400000 };
+    return post({ action: "spw", k: key, old: oldPw, pw: newPw });
+  }
+  // 生徒のログアウト：生徒キーを使えなくする
+  async function studentLogout(key) {
+    if (useSample || !key) return { ok: true };
+    return post({ action: "slogout", k: key });
   }
 
   // 期生（例 JKT14）用のホーム表示データ { categories, materials, assigned } を返す。
@@ -92,5 +108,5 @@ window.PortalData = (function () {
     return post({ action: "tlogout", k: key });
   }
 
-  return { getStudent, getPortal, teacherSession, getCohorts, sendFeedback, getAssign, saveAssign, teacherLogout, useSample };
+  return { studentLogin, studentCheck, changePassword, studentLogout, getPortal, teacherSession, getCohorts, sendFeedback, getAssign, saveAssign, teacherLogout, useSample };
 })();

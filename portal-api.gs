@@ -6,7 +6,16 @@
  *   直したら、両方を同じ内容にそろえること。
  *
  * できること
- *   ?action=student&id=JKT14001  → 名前と期生だけを返す（成績や生年月日は返さない）
+ *   POST action=slogin  id=JKT14001 pw=パスワード
+ *                                → 生徒のログイン。はじめのパスワードは生年月日8けた（例 20070415）。
+ *                                   合えば名前・期生と「生徒キー」（10日）を返す。5回まちがえると15分ロック
+ *   POST action=scheck  k=生徒キー → 生徒キーがいまも使えるか（パスワード変更・期限切れで使えなくなる）
+ *   POST action=spw     k=生徒キー old=いまのパスワード pw=新しいパスワード（4けた以上の数字）
+ *                                → パスワードを変える。ほかのスマホのログインは切れ、このスマホには新しいキーを返す
+ *   POST action=slogout k=生徒キー → 生徒キーを消す（ログアウト）
+ *   ※ 生徒のパスワードは「生徒ログイン」シートに「印（ハッシュ）」だけ保存。行がない生徒は生年月日で入る。
+ *     パスワードを忘れた生徒は、その行の B列・C列（印・ソルト）を消せば生年月日にもどる
+ *   ?action=student              → 使わなくなった（IDだけで名前が出ないように、名前はログインのあとだけ返す）
  *   ?action=portal&cohort=JKT14  → カテゴリー・公開中の教材・その期生への指定テストを返す
  *   POST（Googleから）credential  → 先生か確かめ、ポータルへもどるボタンの画面を出す（合言葉 t つき）
  *   ?action=tsession&t=合言葉     → 先生の名前と期生の一覧を返す（合言葉は5分・1回だけ有効）
@@ -25,6 +34,7 @@
  *
  * 最初に1回だけ：setup を実行（シートの準備・フォーム一覧の取り込み・毎日の自動更新を設定）
  * 先生用ログインの準備：setupTeachers を1回実行（「先生」シートを作る＋外部への問い合わせを許可）
+ * 生徒のパスワードの準備：setupStudentLogin を1回実行（「生徒ログイン」シートを作る＋原本の生年月日を確認）
  * コードを直したら：「デプロイ」→「デプロイを管理」→ 鉛筆 →「新バージョン」で公開し直す
  */
 
@@ -45,6 +55,13 @@ const FEEDBACK_MAX = 1000;                                             // 内容
 const FEEDBACK_LIMIT = 10;                                             // 同じ人から1時間に10件まで（いたずら・連打よけ。ゲストは全員で30件）
 const TEACHER_KEY_DAYS = 365;                                          // 先生キーの有効期間（ポータルのログインと同じ1年）
 const ASSIGN_MAX = 50;                                                 // 1つの期生に指定できるテストは50個まで
+const STUDENT_SHEET = '生徒ログイン';                                  // 生徒のパスワード（A 生徒ID / B 印 / C ソルト / D 変更日時 / E 世代 / F メモ）
+const DB_BIRTH_RANGE = "'DATABASE SISWA・生徒データベース'!D5:E";      // 原本の D 生徒ID・E 生年月日
+const STUDENT_KEY_DAYS = 10;                                           // 生徒のログインは10日で切れる
+const LOGIN_MAX_FAIL = 5;                                              // 5回まちがえたら…
+const LOGIN_LOCK_SEC = 900;                                            // …15分入れない
+const PW_RE = /^[0-9]{4,20}$/;                                         // パスワードは4けた以上の数字（生年月日・かんたんな並びもOK）
+const PW_ROUNDS = 100;                                                 // 印（ハッシュ）を作るときにくり返す回数
 
 // =====================================================================
 // ポータルからの問い合わせ
@@ -53,7 +70,7 @@ function doGet(e) {
   const p = (e && e.parameter) || {};
   let out;
   try {
-    if (p.action === 'student') out = getStudent_(String(p.id || '').trim().toUpperCase());
+    if (p.action === 'student') out = { found: false, reason: 'login_required' };   // 名前はログインのあとだけ
     else if (p.action === 'portal') out = getPortal_(String(p.cohort || '').trim().toUpperCase());
     else if (p.action === 'tsession') out = teacherSession_(String(p.t || ''));
     else if (p.action === 'cohorts') out = { cohorts: cohorts_() };
@@ -72,7 +89,8 @@ function doPost(e) {
   const p = (e && e.parameter) || {};
   // ホームの意見フォームから（ポータルが送ってくる）
   // ホームの意見フォーム・先生の「指定テストを選ぶ」画面から（ポータルが送ってくる）
-  const api = { feedback: saveFeedback_, tassign: assignView_, tsave: assignSave_, tlogout: teacherLogout_ }[p.action];
+  const api = { feedback: saveFeedback_, tassign: assignView_, tsave: assignSave_, tlogout: teacherLogout_,
+                slogin: studentLogin_, scheck: studentCheck_, spw: studentPassword_, slogout: studentLogout_ }[p.action];
   if (api) {
     let out;
     try { out = api(p); }
@@ -357,6 +375,213 @@ function minnaOpen_(id, cohortKey) {
 }
 
 // =====================================================================
+// 生徒のログイン（生徒ID＋パスワード）
+// はじめのパスワードは原本の生年月日8けた（例 20070415）。変えた生徒は「生徒ログイン」シートに印（ハッシュ）がある。
+// 生徒キー：ログインしたときに作る合鍵（10日）。キーそのものは生徒のスマホにだけ置き、
+//           こちら（スクリプト プロパティ）には印だけ保存する
+// =====================================================================
+function studentLogin_(p) {
+  const id = str_(p.id).toUpperCase();
+  const pw = str_(p.pw);
+  if (!ID_RE.test(id)) return { ok: false, reason: 'bad' };
+  const cache = CacheService.getScriptCache();
+  const failKey = 'slf_' + id;
+  const fails = Number(cache.get(failKey) || 0);
+  if (fails >= LOGIN_MAX_FAIL) return { ok: false, reason: 'locked' };
+  const s = getStudent_(id);
+  // IDがない・パスワードがちがう、どちらも同じ答え（IDがあるかどうかを当てられないように）
+  const ok = s.found && /^[0-9]{1,20}$/.test(pw) && passwordMatches_(id, pw);
+  if (!ok) {
+    cache.put(failKey, String(fails + 1), LOGIN_LOCK_SEC);
+    return { ok: false, reason: fails + 1 >= LOGIN_MAX_FAIL ? 'locked' : 'bad' };
+  }
+  cache.remove(failKey);
+  const login = loginRow_(id);
+  const k = issueStudentKey_(id, login ? login.gen : 0);
+  return { ok: true, student: s.student, key: k.key, until: k.until };
+}
+
+// 生徒キーがいまも使えるか（ポータルを開いたときに裏で確かめる）
+function studentCheck_(p) {
+  const r = studentFromKey_(p.k);
+  return r ? { ok: true, student: r.student, until: r.until } : { ok: false, reason: 'auth' };
+}
+
+// パスワードを変える：いまのパスワードを確かめてから、新しい印を「生徒ログイン」シートに書く。
+// 世代を1つ上げるので、ほかのスマホの生徒キーは使えなくなる。このスマホには新しいキーを返す
+function studentPassword_(p) {
+  const r = studentFromKey_(p.k);
+  if (!r) return { ok: false, reason: 'auth' };
+  const id = r.student.id;
+  const pw = str_(p.pw);
+  if (!PW_RE.test(pw)) return { ok: false, reason: 'format' };
+  const cache = CacheService.getScriptCache();
+  const failKey = 'slf_' + id;
+  const fails = Number(cache.get(failKey) || 0);
+  if (fails >= LOGIN_MAX_FAIL) return { ok: false, reason: 'locked' };
+  if (!passwordMatches_(id, str_(p.old))) {
+    cache.put(failKey, String(fails + 1), LOGIN_LOCK_SEC);
+    return { ok: false, reason: fails + 1 >= LOGIN_MAX_FAIL ? 'locked' : 'old' };
+  }
+  cache.remove(failKey);
+
+  let gen;
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const sh = SpreadsheetApp.getActive().getSheetByName(STUDENT_SHEET) || makeLoginSheet_();
+    const row = loginRow_(id);
+    gen = (row ? row.gen : 0) + 1;
+    const salt = Utilities.getUuid().replace(/-/g, '');
+    const rowNo = row ? row.rowNo : lastRow_(sh) + 1;
+    sh.getRange(rowNo, 1, 1, 5).setValues([[id, pwHash_(salt, pw), salt, new Date(), gen]]);
+  } finally {
+    lock.releaseLock();
+  }
+  PropertiesService.getScriptProperties().deleteProperty('sk_' + keyHash_(p.k));
+  const k = issueStudentKey_(id, gen);
+  console.log('パスワード変更: ' + id);
+  return { ok: true, key: k.key, until: k.until };
+}
+
+function studentLogout_(p) {
+  if (/^[0-9a-f]{64}$/.test(String(p.k || ''))) PropertiesService.getScriptProperties().deleteProperty('sk_' + keyHash_(p.k));
+  return { ok: true };
+}
+
+// パスワードが合っているか。シートに印があればそれと、なければ原本の生年月日8けたと比べる
+function passwordMatches_(id, pw) {
+  const row = loginRow_(id);
+  if (row && row.hash && row.salt) return pwHash_(row.salt, pw) === row.hash;
+  const b = births_()[id];
+  return !!b && b === pw;
+}
+
+// 「生徒ログイン」シートのその生徒の行 { rowNo, hash, salt, gen }。なければ null
+function loginRow_(id) {
+  if (!SpreadsheetApp.getActive().getSheetByName(STUDENT_SHEET)) return null;
+  const rows = values_(STUDENT_SHEET);
+  for (let i = 0; i < rows.length; i++) {
+    if (str_(rows[i][0]).toUpperCase() === id) {
+      return { rowNo: i + 2, hash: str_(rows[i][1]), salt: str_(rows[i][2]), gen: Number(rows[i][4]) || 0 };
+    }
+  }
+  return null;
+}
+
+// 印（ハッシュ）：ソルト＋パスワードを何回もまぜる。シートを見ても元のパスワードはわからない
+function pwHash_(salt, pw) {
+  let h = salt + ':' + pw;
+  for (let i = 0; i < PW_ROUNDS; i++) {
+    h = Utilities.base64Encode(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, h));
+  }
+  return h;
+}
+
+// 原本の生年月日を { 生徒ID: '20070415' } にする（10分だけ覚えておく。ポータルには出さない）
+function births_() {
+  const cache = CacheService.getScriptCache();
+  const hit = cache.get('births');
+  if (hit) return JSON.parse(hit);
+  const ss = SpreadsheetApp.openById(DB_ID);
+  const tz = ss.getSpreadsheetTimeZone();   // 原本の時間帯で日付を読む（1日ずれないように）
+  const map = {};
+  ss.getRange(DB_BIRTH_RANGE).getValues().forEach(r => {
+    const id = str_(r[0]).toUpperCase();
+    if (!ID_RE.test(id)) return;
+    const b = toBirth8_(r[1], tz);
+    if (b) map[id] = b;
+  });
+  cache.put('births', JSON.stringify(map), 600);
+  return map;
+}
+
+// 生年月日のセル → '20070415'。日付でも文字（2007/04/15・15/04/2007・04/15/2007）でも読む。読めなければ ''
+function toBirth8_(v, tz) {
+  if (v instanceof Date) {
+    if (isNaN(v.getTime())) return '';
+    const f = Utilities.formatDate(v, tz, 'yyyy-M-d').split('-');
+    return ymd_(f[0], f[1], f[2]);
+  }
+  const s = str_(v);
+  let m = s.match(/^(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})$/);
+  if (m) return ymd_(m[1], m[2], m[3]);
+  m = s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})$/);
+  if (m) {
+    // インドネシアの書き方（日/月/年）がふつう。2つめが13以上なら 月/日/年 と考える
+    return Number(m[2]) > 12 ? ymd_(m[3], m[1], m[2]) : ymd_(m[3], m[2], m[1]);
+  }
+  if (/^\d{8}$/.test(s)) return ymd_(s.slice(0, 4), s.slice(4, 6), s.slice(6, 8));
+  return '';
+}
+function ymd_(y, mo, d) {
+  y = Number(y); mo = Number(mo); d = Number(d);
+  if (y < 1950 || y > 2030 || mo < 1 || mo > 12 || d < 1 || d > 31) return '';   // 3005年のような入力ミスは使わない
+  return String(y) + ('0' + mo).slice(-2) + ('0' + d).slice(-2);
+}
+
+// ---- 生徒キー（合鍵） ----
+function issueStudentKey_(id, gen) {
+  const key = (Utilities.getUuid() + Utilities.getUuid()).replace(/-/g, '');
+  const until = Date.now() + STUDENT_KEY_DAYS * 86400000;
+  PropertiesService.getScriptProperties()
+    .setProperty('sk_' + keyHash_(key), JSON.stringify({ id: id, gen: gen, until: until }));
+  return { key: key, until: until };
+}
+// キーから生徒を確かめる。OKなら { student, until }、だめなら null
+// （期限切れ・パスワードが変わって世代がちがう・名簿にいない、のどれかなら使えない）
+function studentFromKey_(key) {
+  if (!/^[0-9a-f]{64}$/.test(String(key || ''))) return null;
+  const props = PropertiesService.getScriptProperties();
+  const pk = 'sk_' + keyHash_(key);
+  const raw = props.getProperty(pk);
+  if (!raw) return null;
+  const s = JSON.parse(raw);
+  if (s.until < Date.now()) { props.deleteProperty(pk); return null; }
+  const login = loginRow_(s.id);
+  if ((login ? login.gen : 0) !== s.gen) { props.deleteProperty(pk); return null; }
+  const st = getStudent_(s.id);
+  return st.found ? { student: st.student, until: s.until } : null;
+}
+// 期限切れの生徒キーをそうじする（毎朝の syncForms で実行）
+function cleanStudentKeys_() {
+  const props = PropertiesService.getScriptProperties();
+  const all = props.getProperties();
+  Object.keys(all).filter(k => k.indexOf('sk_') === 0).forEach(k => {
+    try { if (JSON.parse(all[k]).until < Date.now()) props.deleteProperty(k); } catch (e) { props.deleteProperty(k); }
+  });
+}
+
+// 「生徒ログイン」シートを作る
+function makeLoginSheet_() {
+  const ss = SpreadsheetApp.getActive();
+  const sh = ensure_(ss, STUDENT_SHEET, ['生徒ID', 'パスワードの印', 'ソルト', '変更日時', '世代', 'メモ']);
+  sh.getRange('D2:D3000').setNumberFormat('yyyy/MM/dd HH:mm');
+  sh.setColumnWidth(2, 200); sh.setColumnWidth(3, 120); sh.setColumnWidth(4, 130); sh.setColumnWidth(6, 260);
+  sh.protect().setDescription('生徒のパスワード（印だけ）。忘れた生徒は B列・C列を消すと生年月日にもどる').setWarningOnly(true);
+  return sh;
+}
+
+// 生徒のパスワードの準備：1回だけ実行。
+// 「生徒ログイン」シートを作り、原本の生年月日が読めるか確かめて、読めない生徒を実行ログに出す
+// （実行すると、原本を読むための許可を聞かれるので「許可」する）
+function setupStudentLogin() {
+  if (!SpreadsheetApp.getActive().getSheetByName(STUDENT_SHEET)) makeLoginSheet_();
+  CacheService.getScriptCache().remove('births');
+  const births = births_();
+  const ids = values_(SHEET.roster).map(r => str_(r[0]).toUpperCase()).filter(id => ID_RE.test(id));
+  const missing = ids.filter(id => !births[id]);
+  console.log('生年月日で入れる生徒：' + (ids.length - missing.length) + '人 / 名簿 ' + ids.length + '人');
+  console.log('生年月日が読めない生徒（原本の直しが必要）：' + (missing.length ? missing.join(', ') : 'なし'));
+}
+
+// 動作確認用：生徒IDを1つ入れて実行すると、そのIDでログインできるかが実行ログに出る（生年月日は出さない）
+function testStudentLogin() {
+  const id = 'JKT14001';
+  console.log(id + '：生年月日 ' + (births_()[id] ? 'あり' : 'なし') + '／パスワード変更 ' + (loginRow_(id) && loginRow_(id).hash ? 'あり' : 'なし'));
+}
+
+// =====================================================================
 // 意見・報告（ホームの「ご意見をお聞かせください」）
 // 「報告・要望」シートに1行足す。状況（未対応／確認中／対応済み／見送り）は先生がシートで変える
 // =====================================================================
@@ -437,6 +662,7 @@ function testFeedback() {
 // =====================================================================
 function syncForms() {
   try { syncMinna(); } catch (e) { console.error('みんなの日本語の取り込み: ' + e); }   // 課ごとのテストも毎日いっしょに確かめる
+  try { cleanStudentKeys_(); } catch (e) { console.error('生徒キーのそうじ: ' + e); }    // 期限切れの生徒キーを消す
   const sh = sheet_(SHEET.mat);
   const known = new Set(values_(SHEET.mat).map(r => str_(r[0])));
   const files = listForms_(DriveApp.getFolderById(FORM_FOLDER_ID), []);
