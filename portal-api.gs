@@ -29,6 +29,10 @@
  *   POST action=tsave    k=先生キー cohort=JKT16 names=["教材名",…] ver=読みこんだときの印
  *                                → 指定テストシートのその期生の行を、画面で選んだ内容に入れかえる
  *   POST action=tlogout  k=先生キー → 先生キーを消す（ログアウト）
+ *   POST action=tpwlook  k=先生キー id=JKT14001
+ *                                → 先生の「パスワードを生年月日に戻す」画面用：生徒の名前・期生・パスワードを変えているか・ロック中か
+ *   POST action=tpwreset k=先生キー id=JKT14001
+ *                                → その生徒のパスワードを生年月日にもどす（ロック解除・ほかのスマホもログアウト・メモに記録）
  *   ※ 先生キー：先生がGoogleでログインしたときに1つ作る合鍵（1年有効）。スクリプト プロパティに「印（ハッシュ）」だけ保存。
  *     使うたびに「先生」シートで、いまも有効な先生か確かめる（シートで有効を外せば、すぐ使えなくなる）
  *
@@ -90,7 +94,8 @@ function doPost(e) {
   // ホームの意見フォームから（ポータルが送ってくる）
   // ホームの意見フォーム・先生の「指定テストを選ぶ」画面から（ポータルが送ってくる）
   const api = { feedback: saveFeedback_, tassign: assignView_, tsave: assignSave_, tlogout: teacherLogout_,
-                slogin: studentLogin_, scheck: studentCheck_, spw: studentPassword_, slogout: studentLogout_ }[p.action];
+                slogin: studentLogin_, scheck: studentCheck_, spw: studentPassword_, slogout: studentLogout_,
+                tpwlook: teacherPwLook_, tpwreset: teacherPwReset_ }[p.action];
   if (api) {
     let out;
     try { out = api(p); }
@@ -447,6 +452,42 @@ function studentPassword_(p) {
 function studentLogout_(p) {
   if (/^[0-9a-f]{64}$/.test(String(p.k || ''))) PropertiesService.getScriptProperties().deleteProperty('sk_' + keyHash_(p.k));
   return { ok: true };
+}
+
+// ---- 先生の「パスワードを生年月日に戻す」 ----
+// 生徒IDから、確認画面に出す名前・期生と、いまの状態（パスワードを変えているか・ロック中か）を返す
+function teacherPwLook_(p) {
+  const t = teacherFromKey_(p.k);
+  if (!t) return { ok: false, reason: 'auth' };
+  const id = str_(p.id).toUpperCase();
+  const s = getStudent_(id);
+  if (!s.found) return { ok: false, reason: 'notfound' };
+  const row = loginRow_(id);
+  const locked = Number(CacheService.getScriptCache().get('slf_' + id) || 0) >= LOGIN_MAX_FAIL;
+  return { ok: true, student: s.student, changed: !!(row && row.hash), locked: locked, birth: !!births_()[id] };
+}
+// パスワードを生年月日にもどす：印・ソルトを消し、世代を1つ上げ（ほかのスマホもログアウト）、ロックを解除して、メモに記録する
+function teacherPwReset_(p) {
+  const t = teacherFromKey_(p.k);
+  if (!t) return { ok: false, reason: 'auth' };
+  const id = str_(p.id).toUpperCase();
+  const s = getStudent_(id);
+  if (!s.found) return { ok: false, reason: 'notfound' };
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const sh = SpreadsheetApp.getActive().getSheetByName(STUDENT_SHEET) || makeLoginSheet_();
+    const row = loginRow_(id);
+    const gen = (row ? row.gen : 0) + 1;
+    const rowNo = row ? row.rowNo : lastRow_(sh) + 1;
+    const stamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy/MM/dd HH:mm');
+    sh.getRange(rowNo, 1, 1, 6).setValues([[id, '', '', new Date(), gen, safeCell_('リセット：' + t.name + ' ' + stamp)]]);
+  } finally {
+    lock.releaseLock();
+  }
+  CacheService.getScriptCache().remove('slf_' + id);   // ロック解除
+  console.log('パスワードリセット: ' + id + ' ' + t.email);
+  return { ok: true, student: s.student, birth: !!births_()[id] };
 }
 
 // パスワードが合っているか。シートに印があればそれと、なければ原本の生年月日8けたと比べる

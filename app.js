@@ -19,7 +19,7 @@
   function show(viewId) {
     document.querySelectorAll(".view").forEach(v => (v.hidden = v.id !== viewId));
     // 上のバー（名前・ログアウト）はホームとカテゴリーの画面だけに出す
-    $("topbar").hidden = !["view-home", "view-category", "view-password", "view-teacher", "view-teacher-assign"].includes(viewId);
+    $("topbar").hidden = !["view-home", "view-category", "view-password", "view-teacher", "view-teacher-assign", "view-teacher-pw"].includes(viewId);
     $("preview-banner").hidden = !(current && current.preview && viewId !== "view-teacher");
     // 意見フォームは生徒・ゲストのホームと先生のホームだけ（先生の確認用の画面では出さない）
     $("feedback").hidden = !((viewId === "view-home" && !(current && current.preview)) || viewId === "view-teacher");
@@ -741,6 +741,87 @@
     openAssign(k && k !== "GUEST" ? k : "");
   });
   $("tl-back").addEventListener("click", () => showLogin(false));
+
+  // ---- 5c. パスワードを生年月日に戻す（先生用） ----
+  // 生徒IDを入れる →「〇〇さん（14期）のパスワードを生年月日に戻しますか？」→ はい
+  let tpTarget = null;   // 確認中の生徒ID
+  function tpReset() {
+    tpTarget = null;
+    $("tp-form").hidden = false;
+    $("tp-confirm").hidden = true;
+    $("tp-done").hidden = true;
+    $("tp-relogin").hidden = true;
+    $("tp-msg").textContent = "";
+    $("tp-id").value = "";
+  }
+  function tpNeedLogin() {
+    $("tp-msg").textContent = "ログインの期限が切れたか、先生の登録が外れています。もう一度ログインしてください / Silakan masuk lagi";
+    $("tp-form").hidden = false;
+    $("tp-confirm").hidden = true;
+    $("tp-relogin").hidden = false;
+  }
+  $("t-pwreset").addEventListener("click", () => { tpReset(); show("view-teacher-pw"); $("tp-id").focus(); });
+  $("tp-back").addEventListener("click", () => openTeacherHome());
+  $("tp-relogin").addEventListener("click", () => { forgetTeacher(); openTeacherLogin(); });
+  $("tp-next").addEventListener("click", () => { tpReset(); $("tp-id").focus(); });
+  $("tp-no").addEventListener("click", () => { tpTarget = null; $("tp-confirm").hidden = true; $("tp-form").hidden = false; });
+  $("tp-form").addEventListener("submit", async e => {
+    e.preventDefault();
+    const id = normalizeId($("tp-id").value);
+    $("tp-id").value = id;
+    $("tp-msg").textContent = "";
+    if (!ID_PATTERN.test(id)) { $("tp-msg").textContent = "IDの形がちがいます（例：JKT16001） / Format ID salah"; return; }
+    const t = loadTeacher();
+    if (!t || !t.key) { tpNeedLogin(); return; }
+    loading(true);
+    try {
+      const r = await PortalData.pwLook(t.key, id);
+      if (!r || !r.ok) {
+        if (r && r.reason === "auth") tpNeedLogin();
+        else $("tp-msg").textContent = "このIDは名簿にありません / ID tidak ditemukan";
+        return;
+      }
+      tpTarget = id;
+      const st = r.student;
+      $("tp-who").textContent = st.id + "　" + st.name + " さん（" + st.cohort + "期）";
+      const notes = [];
+      notes.push(r.changed ? "いまは自分で決めたパスワードです" : "いまも生年月日のパスワードです（変更していません）");
+      if (r.locked) notes.push("5回まちがえてロック中です。戻すとすぐ入れます");
+      if (!r.birth) notes.push("⚠ 原本の生年月日が読めないため、戻しても入れません。原本の生年月日を直してください");
+      $("tp-state").textContent = notes.join("／");
+      $("tp-form").hidden = true;
+      $("tp-confirm").hidden = false;
+    } catch (err) {
+      $("tp-msg").textContent = "つながりません。あとでもう一度 / Gagal terhubung. Coba lagi nanti.";
+    } finally {
+      loading(false);
+    }
+  });
+  $("tp-yes").addEventListener("click", async () => {
+    const t = loadTeacher();
+    if (!tpTarget) return;
+    if (!t || !t.key) { tpNeedLogin(); return; }
+    $("tp-yes").disabled = true;
+    loading(true);
+    try {
+      const r = await PortalData.pwReset(t.key, tpTarget);
+      if (!r || !r.ok) {
+        if (r && r.reason === "auth") tpNeedLogin();
+        else { $("tp-confirm").hidden = true; $("tp-form").hidden = false; $("tp-msg").textContent = "戻せませんでした / Gagal reset"; }
+        return;
+      }
+      $("tp-done-text").textContent = $("tp-who").textContent + " のパスワードを生年月日に戻しました / Sudah direset";
+      $("tp-confirm").hidden = true;
+      $("tp-done").hidden = false;
+    } catch (err) {
+      $("tp-msg").textContent = "つながりません。あとでもう一度 / Gagal terhubung. Coba lagi nanti.";
+      $("tp-confirm").hidden = true;
+      $("tp-form").hidden = false;
+    } finally {
+      $("tp-yes").disabled = false;
+      loading(false);
+    }
+  });
 
   // ---- 意見・報告フォーム（ホームのいちばん下） ----
   function fbChecked(name) {

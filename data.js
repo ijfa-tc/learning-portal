@@ -108,5 +108,20 @@ window.PortalData = (function () {
     return post({ action: "tlogout", k: key });
   }
 
-  return { studentLogin, studentCheck, changePassword, studentLogout, getPortal, teacherSession, getCohorts, sendFeedback, getAssign, saveAssign, teacherLogout, useSample };
+  // 先生の「パスワードを生年月日に戻す」：生徒の確認 → リセット
+  // 返り値 { ok, student, changed, locked, birth } / { ok: false, reason: "auth" | "notfound" }
+  async function pwLook(key, id) {
+    if (useSample) {
+      const data = await loadSample();
+      const s = data.students.find(x => x.id === id);
+      return s ? { ok: true, student: s, changed: false, locked: false, birth: true } : { ok: false, reason: "notfound" };
+    }
+    return post({ action: "tpwlook", k: key, id: id });
+  }
+  async function pwReset(key, id) {
+    if (useSample) return { ok: true, birth: true };
+    return post({ action: "tpwreset", k: key, id: id });
+  }
+
+  return { pwLook, pwReset, studentLogin, studentCheck, changePassword, studentLogout, getPortal, teacherSession, getCohorts, sendFeedback, getAssign, saveAssign, teacherLogout, useSample };
 })();

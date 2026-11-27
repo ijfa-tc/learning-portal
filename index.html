@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex, nofollow">
   <title>IJFA Learning Portal</title>
-  <link rel="stylesheet" href="style.css?v=20261127a">
+  <link rel="stylesheet" href="style.css?v=20261127b">
 </head>
 <body>
   <!-- サンプルデータで動いているときだけ表示 -->
@@ -67,7 +67,35 @@
       <h2 class="h2">先生の機能 <span class="id-text">Menu Guru</span></h2>
       <div class="list">
         <button id="t-assign" class="item item-group" type="button">指定テストを選ぶ<span class="id-text">Pilih tes untuk siswa</span></button>
+        <button id="t-pwreset" class="item item-group" type="button">パスワードを生年月日に戻す<span class="id-text">Reset kata sandi siswa</span></button>
         <div class="item item-soon">だれが受けたか見る（じゅんびちゅう）<span class="id-text">Lihat siapa yang sudah ikut tes (Segera hadir)</span></div>
+      </div>
+    </section>
+
+    <!-- 5c. パスワードを生年月日に戻す（先生用。保存先はGASの「生徒ログイン」シート） -->
+    <section id="view-teacher-pw" class="view" hidden>
+      <button id="tp-back" class="btn btn-quiet back" type="button">← 先生のホームへ <span class="id-text">Kembali</span></button>
+      <h2 class="h2">パスワードを生年月日に戻す <span class="id-text">Reset kata sandi siswa</span></h2>
+      <p class="pw-hint">パスワードを忘れた生徒・5回まちがえて入れなくなった生徒に使います<span class="id-text">Untuk siswa yang lupa kata sandi atau terkunci.</span></p>
+      <form id="tp-form" novalidate>
+        <label class="field-label" for="tp-id">生徒ID <span class="id-text">ID siswa</span></label>
+        <input id="tp-id" class="input" type="text" autocomplete="off" autocapitalize="characters" placeholder="JKT16001">
+        <p id="tp-msg" class="error" role="alert"></p>
+        <button id="tp-find" class="btn btn-main" type="submit">つぎへ <span class="id-text">Lanjut</span></button>
+      </form>
+      <button id="tp-relogin" class="btn btn-main" type="button" hidden>Googleでログインしなおす <span class="id-text">Masuk lagi</span></button>
+      <div id="tp-confirm" hidden>
+        <p class="sub tp-q"><span id="tp-who" class="tp-who"></span><br>のパスワードを生年月日に戻しますか？<span class="id-text">Reset kata sandi siswa ini ke tanggal lahir?</span></p>
+        <p id="tp-state" class="pw-hint"></p>
+        <div class="row">
+          <button id="tp-yes" class="btn btn-main" type="button">はい <span class="id-text">Ya</span></button>
+          <button id="tp-no" class="btn" type="button">やめる <span class="id-text">Batal</span></button>
+        </div>
+      </div>
+      <div id="tp-done" hidden>
+        <p id="tp-done-text" class="done"></p>
+        <p class="pw-hint">生徒には「パスワードは生年月日8けた（例 2007年4月15日 → 20070415）」と伝えてください。ログイン中だったスマホもログアウトされています<span class="id-text">Beri tahu siswa: kata sandi = tanggal lahir 8 angka (contoh 15 April 2007 → 20070415).</span></p>
+        <button id="tp-next" class="btn" type="button">ほかの生徒も戻す <span class="id-text">Reset siswa lain</span></button>
       </div>
     </section>
 
@@ -204,7 +232,7 @@
 
   <!-- ?v= は、古い画面が残らないようにするための日付。js を直したら変える -->
   <script src="config.js"></script>
-  <script src="data.js?v=20261127a"></script>
-  <script src="app.js?v=20261127a"></script>
+  <script src="data.js?v=20261127b"></script>
+  <script src="app.js?v=20261127b"></script>
 </body>
 </html>

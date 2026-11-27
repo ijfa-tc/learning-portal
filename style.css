@@ -315,3 +315,5 @@ a.btn { text-decoration: none; }
 .pw-show { display: flex; align-items: center; gap: 8px; min-height: 44px; font-size: 15px; color: var(--muted); }
 .pw-show input { width: 20px; height: 20px; }
 .pw-open { display: block; margin: 32px auto 0; font-size: 15px; }
+.tp-who { font-size: 22px; font-weight: bold; }
+.tp-q { margin-top: 16px; }
